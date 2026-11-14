@@ -103,7 +103,7 @@ input[type=text]{font-family:inherit;background:#120a24;border:2px solid #6b4fa8
   </div>
   <div id="topr">
     <div id="mapname">마을</div>
-    <button class="tbtn" id="bMenu">☰ 메뉴</button>
+    <div style="display:flex;gap:6px"><button class="tbtn" id="bMute">🔊</button><button class="tbtn" id="bMenu">☰ 메뉴</button></div>
   </div>
 </div>
 <div id="boss" class="hidden"><div id="bossName">리치 모르간</div><div class="bar"><i></i></div></div>
@@ -175,6 +175,12 @@ const isTouch=('ontouchstart' in window)||navigator.maxTouchPoints>0;
 // ================= 사운드 =================
 let AC=null;
 function sfx(type){try{if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();const o=AC.createOscillator(),g=AC.createGain();o.connect(g);g.connect(AC.destination);const t=AC.currentTime;const S={hit:[220,110,.06,'square',.05],shoot:[660,440,.05,'triangle',.04],coin:[880,1320,.08,'square',.04],lvl:[440,880,.4,'triangle',.08],hurt:[160,80,.12,'sawtooth',.06],boom:[120,40,.25,'sawtooth',.08],win:[523,1046,.3,'square',.06],lose:[300,100,.35,'sawtooth',.06]}[type]||[440,440,.05,'sine',.03];o.type=S[3];o.frequency.setValueAtTime(S[0],t);o.frequency.exponentialRampToValueAtTime(S[1],t+S[2]);g.gain.setValueAtTime(S[4],t);g.gain.exponentialRampToValueAtTime(.0001,t+S[2]);o.start(t);o.stop(t+S[2]+.02);}catch(e){}}
+
+// ================= 배경음악 =================
+const BGM=new Audio('village.mp3');BGM.loop=true;BGM.volume=.45;BGM.preload='auto';
+let muted=false;try{muted=localStorage.getItem('dobakrpg_mute')==='1';}catch(e){}
+function bgmUpdate(){const want=!muted&&P&&map&&map.key==='village';if(want&&BGM.paused)BGM.play().catch(()=>{});else if(!want&&!BGM.paused)BGM.pause();const b=document.getElementById('bMute');if(b)b.textContent=muted?'🔇':'🔊';}
+addEventListener('pointerdown',()=>bgmUpdate(),true);addEventListener('keydown',()=>bgmUpdate(),true);
 
 // ================= 데이터 =================
 const RACES={
@@ -365,7 +371,7 @@ function enterMap(k,x,y){
  $('mapname').textContent='📍 '+map.name;
  toast(map.name);
  P.portalLock=0.6;
- save(true);
+ save(true);bgmUpdate();
 }
 function walkable(x,y){const tx=Math.floor(x/TS),ty=Math.floor(y/TS);if(tx<0||ty<0||tx>=map.w||ty>=map.h)return false;return !SOLID.has(map.t[ty][tx]);}
 function blocked(x,y,r){return !walkable(x-r,y-r)||!walkable(x+r,y-r)||!walkable(x-r,y+r)||!walkable(x+r,y+r);}
@@ -403,6 +409,7 @@ document.querySelectorAll('.sk').forEach(b=>holdBtn(b,()=>useSkill(+b.dataset.i)
 holdBtn($('bHp'),()=>usePot('hp'));holdBtn($('bMp'),()=>usePot('mp'));
 holdBtn($('bAct'),()=>interact());
 $('bMenu').onclick=()=>openMenu();
+$('bMute').onclick=()=>{muted=!muted;try{localStorage.setItem('dobakrpg_mute',muted?'1':'0');}catch(e){}bgmUpdate();};
 
 // ================= 전투 도우미 =================
 function dmgOf(mult,skLv){return P.st.atk*mult*(1+.2*((skLv||1)-1))*rnd(.9,1.1);}
@@ -792,7 +799,7 @@ function renderMenu(){
  const gb=$('gBox');if(gb)gb.onclick=openBox;
  B.querySelectorAll('[data-enh]').forEach(b=>b.onclick=()=>enhance(b.dataset.enh));
  const ms=$('mSave');if(ms)ms.onclick=()=>{save();ms.textContent='✅ 저장됨';};
- const mt=$('mTitleBtn');if(mt)mt.onclick=()=>{save(true);location.reload();};
+ const mt=$('mTitleBtn');if(mt)mt.onclick=()=>{save(true);BGM.pause();location.reload();};
 }
 // ================= 도박 =================
 let gambling=false;
