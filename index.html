@@ -186,8 +186,8 @@ const isTouch=('ontouchstart' in window)||navigator.maxTouchPoints>0;
 let AC=null;
 function sfx(type){try{if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();const o=AC.createOscillator(),g=AC.createGain();o.connect(g);g.connect(AC.destination);const t=AC.currentTime;const S={hit:[220,110,.06,'square',.05],shoot:[660,440,.05,'triangle',.04],coin:[880,1320,.08,'square',.04],lvl:[440,880,.4,'triangle',.08],hurt:[160,80,.12,'sawtooth',.06],boom:[120,40,.25,'sawtooth',.08],win:[523,1046,.3,'square',.06],lose:[300,100,.35,'sawtooth',.06]}[type]||[440,440,.05,'sine',.03];o.type=S[3];o.frequency.setValueAtTime(S[0],t);o.frequency.exponentialRampToValueAtTime(S[1],t+S[2]);g.gain.setValueAtTime(S[4],t);g.gain.exponentialRampToValueAtTime(.0001,t+S[2]);o.start(t);o.stop(t+S[2]+.02);}catch(e){}}
 
-const SERVER='';
-const NET={on:false,base:SERVER,token:null,uid:'',nick:'',cloud:null,dirty:false,busy:false,fail:0,guest:false,sock:null,live:false,playing:false,others:new Map()};
+const SERVER=/github\.io$/.test(location.hostname)?'https://random-football-cflg.onrender.com':''; // 계정·실시간 서버 (RANDOM FOOTBALL)
+const NET={checking:true,on:false,base:SERVER,token:null,uid:'',nick:'',cloud:null,dirty:false,busy:false,fail:0,guest:false,sock:null,live:false,playing:false,others:new Map()};
 const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 // ================= 배경음악 =================
 const BGM=new Audio('village.mp3');BGM.loop=true;BGM.volume=.45;BGM.preload='auto';
@@ -1090,7 +1090,7 @@ function renderTitle(){
   if(logged&&!c&&hasSave())h+=`<button class="btn big" id="bImport">이 기기의 저장 가져오기</button>`;
   if(logged)h+=`<button class="x" id="bOut" style="font-size:12px;color:#8d7bb3;text-decoration:underline">로그아웃</button>`;
   else if(NET.on)h+=`<button class="x" id="bBack" style="font-size:12px;color:#8d7bb3;text-decoration:underline">계정으로 로그인하기</button>`;
-  else h+=`<div style="font-size:11px;color:#8d7bb3;text-align:center;line-height:1.6">지금은 이 기기에만 저장돼요.<br>계정 로그인은 축구 게임 주소 뒤에 <b>/rpg/</b> 를 붙여 접속하세요.</div>`;
+  else h+=`<div style="font-size:11px;color:#8d7bb3;text-align:center;line-height:1.6">${NET.checking?'⏳ 계정 서버에 연결하는 중… (서버가 자고 있으면 1분쯤 걸려요)':'계정 서버에 연결하지 못했어요. 지금은 이 기기에만 저장돼요.<br>새로고침하면 다시 연결을 시도해요.'}</div>`;
  }
  A.innerHTML=h;const on=(id,f)=>{const b=$(id);if(b)b.onclick=f;};
  on('bIn',()=>netAuth('signin'));on('bUp',()=>netAuth('register'));
@@ -1146,7 +1146,8 @@ setInterval(()=>{const k=NET.sock;if(!k||!k.connected||!P||!map||!NET.playing)re
 function netTick(dt){for(const o of NET.others.values()){const k=Math.min(1,dt*12);o.x+=(o.tx-o.x)*k;o.y+=(o.ty-o.y)*k;if(o.w)o.walk+=dt*10;}}
 async function netInit(){
  renderTitle();
- try{const r=await fetch(NET.base+'/api/rpg/ping',{cache:'no-store'});const j=await r.json();NET.on=!!(j&&j.rpg);}catch(e){NET.on=false;}
+ for(let n=0;n<3&&!NET.on;n++){try{const r=await fetch(NET.base+'/api/rpg/ping',{cache:'no-store'});const j=await r.json();NET.on=!!(j&&j.rpg);}catch(e){NET.on=false;}if(!NET.on&&!SERVER)break;}
+ NET.checking=false;
  if(NET.on){let t=null;try{t=localStorage.getItem('dobakrpg_session');if(!t){const f=localStorage.getItem('rf_auth');if(f)t=JSON.parse(f);}}catch(e){}
   if(typeof t==='string'&&t){NET.token=t;try{if(!(await netCloud())&&!NET.token){}}catch(e){NET.token=null;}}}
  if(!$('title').classList.contains('hidden'))renderTitle();
