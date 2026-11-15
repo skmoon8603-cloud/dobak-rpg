@@ -398,12 +398,13 @@ function makeVillage(){
   {x:11.5*TS,y:20.6*TS,name:'여관 주인 로사',type:'inn',color:'#c2185b',hat:'#fff',hatType:'cap'},
   {x:11.5*TS,y:33.6*TS,name:'도박꾼 럭키',type:'gamble',color:'#b8860b',hat:'#222'},
   {x:30*TS,y:24.3*TS,name:'회복의 샘',type:'fountain',invisible:1},
+  {x:33.5*TS,y:24.6*TS,name:'작명가 렌',type:'nick',color:'#00838f',hat:'#004d56',hatType:'wiz'},
   {x:27.5*TS,y:17.7*TS,name:'소식통 할아범',type:'rank',color:'#455a64',hat:'#263238',hatType:'cap',sit:1},
   {x:56.5*TS,y:41.7*TS,name:'축구 선수 준',type:'link',color:'#1565c0',hat:'#fff',hatType:'',url:'https://random-football-cflg.onrender.com'},
   {x:45.5*TS,y:20.6*TS,name:'전직관 카인',type:'job',color:'#b71c1c',hat:'#d4af37',hatType:'helm'},
   {x:56.5*TS,y:20.9*TS,name:'경비병',type:'talk',color:'#546e7a',hat:'#999',hatType:'helm',lines:['동쪽 문 밖은 바람의 들판이다.','슬라임은 약하지만 늑대와 고블린은 조심해라. 위험하면 대쉬로 피하고!']},
   {x:26.5*TS,y:24.6*TS,name:'꼬마 토비',type:'talk',color:'#ef6c00',hat:'#1565c0',hatType:'cap',lines:['와아, 진짜 모험가다!','분수에 가까이 가면 체력이랑 마나가 다 회복된대요!']},
-  {x:17*TS,y:23.7*TS,name:'꽃집 할머니',type:'talk',color:'#8e6bbf',hat:'#eee',hatType:'hood',lines:['이 꽃밭은 내가 평생 가꾼 거라우.','북쪽 도서관의 아르카 님은 못 가르치는 기술이 없다더구먼.']},
+  {x:17*TS,y:23.7*TS,name:'꽃집 할머니',granny:1,type:'talk',color:'#8e6bbf',hat:'#eee',hatType:'hood',lines:['이 꽃밭은 내가 평생 가꾼 거라우.','북쪽 도서관의 아르카 님은 못 가르치는 기술이 없다더구먼.']},
   {x:47*TS,y:23.5*TS,name:'낚시꾼',type:'talk',color:'#00695c',hat:'#c9a66b',hatType:'cow',lines:['쉿… 물고기 도망간다.','…행운의 부적이 있으면 도박장에서 운이 좋아진다던데. 낚시엔 안 통하더군.']},
   {x:23.5*TS,y:33.6*TS,name:'주민',type:'talk',color:'#6d4c41',hat:'#444',hatType:'',lines:['모르간이 깨어난 뒤로 밤마다 무서워서 잠을 못 자요…']}];
  npcs.forEach(n=>{const tx=Math.floor(n.x/TS),ty=Math.floor((n.y-4)/TS);if(['#','r'].includes(t[ty][tx]))t[ty][tx]='.';});
@@ -692,6 +693,11 @@ function getMove(){let mx=0,my=0;
  if(keys['a']||keys['arrowleft'])mx--;if(keys['d']||keys['arrowright'])mx++;if(keys['w']||keys['arrowup'])my--;if(keys['s']||keys['arrowdown'])my++;
  if(joy.on){const dx=joy.x-joy.ox,dy=joy.y-joy.oy,l=Math.hypot(dx,dy);if(l>8){const k=Math.min(1,l/50);mx=dx/l*k;my=dy/l*k;}}
  return{x:mx,y:my,l:Math.hypot(mx,my)};}
+const ANGRY=['이놈! 내 꽃밭에 무슨 짓이냐!','아이고 내 꽃! 썩 물러가지 못해!','한 번만 더 해봐라, 지팡이 맛을 보여주마!','평생 가꾼 꽃을… 이 고얀 것!','촌장한테 다 이를 게야!!'];
+function flowerCheck(pt){if(!map||map.key!=='village')return;const inG=q=>q.x>11*TS&&q.x<23*TS&&q.y>24*TS&&q.y<32*TS;
+ if(!inG(pt)&&!inG({x:(pt.x+P.x)/2,y:(pt.y+P.y)/2}))return;const g=map.npcs.find(n=>n.granny);if(!g)return;
+ g.mad=(g.angry>gameT-6?(g.mad||0):0)+1;g.say=ANGRY[Math.min(ANGRY.length-1,g.mad-1+(g.mad<3?ri(0,1):0))];g.angry=gameT+4;sfx('hurt');shake=.15;
+ for(let i=0;i<8;i++)parts.push({x:pt.x+rnd(-20,20),y:pt.y+rnd(-20,20),vx:rnd(-60,60),vy:rnd(-90,-20),life:.6,color:['#ff6b9d','#ffe066','#ffffff','#b18cff'][i%4],s:3});}
 function cast(id,pt){
  const S=SK[id],lv=P.skl[id];if(!S||!lv)return;
  if(P.cds[id]>0)return;if(P.mp<S.mp){log('마나가 부족해요');return;}
@@ -703,6 +709,7 @@ function cast(id,pt){
  if(!self){const L=Math.hypot(a.px-P.x,a.py-P.y);if(L>320){a.px=P.x+(a.px-P.x)/L*320;a.py=P.y+(a.py-P.y)/L*320;}}
  const fan=(n,spread,o)=>{for(let k=0;k<n;k++){const t=ang+(n>1?(k/(n-1)-.5)*spread:0);shoot(Object.assign({vx:Math.cos(t)*o.sp,vy:Math.sin(t)*o.sp},o));}};
  sfx('shoot');
+ flowerCheck(self?{x:P.x,y:P.y}:{x:a.px,y:a.py});
  switch(id){
   case 'mage0':fan(1,0,{sp:400,dmg:dmgOf(2.3,lv),aoe:58,life:1.1,r:9,color:'#ff7b29',kind:'fire',eff:{burn:3}});break;
   case 'mage1':fan(3,.5,{sp:520,dmg:dmgOf(1.6,lv),pierce:4,life:.8,r:7,color:'#aeeaff',kind:'ice',eff:{slow:2.5}});break;
@@ -972,6 +979,8 @@ function drawNpc(n){
  label(n.name,n.x,n.y-46,'#ffe9a8');
  if(n.type==='elder'&&(P.q.s==='none'||P.q.s==='clear')&&P.q.i<QUESTS.length){const b=Math.sin(gameT*5)*2;ctx.font='16px Galmuri11, sans-serif';ctx.fillStyle=P.q.s==='clear'?'#7dff7d':'#ffe066';ctx.textAlign='center';ctx.fillText(P.q.s==='clear'?'?':'!',n.x,n.y-58+b);}
  if(n.type==='shady'&&P.hq&&P.cls!=='msword'&&!P.job&&(P.hq.s==='none'||P.hq.s==='clear')){const b=Math.sin(gameT*5)*2;ctx.font='16px Galmuri11, sans-serif';ctx.fillStyle=P.hq.s==='clear'?'#7dff7d':'#c58bff';ctx.textAlign='center';ctx.fillText(P.hq.s==='clear'?'?':'!',n.x,n.y-58+b);}
+ if(n.type==='nick'){const b=Math.sin(gameT*4)*2;ctx.font='12px sans-serif';ctx.textAlign='center';ctx.fillText('✏',n.x+14,n.y-34+b);}
+ if(n.angry>gameT){const j=Math.sin(gameT*30)*2;label(n.say,n.x+j,n.y-62,'#ff8a8a');ctx.font='16px sans-serif';ctx.textAlign='center';ctx.fillText('💢',n.x+12,n.y-28);}
  if(n.type==='rank'){const b=Math.sin(gameT*4)*2;ctx.font='12px sans-serif';ctx.textAlign='center';ctx.fillText('🏆',n.x+14,n.y-34+b);}
  if(n.type==='link'){const b=Math.sin(gameT*4)*2;ctx.font='12px sans-serif';ctx.textAlign='center';ctx.fillText('⚽',n.x+14,n.y-6+b);}
  if(n.type==='job'){const b=Math.sin(gameT*4)*2;ctx.font='12px sans-serif';ctx.textAlign='center';ctx.fillText('⚜',n.x+14,n.y-34+b);}
@@ -1044,10 +1053,11 @@ function interact(){
   else if(P.lv<20)dialog(n.name,['이곳은 전직의 전당. 2차 전직은 Lv20부터 가능하네.',`${CLASSES[P.cls].name}의 길${ks.length>1?'은 둘로 나뉘지':'은 하나뿐이지'}.\n\n${list.join('\n')}`,`지금은 Lv${P.lv}… 더 강해져서 다시 오게.`]);
   else dialog(n.name,['때가 되었군! 자네가 걸을 길을 고르게.\n한번 고르면 다시 바꿀 수 없네.',list.join('\n\n')],ks.map(k=>({t:JOBS[k].name,c:'gold',f:()=>advance(k)})).concat([{t:'나중에'}]));}
  if(n.type==='inn')dialog(n.name,['어서 와요! 푹 쉬고 가세요. 모험가에겐 공짜랍니다.'],[{t:'🛏 쉬어가기',c:'gold',f:()=>{P.hp=P.st.hp;P.mp=P.st.mp;toast('😴 푹 쉬었다! 체력·마나 회복');sfx('lvl');save(true);}},{t:'나가기'}]);
- if(n.type==='talk')dialog(n.name,n.lines);
+ if(n.type==='talk')dialog(n.name,n.granny&&n.angry>gameT-20?['흥! 꽃밭에 마법이나 쏘는 녀석하고는 할 말 없다!','…다시는 안 그런다고 약속하면 용서해 주마.']:n.lines);
  if(n.type==='link')dialog(n.name,['헤이! 모험만 하지 말고 공도 좀 차라고!','random-football-cflg.onrender.com 으로 가면 「RANDOM FOOTBALL」 축구를 할 수 있어. 같은 계정으로 바로 뛸 수 있지.\n\n새 창으로 축구장을 열어줄까? (이 게임은 그대로 둘게)'],[{t:'⚽ 새 창으로 열기',c:'gold',f:()=>{save(true);let w=null;try{w=window.open(n.url,'_blank');}catch(e){}if(!w)log('⚠ 새 창이 막혔어요. 브라우저에서 팝업을 허용해 주세요');}},{t:'여기 있을게'}]);
  if(n.type==='shady')shadyTalk(n);
  if(n.type==='rank')rankTalk(n);
+ if(n.type==='nick')dialog(n.name,['이름이 마음에 안 드시나요? 100G만 내시면 멋진 새 이름으로 바꿔 드려요!'],[{t:'✏ 이름 바꾸기 (100G)',c:'gold',f:()=>openMenu('nick')},{t:'괜찮아요'}]);
  if(n.type==='gamble')dialog('도박꾼 럭키',['헤헤, 인생은 한 방이지! 운을 시험해 볼 텐가?','동전 던지기, 랜덤 장비 상자, 장비 강화… 뭐든 걸어보라고!'],[{t:'🎲 도박장 입장',c:'gold',f:()=>openMenu('gamble')},{t:'나가기'}]);
 }
 function advance(j){if(P.job||P.lv<20||!JOBS[j]||JOBS[j].cls!==P.cls)return;P.job=j;calc();P.hp=P.st.hp;P.mp=P.st.mp;autoLearn();toast('⚜ '+JOBS[j].name+' 전직!');sfx('lvl');for(let i=0;i<40;i++)parts.push({x:P.x,y:P.y,vx:rnd(-160,160),vy:rnd(-200,0),life:rnd(.5,1.1),color:'#ffe066',s:3});save(true);}
@@ -1096,7 +1106,8 @@ function renderMenu(){
  if(menuTab==='gamble')tabs.splice(0,9,['gamble','🎲 도박장']);
  if(menuTab==='book')tabs.splice(0,9,['book','📚 스킬북']);
  if(menuTab==='equip')tabs.splice(0,9,['equip','🎒 인벤토리']);
- $('mTitle').textContent={shop:'상인 멜의 상점',sell:'상인 멜의 상점',gamble:'럭키의 도박장',book:'아르카의 마법 도서관',equip:'인벤토리'}[menuTab]||'메뉴';
+ if(menuTab==='nick')tabs.splice(0,9,['nick','✏ 이름 바꾸기']);
+ $('mTitle').textContent={shop:'상인 멜의 상점',sell:'상인 멜의 상점',gamble:'럭키의 도박장',book:'아르카의 마법 도서관',equip:'인벤토리',nick:'작명가 렌'}[menuTab]||'메뉴';
  $('mTabs').innerHTML=tabs.map(t=>`<button class="${t[0]===menuTab?'on':''}" data-t="${t[0]}">${t[1]}</button>`).join('');
  $('mTabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{menuTab=b.dataset.t;renderMenu();});
  const B=$('mBody');calc();const s=P.st;let h='';
@@ -1119,6 +1130,8 @@ function renderMenu(){
    if(lv)h+=`<button class="btn gold" data-sk="${sk.id}" ${P.sp>0&&lv<5?'':'disabled'}>${lv<5?'강화':'MAX'}</button><div class="slots">슬롯 ${[0,1,2].map(i=>`<button class="sl ${slot===i?'on':''}" data-slot="${sk.id}:${i}">${i+1}</button>`).join('')}</div>`;
    h+='</div>';});};
   if(P.job)sec('⚜ '+JOBS[P.job].name+' 스킬',SKILLS[P.job]);sec(CLASSES[P.cls].name+' 스킬',SKILLS[P.cls]);sec('공용 스킬',SKILLS.common);
+ }else if(menuTab==='nick'){
+  h=`<div>지금 이름: <b style="color:#ffe9a8">${esc(P.name)}</b> · 💰 ${P.gold.toLocaleString()} G</div><br><div>새 이름 (1~8자, 한글·영어·숫자)</div><input type="text" id="nName" maxlength="8" placeholder="새 이름" value=""><div id="nMsg" style="min-height:18px;font-size:12px;color:#ff9a9a;margin:6px 0"></div><button class="btn gold" id="nGo" ${P.gold<100?'disabled':''}>100G 내고 바꾸기</button>`;
  }else if(menuTab==='book'){
   h=`<div>💰 ${P.gold.toLocaleString()} G · 스킬북을 사면 바로 스킬을 익혀요</div>`;
   const sc=500*(1+(P.flags.scroll||0));
@@ -1156,6 +1169,7 @@ function renderMenu(){
  B.querySelectorAll('[data-sk]').forEach(b=>b.onclick=()=>{const id=b.dataset.sk;if(P.sp<=0||P.skl[id]>=5)return;P.sp--;P.skl[id]++;sfx('lvl');renderMenu();});
  B.querySelectorAll('[data-slot]').forEach(b=>b.onclick=()=>{const[id,si]=b.dataset.slot.split(':'),i=+si,cur=P.slots.indexOf(id);if(cur===i)P.slots[i]=null;else{const old=P.slots[i];if(cur>=0)P.slots[cur]=old;P.slots[i]=id;}sfx('coin');renderMenu();});
  B.querySelectorAll('[data-book]').forEach(b=>b.onclick=()=>{const sk=SK[b.dataset.book];if(P.skl[sk.id]||P.gold<sk.book||P.lv<sk.lv)return;P.gold-=sk.book;learn(sk.id);sfx('lvl');toast('📖 「'+sk.name+'」 습득!');renderMenu();});
+ const ng=$('nGo');if(ng)ng.onclick=()=>{const v=($('nName').value||'').replace(/[^\p{L}\p{N} _\-]/gu,'').trim().slice(0,8),m=$('nMsg');if(!v){m.textContent='이름을 입력해 주세요 (한글·영어·숫자)';return;}if(v===P.name){m.textContent='지금 이름과 같아요';return;}if(P.gold<100){m.textContent='골드가 부족해요 (100G 필요)';return;}P.gold-=100;P.name=v;sfx('lvl');save(true);toast('✏ 이제 이름은 「'+v+'」!');$('mClose').click();};
  const bsc=$('bScroll');if(bsc)bsc.onclick=()=>{const sc=500*(1+(P.flags.scroll||0));if(P.gold<sc)return;P.gold-=sc;P.flags.scroll=(P.flags.scroll||0)+1;P.sp++;sfx('lvl');renderMenu();};
  B.querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>{const it=ITEMS[b.dataset.buy];if(P.gold<it.price||P.bag.length>=24)return;P.gold-=it.price;P.bag.push({id:b.dataset.buy,plus:0});sfx('coin');log('🛒 '+it.name+' 구매 (가방 확인)');renderMenu();});
  B.querySelectorAll('[data-buyp]').forEach(b=>b.onclick=()=>{if(P.gold<25)return;P.gold-=25;P.pots[b.dataset.buyp==='potHp'?'hp':'mp']++;sfx('coin');renderMenu();});
