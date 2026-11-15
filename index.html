@@ -227,6 +227,7 @@ const CLASSES={
  mage:{name:'마법사',desc:'원소 마법 원거리 공격',hp:-10,mp:40,atk:2,def:0,spd:0,color:'#4b3bc6',range:270,cd:.45},
  sword:{name:'검사',desc:'강력한 근접 베기·돌진',hp:40,mp:0,atk:3,def:3,spd:.1,color:'#b8322a',range:70,cd:.36},
  archer:{name:'궁수',desc:'활과 활 마법으로 저격',hp:0,mp:20,atk:2,def:0,spd:.2,color:'#2e8b57',range:330,cd:.5},
+ msword:{name:'마검사',desc:'검과 마법을 함께 쓰는 히든 직업',hp:25,mp:25,atk:3,def:2,spd:.15,color:'#3b2a7a',range:74,cd:.34,hidden:1},
  ranger:{name:'레인저',desc:'총과 덫으로 전장 장악',hp:15,mp:10,atk:1,def:1,spd:.1,color:'#8a6233',range:240,cd:.22}
 };
 const SKILLS={
@@ -276,6 +277,16 @@ SKILLS.common=[
   {name:'순간이동',ic:'🌀',lv:3,book:600,mp:10,cd:6,desc:'바라보는 방향으로 순간이동'},
   {name:'보호막',ic:'🔮',lv:5,book:1000,mp:22,cd:18,desc:'10초간 피해를 대신 받는 보호막'},
   {name:'행운의 주사위',ic:'🎲',lv:2,book:777,mp:25,cd:20,desc:'주사위 눈에 따라 꽝~잭팟!'}];
+SKILLS.msword=[
+  {name:'마력 베기',ic:'🔮',lv:1,mp:8,cd:2,desc:'베면서 마력 검기를 날린다'},
+  {name:'화염검',ic:'🔥',lv:4,mp:12,cd:4,desc:'불타는 검으로 크게 벤다 (화상)'},
+  {name:'뇌전 돌진',ic:'⚡',lv:7,mp:15,cd:6,desc:'돌진한 뒤 번개가 주변으로 튄다'},
+  {name:'마력 방패',ic:'🛡',lv:9,mp:18,cd:16,desc:'10초간 피해를 대신 받는 보호막'},
+  {name:'원소 폭풍검',ic:'🌪',lv:11,mp:36,cd:12,desc:'주변을 휩쓰는 원소 폭발'},
+  {name:'얼음 칼날',ic:'❄',lv:5,book:800,mp:14,cd:5,desc:'얼음 검기 3갈래 (속박)'},
+  {name:'마력 각성',ic:'✨',lv:8,book:1500,mp:22,cd:20,desc:'8초간 공격력 +50%, 이동·공격 속도 증가'},
+  {name:'차원 베기',ic:'🌌',lv:12,book:3000,mp:34,cd:13,desc:'순간이동해서 강하게 벤다'}];
+SKILLS.msorder=[{name:'룬 블레이드',ic:'🗡',lv:20,mp:24,cd:6,desc:'적을 쫓아가는 마법 검 6자루'},{name:'마검 해방',ic:'💥',lv:23,mp:42,cd:22,desc:'주변 폭발 + 8초간 공격력 2배'}];
 SKILLS.dark=[{name:'어둠의 창',ic:'🔱',lv:20,mp:22,cd:4,desc:'관통하는 암흑 창 · 피해의 30% 흡혈'},{name:'영혼 수확',ic:'💀',lv:23,mp:40,cd:14,desc:'저주의 장판 5초 뒤 대폭발'}];
 SKILLS.white=[{name:'신성한 빛',ic:'🌟',lv:20,mp:24,cd:6,desc:'주변 적에게 피해 + 체력 회복'},{name:'천사의 가호',ic:'👼',lv:23,mp:40,cd:30,desc:'4초 무적 + 체력 지속 회복'}];
 SKILLS.magicbow=[{name:'원소 화살',ic:'🌈',lv:20,mp:22,cd:5,desc:'불·얼음·번개 화살 3발'},{name:'별똥별 화살',ic:'🌠',lv:23,mp:42,cd:13,desc:'거대한 폭발을 일으키는 화살'}];
@@ -292,9 +303,10 @@ const JOBS={
  expert:{cls:'sword',name:'소드 익스퍼트',color:'#c0392b',hat:'#999',desc:'공격력 +20% · 베기 범위 +30%'},
  peak:{cls:'sword',name:'절정의 경지',color:'#e8e8f0',hat:'#d4af37',desc:'최대 체력 +25% · 방어 +10 · 벨 때마다 검기 발사'},
  sniper:{cls:'ranger',name:'저격수',color:'#3d4a3a',hat:'#2a3328',desc:'한 발이 1.6배 강하지만 느림 · 사거리·치명타 피해 증가'},
+ msorder:{cls:'msword',name:'매직소드너',color:'#5b2bd6',hat:'#2a1560',desc:'공격력 +20% · 최대 체력 +15% · 벨 때마다 마력 검기 발사'},
  assault:{cls:'ranger',name:'돌격대장',color:'#a0522d',hat:'#5a2d16',desc:'최대 체력 +20% · 이동 속도 증가 · 기본 공격 2연발'}};
 const jobName=o=>o.job&&JOBS[o.job]?JOBS[o.job].name:CLASSES[o.cls].name;
-const SELF=new Set(['sword2','sword6','archer6','u0','u1','u2','u3','ranger0','ranger2','ranger5','ranger6','white0','white1','tradbow0','expert1','peak1']);
+const SELF=new Set(['sword2','sword6','archer6','u0','u1','u2','u3','ranger0','ranger2','ranger5','ranger6','white0','white1','tradbow0','expert1','peak1','msword3','msword6','msorder1']);
 const SK={};for(const c in SKILLS)SKILLS[c].forEach((x,i)=>{x.id=(c==='common'?'u':c)+i;SK[x.id]=x;});
 // 기본 스킬은 Lv1, 4, 7, 9, 11 에 하나씩 / 스킬북은 Lv5, 8, 12
 for(const c of ['mage','sword','archer','ranger']){const a=SKILLS[c];delete a[4].book;SKILLS[c]=[a[0],a[1],a[2],a[4],a[3],a[5],a[6],a[7]];[1,4,7,9,11].forEach((lv,i)=>SKILLS[c][i].lv=lv);[5,8,12].forEach((lv,i)=>SKILLS[c][5+i].lv=lv);}
@@ -314,6 +326,9 @@ const ITEMS={
  w_ranger1:{name:'낡은 권총',slot:'weapon',cls:'ranger',atk:3,tier:1,price:60},
  w_ranger2:{name:'리볼버',slot:'weapon',cls:'ranger',atk:9,tier:2,price:400},
  w_ranger3:{name:'마법 소총',slot:'weapon',cls:'ranger',atk:18,mp:20,tier:3,price:1600},
+ w_msword1:{name:'마력 깃든 검',slot:'weapon',cls:'msword',atk:5,mp:10,tier:1,price:60},
+ w_msword2:{name:'룬 소드',slot:'weapon',cls:'msword',atk:11,mp:25,tier:2,price:400},
+ w_msword3:{name:'마검 그람',slot:'weapon',cls:'msword',atk:21,mp:50,tier:3,price:1600},
  a1:{name:'가죽 갑옷',slot:'armor',def:3,hp:15,tier:1,price:70},
  a2:{name:'사슬 갑옷',slot:'armor',def:7,hp:35,tier:2,price:420},
  a3:{name:'미스릴 갑옷',slot:'armor',def:14,hp:80,tier:3,price:1700},
@@ -369,7 +384,7 @@ function makeVillage(){
  house(8,16,7,'G');house(42,16,6,'R');house(15,16,5,'B');house(49,16,5,'K');
  house(6,29,10,'G');house(20,29,6,'R');house(36,29,6,'B');house(46,29,6,'R');
  rect(t,56,35,1,7,',');
- house(8,38,6,'K');house(20,38,6,'B');house(38,38,6,'R');house(48,38,6,'U');
+ house(8,38,6,'K');rect(t,11,42,5,1,',');rect(t,15,35,1,8,',');house(20,38,6,'B');house(38,38,6,'R');house(48,38,6,'U');
  const npcs=[
   {x:10.5*TS,y:10.6*TS,name:'촌장',type:'elder',color:'#7b5ea7',hat:'#d4af37'},
   {x:22.5*TS,y:10.6*TS,name:'현자 아르카',type:'book',color:'#4a2a8a',hat:'#2a1560',hatType:'wiz'},
@@ -387,7 +402,7 @@ function makeVillage(){
   {x:23.5*TS,y:33.6*TS,name:'주민',type:'talk',color:'#6d4c41',hat:'#444',hatType:'',lines:['모르간이 깨어난 뒤로 밤마다 무서워서 잠을 못 자요…']}];
  npcs.forEach(n=>{const tx=Math.floor(n.x/TS),ty=Math.floor((n.y-4)/TS);if(['#','r'].includes(t[ty][tx]))t[ty][tx]='.';});
  return{name:'평화의 마을',key:'village',w,h,t,safe:1,
-  portals:[{x:59*TS+8,y:22*TS,to:'field',tx:2*TS,ty:16*TS+16,label:'들판'}],
+  portals:[{x:59*TS+8,y:22*TS,to:'field',tx:2*TS,ty:16*TS+16,label:'들판'},{x:11.5*TS,y:41.9*TS,to:'house',tx:5.5*TS,ty:6.2*TS,door:1}],
   npcs,
   labels:[{x:10*TS,y:6*TS-4,t:'촌장의 집'},{x:22*TS,y:6*TS-4,t:'📚 마법 도서관'},{x:38*TS,y:6*TS-4,t:'🛒 상점'},{x:49*TS,y:6*TS-4,t:'⚒ 대장간'},{x:11.5*TS,y:16*TS-4,t:'🛏 여관'},{x:11*TS,y:29*TS-4,t:'🎲 도박장'},{x:45*TS,y:16*TS-4,t:'⚜ 전직의 전당'}],
   spawns:[],start:{x:30*TS,y:25*TS}};
@@ -407,6 +422,13 @@ function makeField(){
   npcs:[],
   spawns:[{type:'slime',zone:[3,8,18,30],max:7},{type:'wolf',zone:[16,8,34,30],max:5},{type:'goblin',zone:[30,8,42,30],max:5},{type:'slime',zone:[18,2,40,8],max:3}],
   start:{x:2*TS,y:16*TS+16}};
+}
+function makeHouse(){
+ const w=11,h=9,t=grid(w,h,'H');rect(t,0,0,w,2,'K');rect(t,1,2,w-2,h-3,'o');
+ return{name:'수상한 집',key:'house',w,h,t,safe:1,dark:1,
+  portals:[{x:5.5*TS,y:7.7*TS,to:'village',tx:11.5*TS,ty:42.78*TS,label:'나가기'}],
+  npcs:[{x:5.5*TS,y:4*TS,name:'수상한 자',type:'shady',color:'#1a1a22',hat:'#0d0d12',hatType:'hood'}],
+  spawns:[],start:{x:5.5*TS,y:6.2*TS}};
 }
 function makeRuins(){
  const w=42,h=30,t=grid(w,h,'.');const R=mulberry(77);
@@ -444,6 +466,7 @@ function prerender(m){
   else if(ch===','){P(X,Y,TS,TS,'#c9a66b');for(let i=0;i<6;i++)P(X+R()*30|0,Y+R()*30|0,3,2,R()<.5?'#b08d56':'#dcbc84');}
   else if(ch==='#'){grass();P(X+13,Y+20,6,10,'#6b4423');P(X+4,Y+4,24,18,'#2d6e2a');P(X+7,Y+1,18,6,'#2d6e2a');P(X+8,Y+6,8,6,'#3f8f39');P(X+4,Y+18,24,4,'#225a20');}
   else if(ch==='r'){grass();P(X+6,Y+12,20,14,'#8a8f99');P(X+8,Y+12,10,5,'#a8adb6');P(X+6,Y+24,20,2,'#5d6168');}
+  else if(ch==='o'){P(X,Y,TS,TS,'#7a5230');for(let i=0;i<TS;i+=8)P(X,Y+i,TS,1,'#5d3a1a');P(X+((y*13+x*7)%24),Y,1,TS,'#5d3a1a');}
   else if(ch==='~'){P(X,Y,TS,TS,'#2f6fbf');for(let i=0;i<3;i++)P(X+R()*24|0,Y+R()*28|0,8,2,'#5fa0e8');}
   else if('RBUGK'.includes(ch)){const c={R:['#a83a32','#7d2721'],B:['#3a6ea8','#274d7d'],U:['#6a3aa8','#48277d'],G:['#c9a227','#8f7118'],K:['#6b4a32','#4a3222']}[ch];P(X,Y,TS,TS,c[0]);for(let i=0;i<TS;i+=8)P(X,Y+i,TS,2,c[1]);}
   else if(ch==='L'){if(m.t[y][x-1]===','||m.t[y][x+1]===',')P(X,Y,TS,TS,'#c9a66b');else grass();P(X+14,Y+8,4,22,'#3a3a3a');P(X+10,Y+2,12,8,'#ffe9a8');P(X+12,Y+4,8,4,'#fff');P(X+11,Y+28,10,3,'#222');}
@@ -474,10 +497,10 @@ function calc(){
  const r=RACES[P.race],c=CLASSES[P.cls],L=P.lv-1;
  const s={hp:r.hp+c.hp+L*12,mp:r.mp+c.mp+L*6,atk:r.atk+c.atk+L*2,def:r.def+c.def+L,spd:r.spd+c.spd,hpr:r.hpr+L*.1,mpr:r.mpr+L*.08,luck:0,gold:0};
  for(const k in P.eq){const e=P.eq[k];if(!e)continue;const it=ITEMS[e.id];const m=1+.15*e.plus;for(const st in STATNAME)if(it[st])s[st]+=st==='spd'?it[st]:it[st]*m;}
- const j=P.job;if(j==='dark')s.atk*=1.25;if(j==='white'){s.hp*=1.25;s.hpr+=3;s.mpr+=2;}if(j==='magicbow'){s.mp+=50;s.mpr+=1;}if(j==='expert')s.atk*=1.2;if(j==='peak'){s.hp*=1.25;s.def+=10;}if(j==='assault'){s.hp*=1.2;s.spd+=.3;}
+ const j=P.job;if(j==='dark')s.atk*=1.25;if(j==='white'){s.hp*=1.25;s.hpr+=3;s.mpr+=2;}if(j==='magicbow'){s.mp+=50;s.mpr+=1;}if(j==='expert')s.atk*=1.2;if(j==='peak'){s.hp*=1.25;s.def+=10;}if(j==='assault'){s.hp*=1.2;s.spd+=.3;}if(j==='msorder'){s.atk*=1.2;s.hp*=1.15;}
  s.hp=Math.round(s.hp);s.mp=Math.round(s.mp);s.atk=Math.round(s.atk);s.def=Math.round(s.def);
- s.hpr*=2;s.mpr*=2; // 회복 속도 2배
- const pt=P.pts||{def:0,patk:0,matk:0};s.def+=pt.def*2;s.patk=s.atk+pt.patk*3;s.matk=s.atk+pt.matk*3;
+ s.hpr*=.5;s.mpr*=.5; // 회복 속도 절반 (2배 느리게)
+ const pt=P.pts||{def:0,patk:0,matk:0};s.def+=pt.def;s.patk=s.atk+pt.patk;s.matk=s.atk+pt.matk;s.hatk=s.atk+2*Math.min(pt.patk,pt.matk)+Math.round(Math.abs(pt.patk-pt.matk)/3); // 반반 직업: 물리·마법을 고르게 찍어야 강하다
  P.st=s;P.hp=Math.min(P.hp,s.hp);P.mp=Math.min(P.mp,s.mp);
 }
 const need=lv=>Math.floor(30*Math.pow(lv,1.6));
@@ -495,7 +518,9 @@ function fixPlayer(){
  if(!P.skl)P.skl={};(P.sk||[]).forEach((v,i)=>{if(v)P.skl[P.cls+i]=Math.max(v,P.skl[P.cls+i]||0);});
  delete P.sk;
  if(!JOBS[P.job]||JOBS[P.job].cls!==P.cls)P.job='';
- if(!P.pts){P.pts={def:0,patk:0,matk:0};P.ap=P.lv-1;P.apAsk=P.ap>0;}
+ if(!P.pts){P.pts={def:0,patk:0,matk:0};P.ap=3*(P.lv-1);P.ap3=true;}
+ if(!P.ap3){P.ap=(P.ap||0)+2*(P.lv-1);P.pts.def*=2;P.pts.patk*=3;P.pts.matk*=3;P.ap3=true;} // 예전 방식(레벨당 1포인트) 저장 변환
+ delete P.apAsk;if(!P.hq)P.hq={s:'none',c:0};
  if(!P.mats)P.mats={bone:0};
  if(!Array.isArray(P.slots))P.slots=Object.keys(P.skl);
  if(P.slots.length!==3){const k=P.slots.filter(Boolean).slice(0,3);P.slots=[k[0]||null,k[1]||null,k[2]||null];}
@@ -512,7 +537,7 @@ function sealRoom(){const[rx,ry,rw,rh]=map.bossRoom,m=map;m.seal=[];const put=(x
  m.sealed=true;toast('⛓ 모르간의 결계가 길을 막았다!');sfx('boom');shake=.3;}
 function unseal(m){if(!m||!m.sealed)return;m.seal.forEach(([x,y,c])=>m.t[y][x]=c);m.sealed=false;m.seal=[];}
 function inRoom(x,y,pad){const[rx,ry,rw,rh]=map.bossRoom;return x>(rx+pad)*TS&&x<(rx+rw-pad)*TS&&y>(ry+pad)*TS&&y<(ry+rh-pad)*TS;}
-function getMap(k){if(!MAPS[k]){MAPS[k]=k==='village'?makeVillage():k==='field'?makeField():k==='ruins'?makeRuins():makeDungeon();prerender(MAPS[k]);}return MAPS[k];}
+function getMap(k){if(!MAPS[k]){MAPS[k]=k==='house'?makeHouse():k==='village'?makeVillage():k==='field'?makeField():k==='ruins'?makeRuins():makeDungeon();prerender(MAPS[k]);}return MAPS[k];}
 function enterMap(k,x,y){
  unseal(map);
  map=getMap(k);P.map=k;P.x=x!=null?x:map.start.x;P.y=y!=null?y:map.start.y;
@@ -568,9 +593,10 @@ $('bMute').onclick=()=>{muted=!muted;try{localStorage.setItem('dobakrpg_mute',mu
 
 // ================= 전투 도우미 =================
 let curKind='p'; // 지금 쓰는 공격이 물리(p)인지 마법(m)인지
-const kindOf=id=>['mage','dark','white','archer','magicbow','u'].includes(id.replace(/\d+$/,''))?'m':'p';
-const basicKind=()=>P.cls==='mage'||P.job==='magicbow'?'m':'p';
-function dmgOf(mult,skLv){return (curKind==='m'?P.st.matk:P.st.patk)*mult*(1+.2*((skLv||1)-1))*rnd(.9,1.1)*(P.rage>0?1.5:1)*(P.dbl>0?2:1);}
+const isHybrid=()=>P.cls==='msword'||P.job==='magicbow';
+const kindOf=id=>{const c=id.replace(/\d+$/,'');if(c==='u')return 'm';if(isHybrid())return 'h';return ['mage','dark','white'].includes(c)?'m':'p';};
+const basicKind=()=>isHybrid()?'h':P.cls==='mage'?'m':'p';
+function dmgOf(mult,skLv){return (curKind==='m'?P.st.matk:curKind==='h'?P.st.hatk:P.st.patk)*mult*(1+.2*((skLv||1)-1))*rnd(.9,1.1)*(P.rage>0?1.5:1)*(P.dbl>0?2:1);}
 function aim(range){
  if(mouse.down&&gameT-mouse.t<3){const wx=mouse.x/SC+cam.x,wy=mouse.y/SC+cam.y;return{d:norm(wx-P.x,wy-(P.y-6)),t:null,px:wx,py:wy};}
  let best=null,bd=range;for(const e of enemies){const d=dist(e,P);if(d<bd){bd=d;best=e;}}
@@ -598,16 +624,17 @@ function killEnemy(e){
  const tier=map.tier||1;
  if(e.b.boss){pickups.push({k:'item',id:'w_'+P.cls+'3',x:e.x-20,y:e.y,t:0});pickups.push({k:'item',id:'r3',x:e.x+20,y:e.y,t:0});const nb=Math.random()<.5?2:3;for(let i=0;i<nb;i++)pickups.push({k:'mat',id:'bone',x:e.x+rnd(-30,30),y:e.y+20+rnd(0,16),t:0});if(Math.random()<.1)pickups.push({k:'item',id:'cloak',x:e.x,y:e.y-24,t:0});}
  else if(Math.random()<.04)pickups.push({k:'item',id:pickItem(tier),x:e.x,y:e.y,t:0});
+ if(P.hq&&P.hq.s==='active'&&e.type==='slime'){P.hq.c++;if(P.hq.c>=100){P.hq.s='clear';log('✅ 슬라임 100마리 달성! 수상한 자에게 돌아가세요');sfx('win');}else if(P.hq.c%10===0)log('🕯 슬라임 '+P.hq.c+'/100');}
  if(P.q.s==='active'&&QUESTS[P.q.i].tgt===e.type){P.q.c++;const Q=QUESTS[P.q.i];if(P.q.c>=Q.n){P.q.s='clear';log('✅ 퀘스트 「'+Q.name+'」 완료! 촌장에게 돌아가세요');sfx('win');}else log(`${Q.name} ${P.q.c}/${Q.n}`);}
  if(e.b.boss){unseal(map);P.flags.boss=1;$('boss').classList.add('hidden');enemies.forEach(s=>s.summon&&(s.hp=0));enemies=enemies.filter(s=>!s.summon);toast('👑 리치 모르간 처치!');save(true);}
 }
 function pickItem(tier){const pool=Object.keys(ITEMS).filter(k=>ITEMS[k].tier===tier&&(ITEMS[k].slot!=='weapon'||ITEMS[k].cls===P.cls));return pool[ri(0,pool.length-1)];}
 function gainExp(v){
  P.exp+=Math.round(v*RACES[P.race].exp);
- while(P.exp>=need(P.lv)){P.exp-=need(P.lv);P.lv++;P.sp++;P.ap=(P.ap||0)+1;P.apAsk=true;calc();enemies.forEach(scaleEnemy);P.hp=P.st.hp;P.mp=P.st.mp;toast('✨ LEVEL UP! Lv'+P.lv);sfx('lvl');
+ while(P.exp>=need(P.lv)){P.exp-=need(P.lv);P.lv++;P.sp++;P.ap=(P.ap||0)+3;calc();enemies.forEach(scaleEnemy);P.hp=P.st.hp;P.mp=P.st.mp;toast('✨ LEVEL UP! Lv'+P.lv);sfx('lvl');
   for(let i=0;i<24;i++)parts.push({x:P.x,y:P.y,vx:rnd(-120,120),vy:rnd(-160,0),life:rnd(.4,.9),color:'#ffe066',s:3});
   autoLearn();if(P.lv===20&&!P.job)log('⚜ 2차 전직 가능! 마을 「전직의 전당」으로 가세요');
-  log('⭐ 스킬 포인트 +1');}
+  log('⭐ 스킬 포인트 +1 · 능력치 포인트 +3 (메뉴 → 상태)');}
 }
 function hurtPlayer(d){
  if(P.inv>0||P.dash||P.dead)return;
@@ -627,6 +654,7 @@ function basicAttack(){
  P.acd=c.cd*(P.rage>0||P.haste>0?.65:1)*(j==='tradbow'?.75:j==='sniper'?1.6:1);P.atkAnim=.15;
  const d=a.d;sfx('shoot');curKind=basicKind();
  if(P.cls==='mage')shoot({vx:d.x*420,vy:d.y*420,dmg:dmgOf(1.05),life:.7,r:6,color:j==='dark'?'#7b3fd1':j==='white'?'#fff3a8':'#a98bff',kind:'orb'});
+ else if(P.cls==='msword'){slash(Math.atan2(d.y,d.x),70,dmgOf(1.2));if(j==='msorder')shoot({vx:d.x*420,vy:d.y*420,dmg:dmgOf(.6),pierce:2,life:.4,r:12,color:'#b388ff',kind:'wave'});}
  else if(P.cls==='sword'){slash(Math.atan2(d.y,d.x),j==='expert'?86:66,dmgOf(1.15));if(j==='peak')shoot({vx:d.x*400,vy:d.y*400,dmg:dmgOf(.6),pierce:2,life:.4,r:12,color:'#dfe6ee',kind:'wave'});}
  else if(P.cls==='archer'){if(j==='magicbow')shoot({vx:d.x*660,vy:d.y*660,dmg:dmgOf(1.2),pierce:2,life:.6,r:5,color:'#8ab4ff',kind:'arrow',glow:1});else shoot({vx:d.x*620,vy:d.y*620,dmg:dmgOf(1.1),life:.6,r:5,color:'#e8d39a',kind:'arrow'});}
  else{const one=(s,m)=>{const dd=norm(d.x-d.y*s,d.y+d.x*s);shoot({vx:dd.x*(j==='sniper'?1000:760),vy:dd.y*(j==='sniper'?1000:760),dmg:dmgOf(m),life:j==='sniper'?.45:.32,r:4,color:'#ffe066',kind:'bullet',big:j==='sniper'});};
@@ -706,6 +734,16 @@ function cast(id,pt){
   case 'u1':{const m=getMove(),dir=m.l>0?{x:m.x/m.l,y:m.y/m.l}:face;let ok=false;for(let L=150+lv*10;L>=40;L-=15){const tx=P.x+dir.x*L,ty=P.y+dir.y*L;if(!blocked(tx,ty,8)){puff(P.x,P.y);P.x=tx;P.y=ty;puff(tx,ty);ok=true;break;}}if(!ok){refund();return;}P.inv=Math.max(P.inv,.3);break;}
   case 'u2':P.shield=Math.round(P.st.hp*(.25+.07*lv));P.shieldT=10;toast('🔮 보호막 '+P.shield);break;
   case 'u3':diceRoll(lv);break;
+  case 'msword0':slash(ang,74,dmgOf(1.4,lv));fan(1,0,{sp:460,dmg:dmgOf(1.4,lv),pierce:3,life:.5,r:14,color:'#b388ff',kind:'wave'});break;
+  case 'msword1':slash(ang,96,dmgOf(2.4,lv));for(const e of enemies)if(Math.hypot(e.x-P.x,e.y-P.y)<110){e.burn=3;e.burnD=Math.max(1,P.st.hatk*.25);}fx.push({k:'ring',x:P.x,y:P.y-6,r:96,life:.25,max:.25,color:'#ff7b29'});break;
+  case 'msword2':{const dm=dmgOf(1.6,lv);P.dash={t:.22,x:d.x,y:d.y,hit:new Set(),dmg:dmgOf(2,lv)};timers.push({t:.24,f:()=>{const e=nearest(P,150);if(e&&!P.dead){hurtEnemy(e,dm,{slow:.6});chainFrom(e,3+lv,dm);}}});break;}
+  case 'msword3':P.shield=Math.round(P.st.hp*(.3+.07*lv));P.shieldT=10;toast('🛡 마력 방패 '+P.shield);break;
+  case 'msword4':explode(P.x,P.y,125,dmgOf(4,lv),'#b388ff',{slow:2,burn:2});shake=.35;break;
+  case 'msword5':fan(3,.6,{sp:480,dmg:dmgOf(1.8,lv),pierce:99,life:.7,r:14,color:'#aeeaff',kind:'wave',eff:{root:1.5,slow:3}});break;
+  case 'msword6':P.rage=8;P.haste=8;toast('✨ 마력 각성!');break;
+  case 'msword7':{let tx=a.px,ty=a.py;const L=Math.hypot(tx-P.x,ty-P.y);if(L>260){tx=P.x+d.x*260;ty=P.y+d.y*260;}if(blocked(tx,ty,8)){refund();log('그곳으로는 갈 수 없어요');return;}puff(P.x,P.y);P.x=tx;P.y=ty;P.inv=Math.max(P.inv,.4);explode(tx,ty,100,dmgOf(4.6,lv),'#7c4dff',{});shake=.3;break;}
+  case 'msorder0':for(let k=0;k<6;k++){const t=ang+(k-2.5)*.4;shoot({vx:Math.cos(t)*360,vy:Math.sin(t)*360,dmg:dmgOf(1.5,lv),life:1.8,r:6,color:'#b388ff',kind:'ice',home:1,glow:1});}break;
+  case 'msorder1':explode(P.x,P.y,130,dmgOf(3.5,lv),'#b388ff',{});P.dbl=8;toast('💥 마검 해방!');shake=.35;break;
   case 'dark0':fan(1,0,{sp:560,dmg:dmgOf(3.2,lv),pierce:99,life:.8,r:10,color:'#9b59ff',kind:'orb',glow:1,leech:.3});break;
   case 'dark1':{const dm=dmgOf(5,lv);zone({x:a.px,y:a.py,r:110,dur:5,tick:.5,dmg:dmgOf(.6,lv),color:'#6a1b9a',eff:{slow:1},end:z=>{explode(z.x,z.y,125,dm,'#9b59ff',{});shake=.35;}});break;}
   case 'white0':{explode(P.x,P.y,110,dmgOf(2.4,lv),'#fff7c2',{slow:1});const h=Math.round(P.st.hp*(.18+.04*lv));P.hp=Math.min(P.st.hp,P.hp+h);addText(P.x,P.y-30,'+'+h,'#7dff7d',13);break;}
@@ -728,13 +766,12 @@ function nearest(o,r){let b=null,bd=r;for(const e of enemies){const d=dist(e,o);
 function placeTrap(type,lv){traps.push({type,x:P.x,y:P.y,r:16,dmg:dmgOf(type==='bomb'?3.6:type==='poison'?.6:1.8,lv),life:25});const mine=traps.filter(t=>t.type===type);if(mine.length>3)traps.splice(traps.indexOf(mine[0]),1);}
 
 // ================= 업데이트 =================
-function kindHint(){if(P.cls==='mage')return '마법사의 공격은 모두 마법 공격력을 써요';if(P.cls==='sword'||P.cls==='ranger')return CLASSES[P.cls].name+'의 공격은 모두 물리 공격력을 써요 (공용 스킬만 마법)';
- if(P.job==='magicbow')return '마법궁수의 공격은 모두 마법 공격력을 써요';return '궁수는 기본 공격이 물리, 활 마법 스킬이 마법 공격력을 써요';}
+function kindHint(){if(P.cls==='msword')return '마검사는 물리·마법을 반반 찍어야 강해져요 (한쪽만 찍으면 거의 안 올라요)';if(P.job==='magicbow')return '마법궁수는 물리·마법을 반반 찍어야 강해져요';
+ if(P.cls==='mage')return '마법사의 공격은 모두 마법 공격력을 써요';return CLASSES[P.cls].name+'의 공격은 모두 물리 공격력을 써요 (공용 스킬만 마법)';}
 function addPt(k){if(P.ap<=0)return;P.ap--;P.pts[k]++;calc();sfx('coin');}
 function statPick(){dialog('✨ 능력치 선택',[`어떤 능력을 올릴까요? (남은 포인트 ${P.ap})\n\n🛡 방어 +2 · ⚔ 물리 공격력 +3 · 🔮 마법 공격력 +3\n💡 ${kindHint()}`],[{t:'🛡 방어',c:'gold',f:()=>addPt('def')},{t:'⚔ 물리 공격',c:'gold',f:()=>addPt('patk')},{t:'🔮 마법 공격',c:'gold',f:()=>addPt('matk')},{t:'나중에',f:()=>{P.apAsk=false;log('메뉴 → 상태에서 언제든 찍을 수 있어요');}}]);}
 function update(dt){
  gameT+=dt;
- if(P.apAsk&&P.ap>0&&!dlgState&&!P.dead){statPick();return;}
  for(let i=timers.length-1;i>=0;i--){timers[i].t-=dt;if(timers[i].t<=0){const f=timers[i].f;timers.splice(i,1);f();}}
  if(!P.dead){
  // 이동
@@ -847,7 +884,7 @@ function draw(){
  ctx.imageSmoothingEnabled=false;
  ctx.drawImage(map.img,0,0);
  // 포탈
- for(const pt of map.portals){const t=gameT*3;ctx.save();ctx.translate(pt.x,pt.y);ctx.globalAlpha=.85;for(let i=0;i<3;i++){ctx.strokeStyle=['#b388ff','#7c4dff','#e1bee7'][i];ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(0,0,16-i*4,20-i*5,0,t+i,t+i+4.5);ctx.stroke();}ctx.restore();label(pt.label,pt.x,pt.y-28,'#e1bee7');}
+ for(const pt of map.portals){if(pt.door)continue;const t=gameT*3;ctx.save();ctx.translate(pt.x,pt.y);ctx.globalAlpha=.85;for(let i=0;i<3;i++){ctx.strokeStyle=['#b388ff','#7c4dff','#e1bee7'][i];ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(0,0,16-i*4,20-i*5,0,t+i,t+i+4.5);ctx.stroke();}ctx.restore();label(pt.label,pt.x,pt.y-28,'#e1bee7');}
  if(map.sealed)for(const[bx,by]of map.seal){const X=bx*TS,Y=by*TS;ctx.globalAlpha=.55+.2*Math.sin(gameT*6+bx);px(X,Y,TS,TS,'#5a1fa3');ctx.globalAlpha=1;for(let i=0;i<4;i++)px(X+3+i*8,Y,3,TS,'#e040fb');px(X,Y+((gameT*40|0)%TS),TS,2,'#fff');}
  // 덫
  for(const t of traps){px(t.x-10,t.y-3,20,6,t.type==='bomb'?'#7a2b1a':t.type==='poison'?'#3d7a2a':'#6b5a3a');px(t.x-8,t.y-5,4,4,'#bbb');px(t.x+4,t.y-5,4,4,'#bbb');if(t.type==='bomb')px(t.x-3,t.y-9,6,6,(gameT*4|0)%2?'#ff5252':'#222');}
@@ -908,15 +945,15 @@ function drawHuman(x,y,o){
  // 무기
  const wx=x+fl*9,wy=y-16;
  if(o.weapon==='staff'){px(wx-1,wy-14,2,20,'#7a4a24');px(wx-3,wy-18,6,6,'#a98bff');px(wx-1,wy-16,2,2,'#fff');}
- else if(o.weapon==='sword'){const sw=o.atk?6:0;px(wx-1+fl*sw,wy-14,3,14,'#dfe6ee');px(wx-3+fl*sw,wy,7,2,'#d4af37');px(wx+fl*sw,wy+2,2,4,'#6b4423');}
+ else if(o.weapon==='sword'){const sw=o.atk?6:0;px(wx-1+fl*sw,wy-14,3,14,o.wcol||'#dfe6ee');px(wx-3+fl*sw,wy,7,2,'#d4af37');px(wx+fl*sw,wy+2,2,4,'#6b4423');}
  else if(o.weapon==='bow'){ctx.strokeStyle='#8a5a2b';ctx.lineWidth=2;ctx.beginPath();ctx.arc(wx-fl*2,wy-2,9,fl>0?-1.3:1.84,fl>0?1.3:4.44);ctx.stroke();px(wx-fl*2,wy-10,1,17,'#eee');}
  else if(o.weapon==='gun'){px(wx-(fl<0?8:0),wy-2,9,3,'#3a3a3a');px(wx+(fl<0?-2:0),wy+1,3,4,'#6b4423');}
 }
 function drawChar(o){
  const r=RACES[o.race]||RACES.human,c=CLASSES[o.cls]||CLASSES.mage,J=JOBS[o.job];
- const ht={mage:'wiz',sword:'helm',archer:'hood',ranger:'cow'}[o.cls];
- const wp={mage:'staff',sword:'sword',archer:'bow',ranger:'gun'}[o.cls];
- drawHuman(o.x,o.y,{skin:r.skin,hair:r.hair,outfit:J?J.color:c.color,hat:J?J.hat:{mage:'#3a2a8a',sword:'#999',archer:'#1f5e3a',ranger:'#6b4423'}[o.cls],hatType:ht,left:o.fx<0,up:o.fy<-.7,walk:o.walk,ear:r.ear,beard:r.beard,horn:r.horn,weapon:wp,atk:o.atk});
+ const ht={mage:'wiz',sword:'helm',archer:'hood',ranger:'cow',msword:'hood'}[o.cls];
+ const wp={mage:'staff',sword:'sword',archer:'bow',ranger:'gun',msword:'sword'}[o.cls];
+ drawHuman(o.x,o.y,{skin:r.skin,hair:r.hair,outfit:J?J.color:c.color,hat:J?J.hat:{mage:'#3a2a8a',sword:'#999',archer:'#1f5e3a',ranger:'#6b4423',msword:'#1d1440'}[o.cls],wcol:o.cls==='msword'?'#b388ff':null,hatType:ht,left:o.fx<0,up:o.fy<-.7,walk:o.walk,ear:r.ear,beard:r.beard,horn:r.horn,weapon:wp,atk:o.atk});
 }
 function drawPlayer(){
  if(P.inv>0&&!(P.holy>0)&&(gameT*20|0)%2)return;
@@ -928,6 +965,7 @@ function drawNpc(n){
  drawHuman(n.x,n.y,{skin:'#f1c27d',hair:'#ccc',outfit:n.color,hat:n.hat,hatType:n.hatType!==undefined?n.hatType:n.type==='elder'?'wiz':n.type==='gamble'?'cow':'cap',left:P.x<n.x,walk:0,beard:n.type==='elder'});
  label(n.name,n.x,n.y-46,'#ffe9a8');
  if(n.type==='elder'&&(P.q.s==='none'||P.q.s==='clear')&&P.q.i<QUESTS.length){const b=Math.sin(gameT*5)*2;ctx.font='16px Galmuri11, sans-serif';ctx.fillStyle=P.q.s==='clear'?'#7dff7d':'#ffe066';ctx.textAlign='center';ctx.fillText(P.q.s==='clear'?'?':'!',n.x,n.y-58+b);}
+ if(n.type==='shady'&&P.hq&&P.cls!=='msword'&&(P.hq.s==='none'||P.hq.s==='clear')){const b=Math.sin(gameT*5)*2;ctx.font='16px Galmuri11, sans-serif';ctx.fillStyle=P.hq.s==='clear'?'#7dff7d':'#c58bff';ctx.textAlign='center';ctx.fillText(P.hq.s==='clear'?'?':'!',n.x,n.y-58+b);}
  if(n.type==='link'){const b=Math.sin(gameT*4)*2;ctx.font='12px sans-serif';ctx.textAlign='center';ctx.fillText('⚽',n.x+14,n.y-6+b);}
  if(n.type==='job'){const b=Math.sin(gameT*4)*2;ctx.font='12px sans-serif';ctx.textAlign='center';ctx.fillText('⚜',n.x+14,n.y-34+b);}
  if(n.type==='book'){const b=Math.sin(gameT*4)*2;ctx.font='12px sans-serif';ctx.textAlign='center';ctx.fillText('📚',n.x+14,n.y-34+b);}
@@ -991,16 +1029,29 @@ function interact(){
  if(n.type==='elder')elderTalk();
  if(n.type==='shop')dialog('상인 멜',['어서 오세요! 무기, 방어구, 물약 다 있어요.'],[{t:'구매하기',f:()=>openMenu('shop')},{t:'판매하기',f:()=>openMenu('sell')},{t:'나가기'}]);
  if(n.type==='book')dialog(n.name,['어서 오게. 이곳은 온갖 마법과 기술이 잠든 도서관일세.','스킬북을 읽으면 새로운 스킬을 바로 익힐 수 있지.'],[{t:'📚 스킬북 보기',c:'gold',f:()=>openMenu('book')},{t:'나가기'}]);
- if(n.type==='job'){const ks=Object.keys(JOBS).filter(k=>JOBS[k].cls===P.cls),A=JOBS[ks[0]],B=JOBS[ks[1]];
+ if(n.type==='job'){const ks=Object.keys(JOBS).filter(k=>JOBS[k].cls===P.cls);const list=ks.map(k=>`· ${JOBS[k].name} — ${JOBS[k].desc}`);
   if(P.job)dialog(n.name,[`자네는 이미 「${JOBS[P.job].name}」의 길을 걷고 있네. 그 길의 끝을 보게나.`]);
-  else if(P.lv<20)dialog(n.name,['이곳은 전직의 전당. 2차 전직은 Lv20부터 가능하네.',`${CLASSES[P.cls].name}의 길은 둘로 나뉘지.\n\n· ${A.name} — ${A.desc}\n· ${B.name} — ${B.desc}`,`지금은 Lv${P.lv}… 더 강해져서 다시 오게.`]);
-  else dialog(n.name,['때가 되었군! 자네가 걸을 길을 고르게.\n한번 고르면 다시 바꿀 수 없네.',`· ${A.name} — ${A.desc}\n\n· ${B.name} — ${B.desc}`],[{t:A.name,c:'gold',f:()=>advance(ks[0])},{t:B.name,c:'gold',f:()=>advance(ks[1])},{t:'나중에'}]);}
+  else if(P.lv<20)dialog(n.name,['이곳은 전직의 전당. 2차 전직은 Lv20부터 가능하네.',`${CLASSES[P.cls].name}의 길${ks.length>1?'은 둘로 나뉘지':'은 하나뿐이지'}.\n\n${list.join('\n')}`,`지금은 Lv${P.lv}… 더 강해져서 다시 오게.`]);
+  else dialog(n.name,['때가 되었군! 자네가 걸을 길을 고르게.\n한번 고르면 다시 바꿀 수 없네.',list.join('\n\n')],ks.map(k=>({t:JOBS[k].name,c:'gold',f:()=>advance(k)})).concat([{t:'나중에'}]));}
  if(n.type==='inn')dialog(n.name,['어서 와요! 푹 쉬고 가세요. 모험가에겐 공짜랍니다.'],[{t:'🛏 쉬어가기',c:'gold',f:()=>{P.hp=P.st.hp;P.mp=P.st.mp;toast('😴 푹 쉬었다! 체력·마나 회복');sfx('lvl');save(true);}},{t:'나가기'}]);
  if(n.type==='talk')dialog(n.name,n.lines);
- if(n.type==='link')dialog(n.name,['헤이! 모험만 하지 말고 공도 좀 차라고!','random-football-cflg.onrender.com 으로 가면 「RANDOM FOOTBALL」 축구를 할 수 있어. 같은 계정으로 바로 뛸 수 있지.\n\n지금 축구하러 갈래?'],[{t:'⚽ 축구하러 가기',c:'gold',f:()=>{save(true);paused=true;toast('⚽ 축구장으로 이동 중…');netFlush(true).catch(()=>{}).finally(()=>{location.href=n.url;});}},{t:'여기 있을게'}]);
+ if(n.type==='link')dialog(n.name,['헤이! 모험만 하지 말고 공도 좀 차라고!','random-football-cflg.onrender.com 으로 가면 「RANDOM FOOTBALL」 축구를 할 수 있어. 같은 계정으로 바로 뛸 수 있지.\n\n새 창으로 축구장을 열어줄까? (이 게임은 그대로 둘게)'],[{t:'⚽ 새 창으로 열기',c:'gold',f:()=>{save(true);let w=null;try{w=window.open(n.url,'_blank');}catch(e){}if(!w)log('⚠ 새 창이 막혔어요. 브라우저에서 팝업을 허용해 주세요');}},{t:'여기 있을게'}]);
+ if(n.type==='shady')shadyTalk(n);
  if(n.type==='gamble')dialog('도박꾼 럭키',['헤헤, 인생은 한 방이지! 운을 시험해 볼 텐가?','동전 던지기, 랜덤 장비 상자, 장비 강화… 뭐든 걸어보라고!'],[{t:'🎲 도박장 입장',c:'gold',f:()=>openMenu('gamble')},{t:'나가기'}]);
 }
 function advance(j){if(P.job||P.lv<20||!JOBS[j]||JOBS[j].cls!==P.cls)return;P.job=j;calc();P.hp=P.st.hp;P.mp=P.st.mp;autoLearn();toast('⚜ '+JOBS[j].name+' 전직!');sfx('lvl');for(let i=0;i<40;i++)parts.push({x:P.x,y:P.y,vx:rnd(-160,160),vy:rnd(-200,0),life:rnd(.5,1.1),color:'#ffe066',s:3});save(true);}
+function shadyTalk(n){const q=P.hq;
+ if(P.cls==='msword')dialog(n.name,['…크크. 마검의 길은 어떤가.','Lv20이 되면 전직의 전당에서 「매직소드너」가 될 수 있다. 물리와 마법, 반반이다. 잊지 마라.']);
+ else if(q.s==='none')dialog(n.name,['…누구냐. 이 집에 들어온 건 네가 처음이다.','검과 마법을 하나로 다루는 금지된 길, 「마검사」… 관심 있나?','슬라임 100마리. 그 정도 끈기는 보여줘야지.\n\n[히든 퀘스트] 슬라임 100마리 처치\n보상: 히든 직업 「마검사」 전직'],[{t:'받아들인다',c:'gold',f:()=>{q.s='active';q.c=0;log('📜 히든 퀘스트 「슬라임 100마리」 시작');save(true);}},{t:'…나간다'}]);
+ else if(q.s==='active')dialog(n.name,[`아직 멀었다. 슬라임 ${q.c}/100.`]);
+ else dialog(n.name,['…정말 100마리를 잡아왔군.',`「마검사」가 되면 ${CLASSES[P.cls].name}${P.job?'('+JOBS[P.job].name+')':''}의 스킬과 전직은 사라지고, 쓴 스킬 포인트는 돌려받는다.\n무기는 같은 등급의 마검으로 바꿔주지. 한번 바꾸면 되돌릴 수 없다.\n\n마검사가 되겠나?`],[{t:'⚔🔮 마검사가 된다',c:'gold',f:becomeMsword},{t:'조금 더 생각한다'}]);}
+function becomeMsword(){if(P.cls==='msword'||P.hq.s!=='clear')return;
+ let back=0;for(const id in P.skl){if(id[0]==='u'&&/^u\d+$/.test(id))continue;back+=P.skl[id]-1;delete P.skl[id];}
+ P.sp+=back;P.slots=P.slots.map(id=>id&&P.skl[id]?id:null);
+ const old=P.eq.weapon;if(old){P.bag.push(old);P.eq.weapon={id:'w_msword'+Math.min(3,ITEMS[old.id].tier),plus:old.plus};}else P.eq.weapon={id:'w_msword1',plus:0};
+ P.cls='msword';P.job='';P.hq.s='done';P.cds={};calc();P.hp=P.st.hp;P.mp=P.st.mp;autoLearn();
+ toast('⚔🔮 히든 직업 「마검사」 전직!');sfx('lvl');for(let i=0;i<50;i++)parts.push({x:P.x,y:P.y,vx:rnd(-180,180),vy:rnd(-220,20),life:rnd(.5,1.2),color:i%2?'#b388ff':'#ffe066',s:3});
+ if(back)log('⭐ 스킬 포인트 '+back+' 돌려받음');log('💡 능력치는 물리·마법 반반으로! (메뉴 → 상태)');save(true);}
 function elderTalk(){
  const q=P.q;
  if(q.i>=QUESTS.length){dialog('촌장',['영웅이여, 마을은 이제 평화롭다네.','다음 모험이 기다리고 있을 걸세. (업데이트 예정)']);return;}
@@ -1029,8 +1080,8 @@ function renderMenu(){
  const B=$('mBody');calc();const s=P.st;let h='';
  if(menuTab==='stat'){
   h=`<div style="font-size:15px;color:#ffe9a8">${P.name}</div><div>${RACES[P.race].name} ${jobName(P)} · Lv ${P.lv}</div>${P.job?`<div style="color:#ffe066;font-size:12px">⚜ ${JOBS[P.job].desc}</div>`:''}<div style="color:#b7a6d9;font-size:12px">${RACES[P.race].desc}</div><br>
-  <div class="grid2"><div>❤ 체력 ${Math.ceil(P.hp)}/${s.hp}</div><div>💧 마나 ${Math.floor(P.mp)}/${s.mp}</div><div>⚔ 물리 공격 ${s.patk}</div><div>🔮 마법 공격 ${s.matk}</div><div>🛡 방어 ${s.def}</div><div>&nbsp;</div><div>👟 속도 ${s.spd.toFixed(1)}</div><div>🍀 행운 ${s.luck}</div><div>체력회복 ${s.hpr.toFixed(1)}/초</div><div>마나회복 ${s.mpr.toFixed(1)}/초</div><div>경험치 ${P.exp}/${need(P.lv)}</div><div>💰 ${P.gold.toLocaleString()} G</div><div>처치 수 ${P.kills}</div><div>골드획득 +${s.gold}%</div></div>
-  <div class="row" style="display:block;margin-top:10px"><b style="color:#ffe9a8">능력치 포인트 ${P.ap||0}</b><small>레벨업마다 1포인트 · ${kindHint()}</small><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">${[['def','🛡 방어 +2'],['patk','⚔ 물리 +3'],['matk','🔮 마법 +3']].map(a=>`<button class="btn gold" data-pt="${a[0]}" ${P.ap>0?'':'disabled'}>${a[1]} (${P.pts[a[0]]})</button>`).join('')}</div></div>`;
+  <div class="grid2"><div>❤ 체력 ${Math.ceil(P.hp)}/${s.hp}</div><div>💧 마나 ${Math.floor(P.mp)}/${s.mp}</div><div>⚔ 물리 공격 ${s.patk}</div><div>🔮 마법 공격 ${s.matk}</div><div>🛡 방어 ${s.def}</div><div>${isHybrid()?'⚔🔮 반반 공격 '+s.hatk:'&nbsp;'}</div><div>👟 속도 ${s.spd.toFixed(1)}</div><div>🍀 행운 ${s.luck}</div><div>체력회복 ${s.hpr.toFixed(1)}/초</div><div>마나회복 ${s.mpr.toFixed(1)}/초</div><div>경험치 ${P.exp}/${need(P.lv)}</div><div>💰 ${P.gold.toLocaleString()} G</div><div>처치 수 ${P.kills}</div><div>골드획득 +${s.gold}%</div></div>
+  <div class="row" style="display:block;margin-top:10px"><b style="color:#ffe9a8">능력치 포인트 ${P.ap||0}</b><small>레벨업마다 3포인트 · ${kindHint()}</small><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">${[['def','🛡 방어 +1'],['patk','⚔ 물리 +1'],['matk','🔮 마법 +1']].map(a=>`<button class="btn gold" data-pt="${a[0]}" ${P.ap>0?'':'disabled'}>${a[1]} (${P.pts[a[0]]})</button>`).join('')}</div></div>`;
  }else if(menuTab==='equip'){
   h='<div style="color:#ffe9a8">착용 중</div>';
   for(const [k,n] of [['weapon','무기'],['armor','방어구'],['acc','장신구']]){const e=P.eq[k];h+=`<div class="row"><div class="t">${n}: ${e?itemName(e):'<span style="color:#777">없음</span>'}<small>${e?itemDesc(ITEMS[e.id],e.plus):''}</small></div>${e&&k!=='weapon'?`<button class="btn" data-un="${k}">해제</button>`:''}</div>`;}
@@ -1054,6 +1105,7 @@ function renderMenu(){
    h+=`<div class="row"><div style="font-size:22px;width:28px;text-align:center">${sk.ic}</div><div class="t">${sk.name} <span style="color:#b7a6d9;font-size:11px">${sk.id[0]==='u'?'공용':CLASSES[P.cls].name}</span><small>${sk.desc} · MP ${sk.mp} · 쿨 ${sk.cd}초${lvok?'':' · <span style="color:#ff8a8a">Lv'+sk.lv+' 필요</span>'}</small></div><button class="btn gold" data-book="${sk.id}" ${own||!lvok||P.gold<sk.book?'disabled':''}>${own?'습득함':sk.book+'G'}</button></div>`;});
  }else if(menuTab==='quest'){
   const q=P.q;if(q.i>=QUESTS.length)h='모든 퀘스트를 완료했습니다! 🏆';else{const Q=QUESTS[q.i];h=`<div class="row"><div class="t"><b style="color:#ffe9a8">${Q.name}</b><small>${ENEMIES[Q.tgt].name} ${Q.n}마리 처치 · 보상 ${Q.gold}G / 경험치 ${Q.exp}</small></div><div>${q.s==='none'?'촌장에게 받기':q.s==='clear'?'✅ 보고하기':q.c+'/'+Q.n}</div></div>`;}
+  if(P.hq&&P.hq.s!=='none'&&P.hq.s!=='done')h+=`<div class="row"><div class="t"><b style="color:#c58bff">🕯 히든: 슬라임 100마리</b><small>보상: 히든 직업 「마검사」 · 마을 남서쪽 끝 집의 수상한 자</small></div><div>${P.hq.s==='clear'?'✅ 보고하기':P.hq.c+'/100'}</div></div>`;
   h+=`<br><div style="color:#b7a6d9;font-size:12px">진행: ${Math.min(q.i,QUESTS.length)}/${QUESTS.length}<br>마을 동쪽 → 바람의 들판 → 북동쪽 끝 → 모르간의 던전</div>`;
  }else if(menuTab==='sys'){
   h=`<div style="margin-bottom:8px;font-size:12px;color:${NET.token?'#7dff7d':'#b7a6d9'}">${NET.token?'👤 '+esc(NET.nick)+' 계정 · 서버에 저장돼요'+(NET.live?' · 실시간 접속 중':''):'이 기기에만 저장돼요'}</div><button class="btn gold" id="mSave">💾 저장하기</button> <span style="font-size:11px;color:#b7a6d9">(맵 이동할 때도 자동 저장돼요)</span><br><br><button class="btn red" id="mTitleBtn">타이틀로</button>
@@ -1125,7 +1177,7 @@ function enhance(k){
 let selRace='human',selCls='mage';
 function renderCreate(){
  $('cRace').innerHTML=Object.entries(RACES).map(([k,r])=>`<button class="card ${k===selRace?'on':''}" data-r="${k}"><b>${r.name}</b><small>${r.desc}</small></button>`).join('');
- $('cCls').innerHTML=Object.entries(CLASSES).map(([k,c])=>`<button class="card ${k===selCls?'on':''}" data-c="${k}"><b>${c.name}</b><small>${c.desc}</small></button>`).join('');
+ $('cCls').innerHTML=Object.entries(CLASSES).filter(([k,c])=>!c.hidden).map(([k,c])=>`<button class="card ${k===selCls?'on':''}" data-c="${k}"><b>${c.name}</b><small>${c.desc}</small></button>`).join('');
  $('cRace').querySelectorAll('button').forEach(b=>b.onclick=()=>{selRace=b.dataset.r;renderCreate();});
  $('cCls').querySelectorAll('button').forEach(b=>b.onclick=()=>{selCls=b.dataset.c;renderCreate();});
  const pc=$('prev'),g=pc.getContext('2d');g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,48,48);
