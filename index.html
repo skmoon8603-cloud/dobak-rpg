@@ -1347,7 +1347,11 @@ function renderTitle(){
  on('bIn',()=>netAuth('signin'));on('bUp',()=>netAuth('register'));
  on('bGuest',()=>{NET.guest=true;renderTitle();});on('bBack',()=>{NET.guest=false;renderTitle();});
  on('bOut',()=>{netLogout();renderTitle();});
- on('bNew',()=>{if(logged&&NET.cloud)dialog('⚠ 새 게임',[`서버에 저장된 캐릭터(Lv${NET.cloud.lv||1} ${NET.cloud.name||''})가 새 캐릭터로 바뀌어요. 정말 새로 시작할까요?`],[{t:'새로 시작',c:'red',f:goCreate},{t:'취소'}]);else goCreate();});
+ on('bNew',()=>{const c=logged?NET.cloud:(hasSave()?(()=>{try{return JSON.parse(localStorage.getItem(SAVEKEY));}catch(e){return null;}})():null);
+  if(!c){goCreate();return;}
+  const who=`Lv${c.lv||1} ${c.name||'모험가'}`,where=logged?'이 계정':'이 기기';
+  const ask=n=>dialog('⚠ 새 게임 ('+n+'/3)',[[`새 게임을 시작하면 ${where}의 캐릭터 「${who}」가 삭제돼요.\n정말 새로 시작할까요?`,`한 번 더 확인할게요.\n「${who}」의 레벨·골드·장비·스킬이 전부 사라지고 되돌릴 수 없어요.\n그래도 삭제할까요?`,`마지막 확인이에요!\n${where}의 「${who}」는 영원히 삭제돼요.\n정말로, 정말로 삭제하고 새 게임을 시작할까요?`][n-1]],[{t:'취소',c:'gold'},{t:n<3?'삭제하고 계속':'삭제하고 새 게임',c:'red',f:()=>{if(n<3)ask(n+1);else goCreate();}}]);
+  ask(1);});
  on('bLoad',()=>{if(logged?!applySave(NET.cloud):!load()){toast('저장된 게임이 없어요');return;}startGame();});
  on('bImport',()=>{if(!load())return;startGame();save(true);netFlush();});
  const pw=$('lPw');if(pw)pw.onkeydown=e=>{if(e.key==='Enter')netAuth('signin');};
