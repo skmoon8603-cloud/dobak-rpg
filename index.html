@@ -547,6 +547,7 @@ function inRoom(x,y,pad){const[rx,ry,rw,rh]=map.bossRoom;return x>(rx+pad)*TS&&x
 function getMap(k){if(!MAPS[k]){MAPS[k]=k==='house'?makeHouse():k==='village'?makeVillage():k==='field'?makeField():k==='ruins'?makeRuins():makeDungeon();prerender(MAPS[k]);}return MAPS[k];}
 function enterMap(k,x,y){
  unseal(map);
+ if(map)for(const n of map.npcs)if(n.granny&&n.hx!=null){n.x=n.hx;n.y=n.hy;n.chase=0;n.mad=0;n.angry=0;}
  map=getMap(k);P.map=k;P.x=x!=null?x:map.start.x;P.y=y!=null?y:map.start.y;
  enemies=[];projs=[];pickups=[];traps=[];timers=[];fx=[];parts=[];texts=[];zones=[];turrets=[];
  map.spawnT=map.spawns.map(()=>0);
@@ -696,7 +697,7 @@ function getMove(){let mx=0,my=0;
 const ANGRY=['이놈! 내 꽃밭에 무슨 짓이냐!','아이고 내 꽃! 썩 물러가지 못해!','한 번만 더 해봐라, 지팡이 맛을 보여주마!','평생 가꾼 꽃을… 이 고얀 것!','촌장한테 다 이를 게야!!'];
 function flowerCheck(pt){if(!map||map.key!=='village')return;const inG=q=>q.x>11*TS&&q.x<23*TS&&q.y>24*TS&&q.y<32*TS;
  if(!inG(pt)&&!inG({x:(pt.x+P.x)/2,y:(pt.y+P.y)/2}))return;const g=map.npcs.find(n=>n.granny);if(!g)return;
- g.mad=(g.angry>gameT-6?(g.mad||0):0)+1;g.say=ANGRY[Math.min(ANGRY.length-1,g.mad-1+(g.mad<3?ri(0,1):0))];g.angry=gameT+4;sfx('hurt');shake=.15;
+ g.mad=(g.angry>gameT-12?(g.mad||0):0)+1;if(g.mad>=3){if(!(g.chase>gameT))toast('💢 할머니가 쫓아온다!! 도망쳐!');g.chase=gameT+15;}g.say=ANGRY[Math.min(ANGRY.length-1,g.mad-1+(g.mad<3?ri(0,1):0))];g.angry=gameT+4;sfx('hurt');shake=.15;
  for(let i=0;i<8;i++)parts.push({x:pt.x+rnd(-20,20),y:pt.y+rnd(-20,20),vx:rnd(-60,60),vy:rnd(-90,-20),life:.6,color:['#ff6b9d','#ffe066','#ffffff','#b18cff'][i%4],s:3});}
 function cast(id,pt){
  const S=SK[id],lv=P.skl[id];if(!S||!lv)return;
@@ -828,6 +829,7 @@ function update(dt){
   if(Math.random()<.5)parts.push({x:z.x+rnd(-z.r,z.r)*.7,y:z.y+rnd(-z.r,z.r)*.7,vx:0,vy:-30,life:.4,color:z.color,s:3});
   if(z.life<=0){zones.splice(i,1);if(z.end)z.end(z);}}
  for(let i=turrets.length-1;i>=0;i--){const tu=turrets[i];tu.life-=dt;tu.t-=dt;if(tu.t<=0){const e=nearest(tu,280);if(e){tu.t=.35;const n=norm(e.x-tu.x,e.y-6-(tu.y-12));tu.fx=n.x;shoot({x:tu.x,y:tu.y-12,vx:n.x*700,vy:n.y*700,dmg:tu.dmg,life:.45,r:4,color:'#9be7ff',kind:'bullet'});}}if(tu.life<=0){puff(tu.x,tu.y,'#999');turrets.splice(i,1);}}
+ grannyTick(dt);
  // 적
  for(const e of enemies.slice())updateEnemy(e,dt);
  // 스폰
@@ -882,6 +884,16 @@ function bossAI(e,dt,d,sp){
   else{const tx=P.x+rnd(-140,140),ty=P.y+rnd(-140,140);if(!blocked(tx,ty,20)&&(!map.bossRoom||inRoom(tx,ty,.5))){for(let k=0;k<16;k++)parts.push({x:e.x,y:e.y,vx:rnd(-150,150),vy:rnd(-150,150),life:.5,color:'#7c4dff',s:4});e.x=tx;e.y=ty;}}
  }
 }
+// 꽃밭을 계속 괴롭히면 할머니가 쫓아온다 (체력 무한 · 엄청 빠름)
+function grannyTick(dt){if(!map||map.key!=='village')return;const g=map.npcs.find(n=>n.granny);if(!g)return;
+ if(g.hx==null){g.hx=g.x;g.hy=g.y;}
+ if(g.chase>gameT&&!P.dead){const dx=P.x-g.x,dy=P.y-g.y,d=Math.hypot(dx,dy)||1,sp=340*dt;g.moving=true;
+  if(d>20){g.x+=dx/d*Math.min(sp,d);g.y+=dy/d*Math.min(sp,d);}
+  if(Math.random()<.5)parts.push({x:g.x+rnd(-6,6),y:g.y,vx:rnd(-30,30),vy:rnd(-30,0),life:.3,color:'#d9c49a',s:3});
+  if(d<26&&!(g.hitT>gameT)&&!P.dash){g.hitT=gameT+.7;const v=Math.max(1,Math.round(P.st.hp*.15));P.hp=Math.max(1,P.hp-v);addText(P.x,P.y-24,'-'+v,'#ff6b6b',13);sfx('hurt');shake=.2;P.inv=.3;
+   const n=norm(dx,dy);moveEnt(P,n.x*46,n.y*46);g.say=['에잇! 에잇!','이 고얀 것!','꽃값이다!','어딜 도망가!'][ri(0,3)];g.angry=gameT+2;}
+ }else{const dx=g.hx-g.x,dy=g.hy-g.y,d=Math.hypot(dx,dy);if(d>2){const sp=110*dt;g.x+=dx/d*Math.min(sp,d);g.y+=dy/d*Math.min(sp,d);g.moving=true;}else{g.moving=false;if(g.chase&&g.chase<=gameT){g.chase=0;g.mad=0;}}}
+ g.walk=(g.walk||0)+(g.moving?dt*(g.chase>gameT?22:9):0);}
 function nearNpc(){if(!map)return null;for(const n of map.npcs){const dy=n.type==='fountain'?-20:0;if(Math.hypot(n.x-P.x,n.y+dy-P.y)<(n.type==='fountain'?60:46))return n;}return null;}
 
 // ================= 그리기 =================
@@ -975,8 +987,8 @@ function drawPlayer(){
 }
 function drawOther(o){ctx.globalAlpha=.9;drawChar(o);ctx.globalAlpha=1;label(o.name+' Lv'+o.lv,o.x,o.y-46,'#9dffb0');}
 function drawNpc(n){
- drawHuman(n.x,n.y,{skin:'#f1c27d',hair:'#ccc',outfit:n.color,hat:n.hat,hatType:n.hatType!==undefined?n.hatType:n.type==='elder'?'wiz':n.type==='gamble'?'cow':'cap',left:P.x<n.x,walk:0,beard:n.type==='elder'});
- label(n.name,n.x,n.y-46,'#ffe9a8');
+ drawHuman(n.x,n.y,{skin:'#f1c27d',hair:'#ccc',outfit:n.color,hat:n.hat,hatType:n.hatType!==undefined?n.hatType:n.type==='elder'?'wiz':n.type==='gamble'?'cow':'cap',left:P.x<n.x,walk:n.walk||0,beard:n.type==='elder'});
+ label(n.chase>gameT?'Lv999 '+n.name+' · 체력 ∞':n.name,n.x,n.y-46,n.chase>gameT?'#ff8a8a':'#ffe9a8');
  if(n.type==='elder'&&(P.q.s==='none'||P.q.s==='clear')&&P.q.i<QUESTS.length){const b=Math.sin(gameT*5)*2;ctx.font='16px Galmuri11, sans-serif';ctx.fillStyle=P.q.s==='clear'?'#7dff7d':'#ffe066';ctx.textAlign='center';ctx.fillText(P.q.s==='clear'?'?':'!',n.x,n.y-58+b);}
  if(n.type==='shady'&&P.hq&&P.cls!=='msword'&&!P.job&&(P.hq.s==='none'||P.hq.s==='clear')){const b=Math.sin(gameT*5)*2;ctx.font='16px Galmuri11, sans-serif';ctx.fillStyle=P.hq.s==='clear'?'#7dff7d':'#c58bff';ctx.textAlign='center';ctx.fillText(P.hq.s==='clear'?'?':'!',n.x,n.y-58+b);}
  if(n.type==='nick'){const b=Math.sin(gameT*4)*2;ctx.font='12px sans-serif';ctx.textAlign='center';ctx.fillText('✏',n.x+14,n.y-34+b);}
@@ -1298,8 +1310,18 @@ async function netInit(){
  if(NET.on){let t=null;try{t=localStorage.getItem('dobakrpg_session');if(!t){const f=localStorage.getItem('rf_auth');if(f)t=JSON.parse(f);}}catch(e){}
   if(typeof t==='string'&&t){NET.token=t;try{if(!(await netCloud())&&!NET.token){}}catch(e){NET.token=null;}}}
  if(!$('title').classList.contains('hidden'))renderTitle();
+ let rs=null;try{rs=sessionStorage.getItem('dobakrpg_resume');sessionStorage.removeItem('dobakrpg_resume');}catch(e){}
+ if(rs&&!NET.playing&&!$('title').classList.contains('hidden')&&(NET.on&&NET.token?applySave(NET.cloud):load())){startGame();log('🔄 새 버전으로 업데이트됐어요');}
 }
 netInit();
+// 새 버전이 올라오면 저장하고 자동으로 새로고침한 뒤 이어서 시작한다
+const UPD={base:null,busy:false};
+async function updCheck(){if(UPD.busy||location.protocol==='file:')return;let t=null;try{const r=await fetch(location.pathname+'?v='+Date.now(),{cache:'no-store'});if(r.ok)t=await r.text();}catch(e){}
+ if(!t||t.indexOf('<title>도박 RPG</title>')<0)return;if(UPD.base===null){UPD.base=t;return;}if(t===UPD.base)return;
+ const typing=document.activeElement&&document.activeElement.tagName==='INPUT';if(typing||gambling)return;
+ UPD.busy=true;if(NET.playing&&P&&map){toast('🔄 새 버전이 나왔어요! 저장하고 새로고침할게요');save(true);try{await netFlush();}catch(e){}try{sessionStorage.setItem('dobakrpg_resume','1');}catch(e){}await new Promise(r=>setTimeout(r,1500));}
+ location.reload();}
+updCheck();setInterval(updCheck,45000);
 
 // ================= 루프 =================
 let last=performance.now();
