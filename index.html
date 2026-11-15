@@ -25,8 +25,12 @@ button{font-family:inherit;cursor:pointer}
 #topr{display:flex;flex-direction:column;align-items:flex-end;gap:6px;pointer-events:auto}
 #mapname{background:rgba(20,10,40,.78);border:2px solid #6b4fa8;border-radius:8px;padding:4px 8px;font-size:12px}
 .tbtn{background:#3b2766;border:2px solid #a585e8;color:#fff;border-radius:8px;padding:6px 9px;font-size:13px;white-space:nowrap}
-#boss{position:fixed;top:calc(env(safe-area-inset-top) + 92px);left:50%;transform:translateX(-50%);width:min(70vw,460px);pointer-events:none;text-align:center;font-size:12px;color:#e9c6ff}
+#boss{position:fixed;top:calc(env(safe-area-inset-top) + 152px);left:50%;transform:translateX(-50%);width:min(70vw,460px);pointer-events:none;text-align:center;font-size:12px;color:#e9c6ff}
 #boss .bar{height:12px;border:1px solid #9b59b6}#boss .bar i{background:linear-gradient(#c56cf0,#6c1fa3)}
+#qtrack{position:fixed;left:calc(env(safe-area-inset-left) + 8px);top:calc(env(safe-area-inset-top) + 104px);max-width:62vw;font-size:11px;line-height:1.5;pointer-events:none;color:#ffe9a8;text-shadow:0 1px 0 #000}
+#qtrack div{background:rgba(20,10,40,.72);border-left:3px solid #ffe066;border-radius:4px;padding:2px 7px;margin-bottom:3px;display:table}
+#qtrack div.h{border-left-color:#c58bff;color:#e3c8ff}
+#qtrack div.ok{border-left-color:#7dff7d;color:#b8ffb8}
 #toast{position:fixed;top:30%;left:50%;transform:translate(-50%,-50%);font-size:22px;color:#ffe066;text-shadow:0 2px 0 #000,0 0 12px #c08bff;pointer-events:none;text-align:center;transition:opacity .4s;opacity:0;white-space:nowrap}
 #log{position:fixed;left:calc(env(safe-area-inset-left) + 8px);bottom:calc(env(safe-area-inset-bottom) + 215px);font-size:11px;pointer-events:none;max-width:55vw;text-shadow:0 1px 0 #000}
 #log div{opacity:.9;margin-top:2px}
@@ -117,6 +121,7 @@ input[type=text],input[type=password]{font-family:inherit;background:#120a24;bor
   </div>
 </div>
 <div id="boss" class="hidden"><div id="bossDrop" style="font-size:10px;color:#ffe9a8;margin-bottom:3px;text-shadow:0 1px 0 #000">드랍: 🦴 모르간의 뼈 2~3개 · 🧥 모르간의 망토 10% · 내 직업 무기 · 행운의 부적</div><div id="bossName">Lv12 리치 모르간</div><div class="bar"><i></i></div></div>
+<div id="qtrack"></div>
 <div id="toast"></div>
 <div id="hint" class="hidden">🎯 쏠 곳을 터치하세요 (버튼을 한 번 더 누르면 자동 조준)</div>
 <div id="log"></div>
@@ -393,6 +398,7 @@ function makeVillage(){
   {x:11.5*TS,y:20.6*TS,name:'여관 주인 로사',type:'inn',color:'#c2185b',hat:'#fff',hatType:'cap'},
   {x:11.5*TS,y:33.6*TS,name:'도박꾼 럭키',type:'gamble',color:'#b8860b',hat:'#222'},
   {x:30*TS,y:24.3*TS,name:'회복의 샘',type:'fountain',invisible:1},
+  {x:27.5*TS,y:17.7*TS,name:'소식통 할아범',type:'rank',color:'#455a64',hat:'#263238',hatType:'cap',sit:1},
   {x:56.5*TS,y:41.7*TS,name:'축구 선수 준',type:'link',color:'#1565c0',hat:'#fff',hatType:'',url:'https://random-football-cflg.onrender.com'},
   {x:45.5*TS,y:20.6*TS,name:'전직관 카인',type:'job',color:'#b71c1c',hat:'#d4af37',hatType:'helm'},
   {x:56.5*TS,y:20.9*TS,name:'경비병',type:'talk',color:'#546e7a',hat:'#999',hatType:'helm',lines:['동쪽 문 밖은 바람의 들판이다.','슬라임은 약하지만 늑대와 고블린은 조심해라. 위험하면 대쉬로 피하고!']},
@@ -966,6 +972,7 @@ function drawNpc(n){
  label(n.name,n.x,n.y-46,'#ffe9a8');
  if(n.type==='elder'&&(P.q.s==='none'||P.q.s==='clear')&&P.q.i<QUESTS.length){const b=Math.sin(gameT*5)*2;ctx.font='16px Galmuri11, sans-serif';ctx.fillStyle=P.q.s==='clear'?'#7dff7d':'#ffe066';ctx.textAlign='center';ctx.fillText(P.q.s==='clear'?'?':'!',n.x,n.y-58+b);}
  if(n.type==='shady'&&P.hq&&P.cls!=='msword'&&!P.job&&(P.hq.s==='none'||P.hq.s==='clear')){const b=Math.sin(gameT*5)*2;ctx.font='16px Galmuri11, sans-serif';ctx.fillStyle=P.hq.s==='clear'?'#7dff7d':'#c58bff';ctx.textAlign='center';ctx.fillText(P.hq.s==='clear'?'?':'!',n.x,n.y-58+b);}
+ if(n.type==='rank'){const b=Math.sin(gameT*4)*2;ctx.font='12px sans-serif';ctx.textAlign='center';ctx.fillText('🏆',n.x+14,n.y-34+b);}
  if(n.type==='link'){const b=Math.sin(gameT*4)*2;ctx.font='12px sans-serif';ctx.textAlign='center';ctx.fillText('⚽',n.x+14,n.y-6+b);}
  if(n.type==='job'){const b=Math.sin(gameT*4)*2;ctx.font='12px sans-serif';ctx.textAlign='center';ctx.fillText('⚜',n.x+14,n.y-34+b);}
  if(n.type==='book'){const b=Math.sin(gameT*4)*2;ctx.font='12px sans-serif';ctx.textAlign='center';ctx.fillText('📚',n.x+14,n.y-34+b);}
@@ -1004,6 +1011,9 @@ function hud(){
  $('gold').textContent='💰 '+P.gold.toLocaleString()+' G'+(P.sp>0?'   ⭐SP '+P.sp:'');
  $('nHp').textContent=P.pots.hp;$('nMp').textContent=P.pots.mp;
  $('hint').classList.toggle('hidden',armed<0||paused);
+ {let q='';const m=P.q;if(m.i<QUESTS.length){const Q=QUESTS[m.i];if(m.s==='active')q+=`<div>📜 ${Q.name} · ${ENEMIES[Q.tgt].name} ${m.c}/${Q.n}</div>`;else if(m.s==='clear')q+=`<div class="ok">✅ ${Q.name} · 촌장에게 보고하기</div>`;}
+  const hq=P.hq;if(hq&&P.cls!=='msword'&&!P.job){if(hq.s==='active')q+=`<div class="h">🕯 히든 · 슬라임 ${hq.c}/100</div>`;else if(hq.s==='clear')q+=`<div class="ok">✅ 히든 · 수상한 자에게 보고하기</div>`;}
+  const el=$('qtrack');if(el._q!==q){el._q=q;el.innerHTML=q;}}
  const oc=NET.others.size,mk='📍 '+map.name+(NET.live?' · 👥 '+(oc+1):'');if($('mapname').textContent!==mk)$('mapname').textContent=mk;
  for(let i=0;i<3;i++){const b=$('bS'+(i+1)),id=P.slots[i],s=id&&SK[id];const key=id||'-';b.classList.toggle('arm',armed===i);
   if(b._k!==key){b._k=key;b.innerHTML=`<span class="key">${i+1}</span>`+(s?`<b>${s.ic}</b>${s.name}`:'<span style="opacity:.5">빈칸</span>')+'<div class="cd"></div>';b.classList.toggle('lock',!s);}
@@ -1037,9 +1047,20 @@ function interact(){
  if(n.type==='talk')dialog(n.name,n.lines);
  if(n.type==='link')dialog(n.name,['헤이! 모험만 하지 말고 공도 좀 차라고!','random-football-cflg.onrender.com 으로 가면 「RANDOM FOOTBALL」 축구를 할 수 있어. 같은 계정으로 바로 뛸 수 있지.\n\n새 창으로 축구장을 열어줄까? (이 게임은 그대로 둘게)'],[{t:'⚽ 새 창으로 열기',c:'gold',f:()=>{save(true);let w=null;try{w=window.open(n.url,'_blank');}catch(e){}if(!w)log('⚠ 새 창이 막혔어요. 브라우저에서 팝업을 허용해 주세요');}},{t:'여기 있을게'}]);
  if(n.type==='shady')shadyTalk(n);
+ if(n.type==='rank')rankTalk(n);
  if(n.type==='gamble')dialog('도박꾼 럭키',['헤헤, 인생은 한 방이지! 운을 시험해 볼 텐가?','동전 던지기, 랜덤 장비 상자, 장비 강화… 뭐든 걸어보라고!'],[{t:'🎲 도박장 입장',c:'gold',f:()=>openMenu('gamble')},{t:'나가기'}]);
 }
 function advance(j){if(P.job||P.lv<20||!JOBS[j]||JOBS[j].cls!==P.cls)return;P.job=j;calc();P.hp=P.st.hp;P.mp=P.st.mp;autoLearn();toast('⚜ '+JOBS[j].name+' 전직!');sfx('lvl');for(let i=0;i<40;i++)parts.push({x:P.x,y:P.y,vx:rnd(-160,160),vy:rnd(-200,0),life:rnd(.5,1.1),color:'#ffe066',s:3});save(true);}
+async function rankTalk(n){
+ if(!NET.on){dialog(n.name,['허허, 요즘은 소식이 끊겨서 누가 제일인지 알 수가 없구먼.\n(서버에 연결되면 순위를 알려줄 수 있다네)']);return;}
+ toast('📜 순위를 알아보는 중…');save(true);try{await netFlush();}catch(e){}
+ let j=null;try{const r=await fetch(NET.base+'/api/rpg/rank',{cache:'no-store'});if(r.ok)j=await r.json();}catch(e){}
+ if(dlgState||!$('menu').classList.contains('hidden')||!P||P.dead)return;
+ if(!j||!Array.isArray(j.gold)){dialog(n.name,['허허, 지금은 소식이 닿질 않는구먼. 잠시 뒤에 다시 물어보게.']);return;}
+ const who=a=>`${a.name}${a.nick&&a.nick!==a.name?' ('+a.nick+')':''}`,md=i=>['🥇','🥈','🥉'][i]||(i+1)+'.';
+ dialog(n.name,['허허, 여기 앉아 있으면 온 세상 소식이 다 들린다네. 누가 제일인지 알려주지.',
+  '💰 돈 순위\n'+(j.gold.map((a,i)=>`${md(i)} ${who(a)} · ${a.gold.toLocaleString()}G`).join('\n')||'아직 아무도 없다네'),
+  '⭐ 레벨 순위\n'+(j.lv.map((a,i)=>`${md(i)} ${who(a)} · Lv${a.lv} ${(JOBS[a.job]||CLASSES[a.cls]||{name:''}).name}`).join('\n')||'아직 아무도 없다네')]);}
 function shadyTalk(n){const q=P.hq;
  if(P.cls==='msword')dialog(n.name,['…크크. 마검의 길은 어떤가.','Lv20이 되면 전직의 전당에서 「매직소드너」가 될 수 있다. 물리와 마법, 반반이다. 잊지 마라.']);
  else if(P.job)dialog(n.name,['…흥. 이미 「'+JOBS[P.job].name+'」의 길을 고른 자로군.','2차 전직을 한 자에게 마검의 길은 열리지 않는다. 돌아가라.']);
