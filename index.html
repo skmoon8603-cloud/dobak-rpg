@@ -1032,7 +1032,7 @@ function interact(){
  if(n.type==='job'){const ks=Object.keys(JOBS).filter(k=>JOBS[k].cls===P.cls);const list=ks.map(k=>`· ${JOBS[k].name} — ${JOBS[k].desc}`);
   if(P.job)dialog(n.name,[`자네는 이미 「${JOBS[P.job].name}」의 길을 걷고 있네. 그 길의 끝을 보게나.`]);
   else if(P.lv<20)dialog(n.name,['이곳은 전직의 전당. 2차 전직은 Lv20부터 가능하네.',`${CLASSES[P.cls].name}의 길${ks.length>1?'은 둘로 나뉘지':'은 하나뿐이지'}.\n\n${list.join('\n')}`,`지금은 Lv${P.lv}… 더 강해져서 다시 오게.`]);
-  else dialog(n.name,['때가 되었군! 자네가 걸을 길을 고르게.\n한번 고르면 다시 바꿀 수 없네.'+(P.cls!=='msword'&&P.hq&&(P.hq.s==='active'||P.hq.s==='clear')?'\n\n⚠ 여기서 전직하면 히든 직업 「마검사」는 될 수 없네.':''),list.join('\n\n')],ks.map(k=>({t:JOBS[k].name,c:'gold',f:()=>advance(k)})).concat([{t:'나중에'}]));}
+  else dialog(n.name,['때가 되었군! 자네가 걸을 길을 고르게.\n한번 고르면 다시 바꿀 수 없네.',list.join('\n\n')],ks.map(k=>({t:JOBS[k].name,c:'gold',f:()=>advance(k)})).concat([{t:'나중에'}]));}
  if(n.type==='inn')dialog(n.name,['어서 와요! 푹 쉬고 가세요. 모험가에겐 공짜랍니다.'],[{t:'🛏 쉬어가기',c:'gold',f:()=>{P.hp=P.st.hp;P.mp=P.st.mp;toast('😴 푹 쉬었다! 체력·마나 회복');sfx('lvl');save(true);}},{t:'나가기'}]);
  if(n.type==='talk')dialog(n.name,n.lines);
  if(n.type==='link')dialog(n.name,['헤이! 모험만 하지 말고 공도 좀 차라고!','random-football-cflg.onrender.com 으로 가면 「RANDOM FOOTBALL」 축구를 할 수 있어. 같은 계정으로 바로 뛸 수 있지.\n\n새 창으로 축구장을 열어줄까? (이 게임은 그대로 둘게)'],[{t:'⚽ 새 창으로 열기',c:'gold',f:()=>{save(true);let w=null;try{w=window.open(n.url,'_blank');}catch(e){}if(!w)log('⚠ 새 창이 막혔어요. 브라우저에서 팝업을 허용해 주세요');}},{t:'여기 있을게'}]);
@@ -1043,7 +1043,7 @@ function advance(j){if(P.job||P.lv<20||!JOBS[j]||JOBS[j].cls!==P.cls)return;P.jo
 function shadyTalk(n){const q=P.hq;
  if(P.cls==='msword')dialog(n.name,['…크크. 마검의 길은 어떤가.','Lv20이 되면 전직의 전당에서 「매직소드너」가 될 수 있다. 물리와 마법, 반반이다. 잊지 마라.']);
  else if(P.job)dialog(n.name,['…흥. 이미 「'+JOBS[P.job].name+'」의 길을 고른 자로군.','2차 전직을 한 자에게 마검의 길은 열리지 않는다. 돌아가라.']);
- else if(q.s==='none')dialog(n.name,['…누구냐. 이 집에 들어온 건 네가 처음이다.','검과 마법을 하나로 다루는 금지된 길, 「마검사」… 관심 있나?','슬라임 100마리. 그 정도 끈기는 보여줘야지.\n\n[히든 퀘스트] 슬라임 100마리 처치\n보상: 히든 직업 「마검사」 전직\n⚠ 그 전에 2차 전직을 해버리면 마검사가 될 수 없다'],[{t:'받아들인다',c:'gold',f:()=>{q.s='active';q.c=0;log('📜 히든 퀘스트 「슬라임 100마리」 시작');save(true);}},{t:'…나간다'}]);
+ else if(q.s==='none')dialog(n.name,['…누구냐. 이 집에 들어온 건 네가 처음이다.','검과 마법을 하나로 다루는 금지된 길, 「마검사」… 관심 있나?','슬라임 100마리. 그 정도 끈기는 보여줘야지.\n\n[히든 퀘스트] 슬라임 100마리 처치\n보상: 히든 직업 「마검사」 전직'],[{t:'받아들인다',c:'gold',f:()=>{q.s='active';q.c=0;log('📜 히든 퀘스트 「슬라임 100마리」 시작');save(true);}},{t:'…나간다'}]);
  else if(q.s==='active')dialog(n.name,[`아직 멀었다. 슬라임 ${q.c}/100.`]);
  else dialog(n.name,['…정말 100마리를 잡아왔군.',`「마검사」가 되면 ${CLASSES[P.cls].name}의 스킬은 사라지고, 쓴 스킬 포인트는 돌려받는다.\n무기는 같은 등급의 마검으로 바꿔주지. 한번 바꾸면 되돌릴 수 없다.\n\n마검사가 되겠나?`],[{t:'⚔🔮 마검사가 된다',c:'gold',f:becomeMsword},{t:'조금 더 생각한다'}]);}
 function becomeMsword(){if(P.cls==='msword'||P.job||P.hq.s!=='clear')return;
