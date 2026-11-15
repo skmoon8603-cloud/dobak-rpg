@@ -1361,10 +1361,16 @@ $('bStart').onclick=()=>{const nm=($('cName').value||'모험가').trim().slice(0
 function adminGift(){P.flags.admin=1;const up=Math.max(0,999-P.lv);P.lv=Math.max(P.lv,999);P.exp=0;P.sp+=up;P.ap=(P.ap||0)+3*up;P.gold=Math.max(P.gold,999999);
  if(!(P.eq.weapon&&P.eq.weapon.id==='catsword')){if(P.eq.weapon)P.bag.push(P.eq.weapon);P.eq.weapon={id:'catsword',plus:0};}
  calc();P.hp=P.st.hp;P.mp=P.st.mp;autoLearn(true);setTimeout(()=>{toast('👑 관리자 보상 지급!');log('👑 Lv999 · 999,999G · 🐱 고양이 소드');save(true);},800);}
+// 운영자가 계정에 준 보상(레벨 등)을 한 번만 적용
+function applyGrants(){const list=NET.grants;NET.grants=[];for(const g of list){const lv=Math.round(+g.lv||0);
+  if(lv>P.lv&&lv<=999){const up=lv-P.lv;P.lv=lv;P.exp=0;P.sp+=up;P.ap=(P.ap||0)+3*up;calc();P.hp=P.st.hp;P.mp=P.st.mp;autoLearn(true);setTimeout(()=>{toast('🎁 운영자 선물: Lv'+lv+'!');log('🎁 레벨 '+lv+' · 스킬 포인트 +'+up+' · 능력치 포인트 +'+3*up);},900);}
+  netApi('/api/rpg/grantdone',{id:g.id}).catch(()=>{});}
+ setTimeout(()=>{save(true);netFlush();},1200);}
 function startGame(isNew){
  $('title').classList.add('hidden');$('hud').classList.remove('hidden');$('ctrl').classList.remove('hidden');
  fixPlayer();calc();if(isNew){P.hp=P.st.hp;P.mp=P.st.mp;}
  if(NET.admin&&NET.token&&!P.flags.admin)adminGift();
+ if(NET.token&&NET.grants&&NET.grants.length)applyGrants();
  enterMap(P.map||'village',isNew?null:P.x,isNew?null:P.y);
  if(blocked(P.x,P.y,8)){P.x=map.start.x;P.y=map.start.y;}
  paused=false;NET.playing=true;netConnect();if(isNew)save(true);
@@ -1376,7 +1382,7 @@ function startGame(isNew){
 function netLogout(){NET.token=null;NET.cloud=null;NET.uid='';NET.live=false;try{localStorage.removeItem('dobakrpg_session');}catch(e){}if(NET.sock){try{NET.sock.disconnect();}catch(e){}NET.sock=null;}NET.others.clear();}
 async function netApi(path,body){const o={method:body?'POST':'GET',cache:'no-store',headers:{}};if(NET.token)o.headers.Authorization='Bearer '+NET.token;if(body){o.headers['Content-Type']='application/json';o.body=JSON.stringify(body);}
  const r=await fetch(NET.base+path,o);let j=null;try{j=await r.json();}catch(e){}return{status:r.status,ok:r.ok,j:j||{}};}
-async function netCloud(){const r=await netApi('/api/rpg/save');if(r.status===401){netLogout();return false;}if(!r.ok)return false;NET.uid=r.j.id;NET.admin=!!r.j.admin;NET.nick=r.j.nick||'';NET.cloud=r.j.save||null;return true;}
+async function netCloud(){const r=await netApi('/api/rpg/save');if(r.status===401){netLogout();return false;}if(!r.ok)return false;NET.uid=r.j.id;NET.admin=!!r.j.admin;NET.grants=Array.isArray(r.j.grants)?r.j.grants:[];NET.nick=r.j.nick||'';NET.cloud=r.j.save||null;return true;}
 const AUTHERR={exists:'이미 있는 아이디예요',bad_username:'아이디는 2~20자로 해주세요',bad_password:'비밀번호는 6자 이상이어야 해요',bad_login:'아이디 또는 비밀번호가 틀렸어요',locked:'5번 틀려서 5분 동안 잠겼어요',too_many_requests:'잠시 후 다시 시도해 주세요'};
 async function netAuth(kind){const msg=$('lMsg'),u=$('lId').value.trim(),pw=$('lPw').value;if(u.length<2){msg.textContent=AUTHERR.bad_username;return;}if(pw.length<6){msg.textContent=AUTHERR.bad_password;return;}
  msg.style.color='#c9b3ff';msg.textContent='서버에 연결하는 중…';
