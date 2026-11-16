@@ -394,7 +394,7 @@ const ITEMS={
  r3:{name:'행운의 부적',slot:'acc',luck:8,gold:25,tier:2,price:650},
  cloak:{name:'모르간의 망토',slot:'armor',def:18,hp:120,mp:40,mpr:1,tier:4,price:8000},
  catsword:{name:'고양이 소드',slot:'weapon',atk:1e9,tier:4,price:0},
- dalkong:{name:'관리자의 달콩빔',slot:'weapon',atk:1e9,tier:4,price:0},
+ dalkong:{name:'관리자의 달콩빔',slot:'weapon',atk:1,tier:4,price:0},
  a_hide:{name:'늑대가죽 갑옷',slot:'armor',def:6,hp:35,spd:.05,tier:2,price:300,craft:1},
  a_bone:{name:'해골 뼈 갑옷',slot:'armor',def:11,hp:60,tier:2,price:700,craft:1},
  a_scale:{name:'심해 비늘 갑옷',slot:'armor',def:22,hp:170,mp:30,tier:3,price:3000,craft:1},
@@ -987,7 +987,7 @@ function basicAttack(){
  const c=CLASSES[P.cls],j=P.job;const a=aim(c.range+(j==='sniper'?160:40));P.fx=a.d.x;P.fy=a.d.y;
  P.acd=c.cd*(P.rage>0||P.haste>0?.65:1)*(j==='tradbow'?.75:j==='sniper'?1.6:1);P.atkAnim=.15;
  const d=a.d;sfx('shoot');curKind=basicKind();curTier=0;
- if(P.eq.weapon&&P.eq.weapon.id==='dalkong'){shoot({vx:d.x*620,vy:d.y*620,dmg:dmgOf(1),pierce:99,life:.9,r:12,color:'#ff80ab',kind:'dalkong',glow:1,tier:2,dk:1,hitP:new Set()});sfx('lvl');return;}
+ if(P.eq.weapon&&P.eq.weapon.id==='dalkong'){let tu=null,td=650,dd=d;if(NET.live)for(const[uid,o]of NET.others){const q=Math.hypot(o.x-P.x,o.y-P.y);if(q<td){td=q;tu=uid;}}if(tu){const o=NET.others.get(tu);dd=norm(o.x-P.x,o.y-14-P.y);P.fx=dd.x;P.fy=dd.y;}shoot({vx:dd.x*620,vy:dd.y*620,dkT:tu,dmg:1,pierce:99,life:.9,r:12,color:'#ff80ab',kind:'dalkong',glow:1,tier:2,dk:1,hitP:new Set()});sfx('lvl');return;}
  if(P.eq.weapon&&P.eq.weapon.id==='catsword'){shoot({vx:d.x*520,vy:d.y*520,dmg:dmgOf(1),pierce:99,life:.9,r:12,color:'#ffb3d9',kind:'cat',glow:1,tier:2});sfx('meow');return;}
  if(P.cls==='mage')shoot({vx:d.x*420,vy:d.y*420,dmg:dmgOf(1.05),life:.7,r:6,color:j==='dark'?'#7b3fd1':j==='white'?'#fff3a8':'#a98bff',kind:'orb'});
  else if(P.cls==='novice'){slash(Math.atan2(d.y,d.x),58,dmgOf(1));}
@@ -1154,8 +1154,7 @@ function update(dt){
  if(P.dash){P.dash.t-=dt;moveEnt(P,P.dash.x*720*dt,P.dash.y*720*dt);parts.push({x:P.x,y:P.y,vx:0,vy:0,life:.25,color:'#ffffff',s:4});if(P.dash.dmg)for(const e of enemies.slice())if(!P.dash.hit.has(e)&&Math.hypot(e.x-P.x,e.y-P.y)<e.r+20){P.dash.hit.add(e);hurtEnemy(e,P.dash.dmg,{kb:{x:P.dash.x,y:P.dash.y}});}if(P.dash.t<=0)P.dash=null;}
  else if(ml>0){const n=ml>1?ml:1;const sp=P.st.spd*60*dt*(P.haste>0?1.4:1);moveEnt(P,mx/n*sp,my/n*sp);P.fx=mx/ml;P.fy=my/ml;P.walk+=dt*10;}
  // 공격
- P.acd-=dt;if((atkHeld||keys[' ']||keys['j']||mouse.down)&&P.acd<=0&&!safeHere())basicAttack();
- else if((atkHeld||keys[' ']||mouse.down)&&safeHere()&&P.acd<=0){P.acd=.5;const n=nearNpc();if(n&&(atkHeld||keys[' ']))interact();}
+ P.acd-=dt;if((atkHeld||keys[' ']||keys['j']||mouse.down)&&P.acd<=0)basicAttack();
  for(const k in P.cds)if(P.cds[k]>0)P.cds[k]=Math.max(0,P.cds[k]-dt);
  if(P.holy>0){P.holy-=dt;P.inv=Math.max(P.inv,.1);P.hp=Math.min(P.st.hp,P.hp+P.st.hp*.08*dt);}
  if(P.rapid>0){curKind='p';P.rapid-=dt;P.rapT=(P.rapT||0)-dt;if(P.rapT<=0){P.rapT=.08;const t=nearest(P,360);const d=t?norm(t.x-P.x,t.y-P.y):{x:P.fx,y:P.fy};const q=rnd(-.08,.08);shoot({vx:(d.x-d.y*q)*700,vy:(d.y+d.x*q)*700,dmg:dmgOf(.9,P.rapLv),life:.55,r:5,color:'#e8d39a',kind:'arrow'});if(Math.random()<.3)sfx('shoot');}}
@@ -1177,8 +1176,9 @@ function update(dt){
  }
  // 투사체
  for(let i=projs.length-1;i>=0;i--){const p=projs[i];if(p.home){const t=nearest(p,260);if(t){const sp=Math.hypot(p.vx,p.vy),n=norm(t.x-p.x,t.y-6-p.y),c=norm(p.vx/sp+n.x*dt*9,p.vy/sp+n.y*dt*9);p.vx=c.x*sp;p.vy=c.y*sp;}}p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt;let dead=p.life<=0;
-  if(!dead&&!walkable(p.x,p.y+6)&&!isWater(p.x,p.y+6)){dead=true;if(p.aoe)explode(p.x,p.y,p.aoe,p.dmg,p.color,p.eff);}
+  if(!dead&&!p.dk&&!walkable(p.x,p.y+6)&&!isWater(p.x,p.y+6)){dead=true;if(p.aoe)explode(p.x,p.y,p.aoe,p.dmg,p.color,p.eff);}
   if(p.kind==='fire'||p.glow||(p.owner!=='e'&&Math.random()<.5)){parts.push({x:p.x,y:p.y,vx:rnd(-20,20),vy:rnd(-20,20),life:p.glow?.28:.16,color:p.color,s:p.glow||p.kind==='fire'?3:2});if(p.tier>=3)parts.push({x:p.x+rnd(-p.r,p.r),y:p.y+rnd(-p.r,p.r),vx:rnd(-50,50),vy:rnd(-50,50),life:.35,color:'#ffffff',s:p.tier>=4?4:3});}
+  if(!dead&&p.dkT&&NET.others.has(p.dkT)){const o=NET.others.get(p.dkT),sv=Math.hypot(p.vx,p.vy)||1,w=norm(o.x-p.x,o.y-14-p.y),cur=norm(p.vx,p.vy),k3=Math.min(1,dt*10);const nx=cur.x+(w.x-cur.x)*k3,ny=cur.y+(w.y-cur.y)*k3,nl=Math.hypot(nx,ny)||1;p.vx=nx/nl*sv;p.vy=ny/nl*sv;}
   if(!dead&&p.owner==='p'&&p.dk&&NET.live&&NET.sock){for(const[uid,o]of NET.others){if(p.hitP.has(uid))continue;if(Math.hypot(o.x-p.x,o.y-14-p.y)<22){p.hitP.add(uid);NET.sock.emit('dk',{to:uid});addText(o.x,o.y-50,'🐶 달콩빔!','#ff80ab',14);for(let k=0;k<14;k++)parts.push({x:o.x,y:o.y-14,vx:rnd(-140,140),vy:rnd(-160,40),life:.5,color:k%2?'#ff80ab':'#ffd740',s:3});}}}
   if(!dead&&p.owner==='p'){for(const e of enemies){if(p.hit.has(e))continue;if(Math.hypot(e.x-p.x,e.y-6-p.y)<e.r+p.r){p.hit.add(e);if(p.aoe){explode(p.x,p.y,p.aoe,p.dmg,p.color,p.eff);dead=true;break;}const dealt=hurtEnemy(e,p.dmg,Object.assign({kb:norm(p.vx,p.vy)},p.eff||{}));if(p.leech&&dealt&&!P.dead)P.hp=Math.min(P.st.hp,P.hp+dealt*p.leech);if(p.chain)chainFrom(e,p.chain,p.cdmg);if(p.pierce>0)p.pierce--;else{dead=true;break;}}}}
   else if(!dead&&p.owner==='g'&&!p.pc){for(const e of enemies)if(Math.hypot(e.x-p.x,e.y-6-p.y)<e.r+p.r){dead=true;break;}}
