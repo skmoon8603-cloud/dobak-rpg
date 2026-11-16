@@ -1886,15 +1886,19 @@ function partyHtml(){if(!NET.live)return '<div>파티는 계정으로 로그인�
  if(PT.id){h+=`<div>👥 파티원 ${PT.m.length}/4 · 파티원끼리는 위치와 체력이 보여요</div>`;
   for(const a of PT.st){const me=a[0]===NET.uid;h+=`<div class="row"><div class="t"><b style="color:${me?'#ffe066':'#e1bee7'}">${PT.lead===a[0]?'👑 ':''}${esc(String(a[1]))}</b> <span style="color:#b7a6d9">Lv${+a[2]||1}</span><small>📍 ${a[3]?mapName(a[3]):'접속 끊김'}</small><div class="bar" style="height:8px"><i style="width:${clamp(+a[6]||0,0,100)}%;background:linear-gradient(#ff6b6b,#c0392b)"></i></div></div></div>`;}
   h+='<button class="btn red" id="ptLeave" style="margin-top:6px">파티 나가기</button>';}
- else h+='<div>함께 다닐 사람을 파티에 초대하세요. 파티원끼리는 어디에 있든 위치와 체력이 보여요. (최대 4명)</div>';
- if(!PT.id||PT.m.length<4){h+='<div style="color:#ffe9a8;margin-top:10px">초대할 수 있는 사람</div>';const list=(whoList||[]).filter(a=>a[0]!==NET.uid&&!PT.m.includes(a[0]));
+ else h+='<div>함께 다닐 사람을 초대하거나, 다른 파티에 참가 요청을 보내세요. 파티원끼리는 어디에 있든 위치와 체력이 보여요. (최대 4명)</div>';
+ if(!PT.id||PT.m.length<4){h+='<div style="color:#ffe9a8;margin-top:10px">접속 중인 사람</div>';const list=(whoList||[]).filter(a=>a[0]!==NET.uid&&!PT.m.includes(a[0]));
   if(!list.length)h+='<div style="color:#777">지금 초대할 수 있는 사람이 없어요</div>';
-  list.forEach(a=>{h+=`<div class="row"><div class="t">${esc(String(a[1]))} <span style="color:#b7a6d9">Lv${+a[2]||1}</span><small>📍 ${mapName(a[3])}</small></div><button class="btn gold" data-pinv="${esc(String(a[0]))}">초대</button></div>`;});}
+  list.forEach(a=>{h+=`<div class="row"><div class="t">${esc(String(a[1]))} <span style="color:#b7a6d9">Lv${+a[2]||1}</span><small>📍 ${mapName(a[3])}${+a[6]?` · 👥 파티 ${+a[6]}/4`:''}</small></div>${+a[6]?(!PT.id&&+a[6]<4?`<button class="btn" data-preq="${esc(String(a[0]))}">참가 요청</button>`:''):`<button class="btn gold" data-pinv="${esc(String(a[0]))}">초대</button>${PT.id?'':`<button class="btn" data-preq="${esc(String(a[0]))}">참가 요청</button>`}`}</div>`;});}
  return h;}
 function partyBind(B){const k=NET.sock;if(k&&!whoList)k.emit('who',l=>{if(Array.isArray(l)){whoList=l;if(menuTab==='party')renderMenu();}});
  B.querySelectorAll('[data-pinv]').forEach(b=>b.onclick=()=>{if(k)k.emit('pt:inv',{to:b.dataset.pinv});b.disabled=true;});
+ B.querySelectorAll('[data-preq]').forEach(b=>b.onclick=()=>{if(k)k.emit('pt:req',{to:b.dataset.preq});b.disabled=true;b.textContent='요청함';});
  const lv=$('ptLeave');if(lv)lv.onclick=()=>{if(k)k.emit('pt:leave');};}
 function partyNet(k){
+ const rqQ=[];const rqShow=()=>{if(!rqQ.length||dlgState)return;const d=rqQ.shift();dialog('👥 파티 참가 요청',[`${d.nm}${d.lv?' (Lv'+d.lv+')':''} 님이 파티에 들어오고 싶어해요. 받아 줄까요?`],[{t:'수락',c:'gold',f:()=>{k.emit('pt:rans',{from:d.from,yes:1});setTimeout(rqShow,300);}},{t:'거절',f:()=>{k.emit('pt:rans',{from:d.from,yes:0});setTimeout(rqShow,300);}}]);};
+ k.on('pt:rq',d=>{if(!d||!P)return;rqQ.push({from:d.from,nm:String(d.op||'?').slice(0,12),lv:+d.lv||0});sfx('lvl');toast('👥 파티 참가 요청이 왔어요');rqShow();});
+ setInterval(rqShow,1500);
  k.on('pt:ask',d=>{if(!d||!P||P.dead)return;const nm=String(d.op||'?').slice(0,12);if(dlgState)return k.emit('pt:ans',{from:d.from,yes:0});dialog('👥 파티 초대',[`${nm} 님이 파티에 초대했어요. 함께할까요?`],[{t:'수락',c:'gold',f:()=>k.emit('pt:ans',{from:d.from,yes:1})},{t:'거절',f:()=>k.emit('pt:ans',{from:d.from,yes:0})}]);});
  k.on('pt:upd',d=>{const had=!!PT.id;if(!d){PT.id=null;PT.m=[];PT.st=[];if(had)toast('👥 파티에서 나왔어요');}else{const nw=d.m.filter(u=>!PT.m.includes(u)).length;PT.id=d.id;PT.lead=d.lead;PT.m=d.m.slice(0,4);if(!had)toast('👥 파티를 만들었어요!');else if(nw)toast('👥 새 파티원이 들어왔어요');}if(menuTab==='party'&&!$('menu').classList.contains('hidden'))renderMenu();});
  k.on('pt:st',l=>{if(!Array.isArray(l)||!PT.id)return;PT.st=l.slice(0,4);for(const a of PT.st){const o=NET.others.get(a[0]);if(o)o.php=+a[6];}});}
