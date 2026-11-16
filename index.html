@@ -125,7 +125,7 @@ input[type=text],input[type=password]{font-family:inherit;background:#120a24;bor
     <div class="trow"><button class="tbtn" id="bMute">🔊</button><button class="tbtn" id="bVoice">🎤</button><button class="tbtn" id="bChat">💬</button><button class="tbtn" data-tab="stat">상태</button><button class="tbtn" data-tab="skill">스킬</button></div>
     <div class="trow"><button class="tbtn" data-tab="quest">퀘스트</button><button class="tbtn" data-tab="title">칭호</button><button class="tbtn" data-tab="sys">저장</button></div>
     <div class="trow"><button class="tbtn" id="bFull">⛶</button><button class="tbtn" id="bGuide">🧭 길안내</button><button class="tbtn" data-tab="map">지도</button><button class="tbtn" data-tab="equip">인벤토리</button></div>
-    <div class="trow"><button class="tbtn" data-tab="trade">🤝 거래</button></div>
+    <div class="trow"><button class="tbtn" data-tab="party">👥 파티</button><button class="tbtn" data-tab="trade">🤝 거래</button></div>
     </div>
   </div>
 </div>
@@ -408,7 +408,7 @@ const DROPS={slime:[['slime',5,5,1]],wolf:[['hide',2,3,1],['bone2',1,1,1]],gobli
 const RECIPES=[['a_hide',{hide:8,bone2:4},200],['r_slime',{slime:30},150],['a_bone',{bone2:20,hide:5},500],['r_heart',{heart:3,flesh:10},800],
  ['r_lich',{bone:6},1500],['r_horn',{horn:4,scale:6},1500],['a_scale',{scale:35,hide:20,horn:3,ltooth:2},4000],['w_{cls}4',{ltooth:12,scale:45,horn:8,bone:4},9000]];
 const MATP={bone:50,slime:2,hide:6,bone2:4,heart:60,flesh:3,scale:25,horn:80,ltooth:150,fish:12,bigfish:60,goldfish:400}; // 재료 판매가
-const CONS={hp:['체력 물약','❤ 체력 회복',25,'❤'],mp:['마나 물약','💧 마나 회복',25,'💧'],haste:['신속 물약','💨 30초간 이동·공격 속도 증가',60,'💨'],scroll:['귀환서','📜 어디서든 마을로 돌아온다',80,'📜'],burger:['집게리아 버거','🍔 10초간 공격력 +10% (꽃게가 떨어뜨린다)',0,'🍔']};
+const CONS={hp:['체력 물약','❤ 체력 회복',25,'❤'],mp:['마나 물약','💧 마나 회복',25,'💧'],haste:['신속 물약','💨 30초간 이동·공격 속도 증가',60,'💨'],scroll:['귀환서','📜 어디서든 마을로 돌아온다',80,'📜'],seascroll:['바다마을 귀환권','🌊 어디서든 해저마을로 돌아간다 (해저마을 상점)',150,'🌊'],burger:['집게리아 버거','🍔 10초간 공격력 +10% (꽃게가 떨어뜨린다)',0,'🍔']};
 // 칭호: [이름, 색, 얻는 조건 설명, 조건]
 const TITLES={
  admin:['👑 관리자','#ff5252','관리자 계정',()=>!!(NET.admin&&NET.token)],
@@ -439,6 +439,7 @@ const TITLES={
  collector:['수집가','#d7ccc8','재료 200개 모으기',()=>Object.values(P.mats||{}).reduce((a,b)=>a+(+b||0),0)>=200],
  burger:['버거 매니아','#e0a030','집게리아 버거 10개 먹기',()=>(P.bg||0)>=10],
  angler:['낚시왕','#4fc3f7','물고기 30마리 낚기',()=>(P.fishN||0)>=30],
+ party:['함께하는 모험가','#ea80fc','파티 만들기',()=>!!PT.id],
  trader:['거래의 달인','#a5d6a7','거래 5번 성공',()=>(P.trades||0)>=5],
  conch:['고동을 줍는 자','#80deea','???',()=>!!P.flags.conch],
  goldfish:['황금 손','#ffd740','황금 잉어 낚기',()=>(P.mats.goldfish||0)>0||!!P.flags.gf],
@@ -671,6 +672,7 @@ function calc(){
  for(const k in P.eq){const e=P.eq[k];if(!e)continue;const it=ITEMS[e.id];const m=1+.15*e.plus;for(const st in STATNAME)if(it[st])s[st]+=st==='spd'?it[st]:it[st]*m;}
  const j=P.job;if(j==='dark')s.atk*=1.25;if(j==='white'){s.hp*=1.25;s.hpr+=3;s.mpr+=2;}if(j==='magicbow'){s.mp+=50;s.mpr+=1;}if(j==='expert')s.atk*=1.2;if(j==='peak'){s.hp*=1.25;s.def+=10;}if(j==='assault'){s.hp*=1.2;s.spd+=.3;}if(j==='msorder'){s.atk*=1.2;s.hp*=1.15;}
  s.hp=Math.round(s.hp);s.mp=Math.round(s.mp);s.atk=Math.round(s.atk);s.def=Math.round(s.def);
+ if(NET.admin&&NET.token)s.spd*=3; // 관리자 계정은 항상 3배 빠르다
  s.hpr*=.5;s.mpr*=.5; // 회복 속도 절반 (2배 느리게)
  const pt=P.pts||{def:0,patk:0,matk:0};s.def+=pt.def;s.patk=s.atk+pt.patk;s.matk=s.atk+pt.matk;s.hatk=s.atk+2*Math.min(pt.patk,pt.matk)+Math.round(Math.abs(pt.patk-pt.matk)/3); // 반반 직업: 물리·마법을 고르게 찍어야 강하다
  P.st=s;P.hp=Math.min(P.hp,s.hp);P.mp=Math.min(P.mp,s.mp);
@@ -681,7 +683,7 @@ const need=lv=>Math.floor(30*Math.pow(lv,1.6));
 
 // ================= 저장 =================
 const SAVEKEY='dobakrpg_save_v1';
-function snap(){const d=Object.assign({},P);delete d.st;delete d.dash;return d;}
+function snap(){const d=Object.assign({},P);delete d.st;delete d.dash;delete d.say;delete d.sayT;return d;}
 function save(silent){let ok=true;try{localStorage.setItem(SAVEKEY,JSON.stringify(snap()));}catch(e){ok=false;}
  if(NET.token){NET.dirty=true;ok=true;}
  if(!silent)log(ok?(NET.token?'💾 저장되었습니다 (서버)':'💾 저장되었습니다'):'⚠ 이 브라우저에서는 저장할 수 없어요');return ok;}
@@ -689,6 +691,7 @@ function hasSave(){try{return !!localStorage.getItem(SAVEKEY);}catch(e){return f
 function applySave(d){if(!d||!d.race||!RACES[d.race]||!CLASSES[d.cls])return false;P=Object.assign(newPlayer(d.name,d.race,d.cls),d);fixPlayer();return true;}
 function load(){try{return applySave(JSON.parse(localStorage.getItem(SAVEKEY)));}catch(e){return false;}}
 function fixPlayer(){
+ delete P.say;delete P.sayT;
  if(!P.skl)P.skl={};(P.sk||[]).forEach((v,i)=>{if(v)P.skl[P.cls+i]=Math.max(v,P.skl[P.cls+i]||0);});
  delete P.sk;
  if(!JOBS[P.job]||JOBS[P.job].cls!==P.cls)P.job='';
@@ -888,6 +891,8 @@ function useItem(k){if(map&&map.pvp){toast('결투 중에는 쓸 수 없어요')
  if(k==='hp'||k==='mp'){const full=k==='hp'?P.hp>=P.st.hp:P.mp>=P.st.mp;if(full){toast('이미 가득 차 있어요');return;}usePot(k);renderMenu();return;}
  if(k==='burger'){P.pots.burger--;P.burger=10;P.bg=(P.bg||0)+1;sfx('lvl');toast('🍔 냠! 10초간 공격력 +10%');renderMenu();return;}
  if(k==='haste'){P.pots.haste--;P.haste=Math.max(P.haste||0,30);sfx('lvl');toast('💨 신속! 30초간 빨라져요');renderMenu();return;}
+ if(k==='seascroll'){if(map.key==='sea'){toast('이미 해저마을이에요');return;}if(map.sealed||map.pvp){toast('여기서는 쓸 수 없어요');return;}
+  P.pots.seascroll--;P.flags.sea=1;$('mClose').click();puff(P.x,P.y,'#4fc3f7');enterMap('sea',9*TS,15*TS);P.portalLock=1.5;sfx('lvl');toast('🌊 해저마을로 돌아왔다');return;}
  if(k==='scroll'){if(map.key==='village'){toast('이미 마을이에요');return;}if(map.sealed){toast('⛓ 결계 안에서는 귀환서를 쓸 수 없어요');return;}
   P.pots.scroll--;$('mClose').click();puff(P.x,P.y,'#ffe066');enterMap('village',30*TS,25*TS);sfx('lvl');toast('📜 마을로 돌아왔다');}}
 function usePot(k){if(P.dead)return;if(map&&map.pvp){toast('결투 중에는 물약을 쓸 수 없어요');return;}if(P.pots[k]<=0){log('물약이 없어요');return;}if(k==='hp'&&P.hp>=P.st.hp)return;if(k==='mp'&&P.mp>=P.st.mp)return;P.pots[k]--;if(k==='hp'){P.hp=Math.min(P.st.hp,P.hp+Math.round((60+P.lv*8)/3));addText(P.x,P.y-24,'+HP','#7dff7d',12);}else{P.mp=Math.min(P.st.mp,P.mp+Math.round((40+P.lv*4)/3));addText(P.x,P.y-24,'+MP','#7dbfff',12);}sfx('coin');}
@@ -1352,7 +1357,7 @@ function drawPlayer(){
  const tt=TITLES[P.title];if(tt&&P.name)label(tt[0],P.x,P.y-59,tt[1]);
  if(P.say&&P.sayT>nowS())bubble(P.say,P.x,P.y-(tt?76:62));
 }
-function drawOther(o){ctx.globalAlpha=.9;drawChar(o);ctx.globalAlpha=1;if(o.vc){ctx.font='11px sans-serif';ctx.textAlign='center';ctx.fillText('🎙',o.x+(o.name.length*4+14),o.y-42);}if(map.pvp&&o.hp!=null){px(o.x-16,o.y-72,32,5,'#300');px(o.x-16,o.y-72,32*o.hp/100,5,'#ff5252');}label(o.name+' Lv'+o.lv,o.x,o.y-46,'#9dffb0');const tt=TITLES[o.tt];if(tt)label(tt[0],o.x,o.y-59,tt[1]);if(o.say&&o.sayT>nowS())bubble(o.say,o.x,o.y-(tt?76:62));}
+function drawOther(o){ctx.globalAlpha=.9;drawChar(o);ctx.globalAlpha=1;const pid=[...NET.others.entries()].find(e=>e[1]===o);if(pid&&inParty(pid[0])&&!map.pvp){px(o.x-16,o.y-72,32,4,'#300');px(o.x-16,o.y-72,32*clamp(o.php!=null?o.php:(o.hp||100),0,100)/100,4,'#ff5252');label('👥',o.x-(o.name.length*4+16),o.y-46,'#e1bee7');}if(o.vc){ctx.font='11px sans-serif';ctx.textAlign='center';ctx.fillText('🎙',o.x+(o.name.length*4+14),o.y-42);}if(map.pvp&&o.hp!=null){px(o.x-16,o.y-72,32,5,'#300');px(o.x-16,o.y-72,32*o.hp/100,5,'#ff5252');}label(o.name+' Lv'+o.lv,o.x,o.y-46,'#9dffb0');const tt=TITLES[o.tt];if(tt)label(tt[0],o.x,o.y-59,tt[1]);if(o.say&&o.sayT>nowS())bubble(o.say,o.x,o.y-(tt?76:62));}
 function drawNpc(n){
  if(n.board){px(n.x-16,n.y-34,32,22,'#6d4c41');px(n.x-14,n.y-32,28,18,'#d7ccc8');px(n.x-11,n.y-29,10,6,'#fff59d');px(n.x+1,n.y-27,10,8,'#ffccbc');px(n.x-10,n.y-21,8,5,'#b3e5fc');px(n.x-13,n.y-12,3,12,'#5d4037');px(n.x+10,n.y-12,3,12,'#5d4037');label(n.name,n.x,n.y-40,'#ffe9a8');if(P.dq&&P.dq.day===kstDay()&&P.dq.list.some(q=>!q.done&&q.c>=q.n)){ctx.font='16px Galmuri11, sans-serif';ctx.fillStyle='#7dff7d';ctx.textAlign='center';ctx.fillText('?',n.x,n.y-52+Math.sin(gameT*5)*2);}return;}
  drawHuman(n.x,n.y,{tail:n.tail,skin:n.skin||'#f1c27d',hair:n.hair||'#ccc',outfit:n.color,hat:n.hat,hatType:n.hatType!==undefined?n.hatType:n.type==='elder'?'wiz':n.type==='gamble'?'cow':'cap',left:P.x<n.x,walk:n.walk||0,beard:n.type==='elder'});
@@ -1422,6 +1427,7 @@ function hud(){
   {const m2=P.sq;if(m2&&m2.i<SQUESTS.length){const Q=SQUESTS[m2.i];if(m2.s==='active')q+=`<div>🌊 ${Q.name} · ${ENEMIES[Q.tgt].name} ${m2.c}/${Q.n}</div>`;else if(m2.s==='clear')q+=`<div class="ok">✅ ${Q.name} · 해저마을 이장에게 보고하기</div>`;}}
   const hq=P.hq;if(hq&&P.cls==='novice'){if(hq.s==='active')q+=`<div class="h">🕯 히든 · 슬라임 ${hq.c}/100</div>`;else if(hq.s==='clear')q+=`<div class="ok">✅ 히든 · 수상한 자에게 보고하기</div>`;}
   $('bGuide').textContent=guideActive(true)?(P.flags.guideOff?'🧭 길안내 끔':'🧭 길안내'):'🧭';
+ if(PT.id)for(const a of PT.st){if(a[0]===NET.uid)continue;q+=`<div style="border-left-color:#e1bee7;color:#f3e5f5;min-width:150px">👥 ${esc(String(a[1]))} Lv${+a[2]||1} · ${a[3]?mapName(a[3]):'끊김'}<div style="height:5px;background:#300;margin-top:2px"><div style="height:5px;width:${clamp(+a[6]||0,0,100)}%;background:#ff5252"></div></div></div>`;}
  const el=$('qtrack');if(el._q!==q){el._q=q;el.innerHTML=q;}}
  const oc=NET.others.size,mk='📍 '+map.name+(NET.live?' · 👥 '+(oc+1)+' (전체 '+Math.max(NET.total||0,oc+1)+')':'');if($('mapname').textContent!==mk)$('mapname').textContent=mk;
  for(let i=0;i<3;i++){const b=$('bS'+(i+1)),id=P.slots[i],s=id&&SK[id];const key=id||'-';b.classList.toggle('arm',armed===i);
@@ -1539,9 +1545,10 @@ function renderMenu(){
  if(menuTab==='map')tabs.splice(0,9,['map','🗺 지도']);
  if(menuTab==='craft')tabs.splice(0,9,['craft','⚒ 제작']);
  if(menuTab==='trade')tabs.splice(0,9,['trade','🤝 거래']);
+ if(menuTab==='party')tabs.splice(0,9,['party','👥 파티']);
  if(menuTab==='daily')tabs.splice(0,9,['daily','📋 일일 의뢰']);
  if(menuTab==='fish')tabs.splice(0,9,['fish','🎣 낚시']);
- $('mTitle').textContent={shop:'상점',sell:'상점',gamble:'도박장',book:'아르카의 마법 도서관',equip:'인벤토리',nick:'작명가 렌',title:'칭호',map:'지도',craft:'대장장이 볼프의 대장간',daily:'의뢰 게시판',fish:'낚시',trade:'거래'}[menuTab]||'메뉴';
+ $('mTitle').textContent={shop:'상점',sell:'상점',gamble:'도박장',book:'아르카의 마법 도서관',equip:'인벤토리',nick:'작명가 렌',title:'칭호',map:'지도',craft:'대장장이 볼프의 대장간',daily:'의뢰 게시판',fish:'낚시',trade:'거래',party:'파티'}[menuTab]||'메뉴';
  $('mTabs').innerHTML=tabs.map(t=>`<button class="${t[0]===menuTab?'on':''}" data-t="${t[0]}">${t[1]}</button>`).join('');
  $('mTabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{menuTab=b.dataset.t;renderMenu();});
  const B=$('mBody');calc();const s=P.st;let h='';
@@ -1566,7 +1573,8 @@ function renderMenu(){
   if(P.job)sec('⚜ '+JOBS[P.job].name+' 스킬',SKILLS[P.job]);sec(CLASSES[P.cls].name+' 스킬',SKILLS[P.cls]);sec('공용 스킬',SKILLS.common);sec('✨ 깨달음 스킬',SKILLS.special);
   h+='<div style="color:#b7a6d9;font-size:11px;margin-top:10px">새 스킬은 레벨업(Lv4·7·9·11)과 마을의 마법 도서관에서 얻어요</div>';
  }else if(menuTab==='map'){
-  h=`<div style="font-size:12px;margin-bottom:6px">📍 ${map.name} · <span style="color:#ffe066">● 나</span> · <span style="color:#7dff7d">● 다른 사람</span> · <span style="color:#4fc3f7">■ NPC</span> · <span style="color:#ff5252">■ 몬스터</span> · <span style="color:#c9b3ff">◆ 포탈</span> · 빨간 구역 = 나보다 강한 사냥터</div><canvas id="mapCv" style="position:static;width:100%;border:2px solid #4d3880;border-radius:8px;background:#0d0818;image-rendering:pixelated"></canvas><div id="mapList" style="font-size:12px;margin-top:8px;line-height:1.7"></div>${mapGuideHtml()}`;
+  h=`<div style="font-size:12px;margin-bottom:6px">📍 ${map.name} · <span style="color:#ffe066">● 나</span> · <span style="color:#ea80fc">● 파티원</span> · <span style="color:#7dff7d">● 다른 사람</span> · <span style="color:#4fc3f7">■ NPC</span> · <span style="color:#ff5252">■ 몬스터</span> · <span style="color:#c9b3ff">◆ 포탈</span> · 빨간 구역 = 나보다 강한 사냥터</div><canvas id="mapCv" style="position:static;width:100%;border:2px solid #4d3880;border-radius:8px;background:#0d0818;image-rendering:pixelated"></canvas><div id="mapList" style="font-size:12px;margin-top:8px;line-height:1.7"></div>${mapGuideHtml()}`;
+ }else if(menuTab==='party'){h=partyHtml();
  }else if(menuTab==='trade'){h=tradeHtml();
  }else if(menuTab==='craft'){
   h=`<div>💰 ${P.gold.toLocaleString()} G · 재료와 골드를 내면 바로 만들어 가방에 넣어 줘요</div>`;
@@ -1603,7 +1611,7 @@ function renderMenu(){
   <br><br><div style="font-size:12px;color:#b7a6d9;line-height:1.7">PC: WASD/방향키 이동 · Space/클릭 공격(마우스 방향 조준) · 1~3 스킬 · Shift 대쉬 · E 대화 · Z/X 물약 · I 인벤토리 · M 메뉴 · Enter 채팅<br>폰: 왼쪽 화면을 누르고 드래그해서 이동 · 오른쪽 버튼으로 공격/스킬 (가까운 적 자동 조준)</div>`;
  }else if(menuTab==='shop'){
   h=`<div>💰 ${P.gold.toLocaleString()} G</div>`;
-  for(const k in CONS){const c=CONS[k];if(!c[2])continue;h+=`<div class="row"><div class="t">${c[3]} ${c[0]} <span style="color:#b7a6d9;font-size:11px">보유 ${P.pots[k]}</span><small>${c[1]}</small></div><button class="btn gold" data-buyp="${k}" ${P.gold<c[2]?'disabled':''}>${c[2]}G</button></div>`;}
+  for(const k in CONS){const c=CONS[k];if(!c[2])continue;if(k==='seascroll'&&!map.sea)continue;h+=`<div class="row"><div class="t">${c[3]} ${c[0]} <span style="color:#b7a6d9;font-size:11px">보유 ${P.pots[k]}</span><small>${c[1]}</small></div><button class="btn gold" data-buyp="${k}" ${P.gold<c[2]?'disabled':''}>${c[2]}G</button></div>`;}
   Object.keys(ITEMS).filter(k=>ITEMS[k].tier<=3&&!ITEMS[k].craft&&(!ITEMS[k].cls||ITEMS[k].cls===P.cls)).forEach(k=>{const it=ITEMS[k];h+=`<div class="row"><div class="t">${itemName({id:k,plus:0})}<small>${itemDesc(it,0)}</small></div><button class="btn gold" data-buy="${k}" ${P.gold<it.price?'disabled':''}>${it.price}G</button></div>`;});
  }else if(menuTab==='sell'){
   h=`<div>💰 ${P.gold.toLocaleString()} G · 장비는 원래 가격의 40%에 팔아요</div>`;
@@ -1638,6 +1646,7 @@ function renderMenu(){
  B.querySelectorAll('[data-dq]').forEach(b=>b.onclick=()=>{const q=P.dq.list[+b.dataset.dq];if(!q||q.done||q.c<q.n)return;q.done=1;P.dqn=(P.dqn||0)+1;P.gold+=q.gold;gainExp(q.exp);sfx('win');log(`📋 의뢰 완료! ${q.gold}G · 경험치 ${q.exp}`);save(true);renderMenu();});
  const fg=$('fGo');if(fg)fg.onclick=fishGo;
  if(menuTab==='trade')tradeBind(B);
+ if(menuTab==='party')partyBind(B);
  B.querySelectorAll('[data-sell]').forEach(b=>b.onclick=()=>{const i=+b.dataset.sell,e=P.bag[i],it=ITEMS[e.id];P.gold+=Math.floor(it.price*.4*(1+e.plus*.3));P.bag.splice(i,1);sfx('coin');renderMenu();});
  B.querySelectorAll('[data-bet]').forEach(b=>b.onclick=()=>coinFlip(b.dataset.bet));
  const gb=$('gBox');if(gb)gb.onclick=openBox;
@@ -1694,6 +1703,27 @@ function drawGuide(){if(!GUIDE.goal||!guideActive()||map.pvp)return;const pts=GU
   ctx.strokeStyle='#ffe066';ctx.lineWidth=4;ctx.stroke();ctx.restore();}
  const g=GUIDE.goal,r=14+Math.sin(gameT*6)*4;ctx.strokeStyle='#ffe066';ctx.lineWidth=3;ctx.beginPath();ctx.arc(g.x,g.y,r,0,7);ctx.stroke();
  ctx.font='18px sans-serif';ctx.textAlign='center';ctx.fillText('⬇',g.x,g.y-22+Math.sin(gameT*6)*4);}
+// ================= 파티 =================
+const PT={id:null,lead:'',m:[],st:[]};
+const inParty=uid=>!!PT.id&&PT.m.includes(uid);
+function partyHtml(){if(!NET.live)return '<div>파티는 계정으로 로그인한 사람끼리만 만들 수 있어요.</div>';
+ let h='';
+ if(PT.id){h+=`<div>👥 파티원 ${PT.m.length}/4 · 파티원끼리는 위치와 체력이 보여요</div>`;
+  for(const a of PT.st){const me=a[0]===NET.uid;h+=`<div class="row"><div class="t"><b style="color:${me?'#ffe066':'#e1bee7'}">${PT.lead===a[0]?'👑 ':''}${esc(String(a[1]))}</b> <span style="color:#b7a6d9">Lv${+a[2]||1}</span><small>📍 ${a[3]?mapName(a[3]):'접속 끊김'}</small><div class="bar" style="height:8px"><i style="width:${clamp(+a[6]||0,0,100)}%;background:linear-gradient(#ff6b6b,#c0392b)"></i></div></div></div>`;}
+  h+='<button class="btn red" id="ptLeave" style="margin-top:6px">파티 나가기</button>';}
+ else h+='<div>함께 다닐 사람을 파티에 초대하세요. 파티원끼리는 어디에 있든 위치와 체력이 보여요. (최대 4명)</div>';
+ if(!PT.id||PT.m.length<4){h+='<div style="color:#ffe9a8;margin-top:10px">초대할 수 있는 사람</div>';const list=(whoList||[]).filter(a=>a[0]!==NET.uid&&!PT.m.includes(a[0]));
+  if(!list.length)h+='<div style="color:#777">지금 초대할 수 있는 사람이 없어요</div>';
+  list.forEach(a=>{h+=`<div class="row"><div class="t">${esc(String(a[1]))} <span style="color:#b7a6d9">Lv${+a[2]||1}</span><small>📍 ${mapName(a[3])}</small></div><button class="btn gold" data-pinv="${esc(String(a[0]))}">초대</button></div>`;});}
+ return h;}
+function partyBind(B){const k=NET.sock;if(k&&!whoList)k.emit('who',l=>{if(Array.isArray(l)){whoList=l;if(menuTab==='party')renderMenu();}});
+ B.querySelectorAll('[data-pinv]').forEach(b=>b.onclick=()=>{if(k)k.emit('pt:inv',{to:b.dataset.pinv});b.disabled=true;});
+ const lv=$('ptLeave');if(lv)lv.onclick=()=>{if(k)k.emit('pt:leave');};}
+function partyNet(k){
+ k.on('pt:ask',d=>{if(!d||!P||P.dead)return;const nm=String(d.op||'?').slice(0,12);if(dlgState)return k.emit('pt:ans',{from:d.from,yes:0});dialog('👥 파티 초대',[`${nm} 님이 파티에 초대했어요. 함께할까요?`],[{t:'수락',c:'gold',f:()=>k.emit('pt:ans',{from:d.from,yes:1})},{t:'거절',f:()=>k.emit('pt:ans',{from:d.from,yes:0})}]);});
+ k.on('pt:upd',d=>{const had=!!PT.id;if(!d){PT.id=null;PT.m=[];PT.st=[];if(had)toast('👥 파티에서 나왔어요');}else{const nw=d.m.filter(u=>!PT.m.includes(u)).length;PT.id=d.id;PT.lead=d.lead;PT.m=d.m.slice(0,4);if(!had)toast('👥 파티를 만들었어요!');else if(nw)toast('👥 새 파티원이 들어왔어요');}if(menuTab==='party'&&!$('menu').classList.contains('hidden'))renderMenu();});
+ k.on('pt:st',l=>{if(!Array.isArray(l)||!PT.id)return;PT.st=l.slice(0,4);for(const a of PT.st){const o=NET.others.get(a[0]);if(o)o.php=+a[6];}});}
+setInterval(()=>{if(menuTab==='party'&&!$('menu').classList.contains('hidden')&&PT.id){const b=$('mBody');if(b&&!b.contains(document.activeElement))renderMenu();}},1000);
 // ================= 거래 =================
 const TR={id:null,op:'',mine:null,theirs:null,lk:[]};
 const offerEmpty=()=>({g:0,it:[],m:{},c:{}});
@@ -1705,10 +1735,11 @@ function tradeHtml(){
  if(!TR.id){let h='<div>같은 지역에 있는 사람에게 거래를 신청하세요. 서로 물건을 올리고 둘 다 「확정」을 누르면 바뀌어요.</div>';
   const near=[...NET.others.entries()];if(!near.length)h+='<div style="color:#777;margin-top:8px">근처에 아무도 없어요</div>';
   near.forEach(([uid,o])=>{h+=`<div class="row"><div class="t">${esc(o.name)} <span style="color:#b7a6d9">Lv${o.lv}</span><small>${Math.round(Math.hypot(o.x-P.x,o.y-P.y)/TS)}칸 떨어짐</small></div><button class="btn gold" data-treq="${esc(uid)}">🤝 거래 신청</button></div>`;});return h;}
- const me=TR.mine,lkMe=TR.lk.includes(NET.uid),lkOp=TR.lk.length-(lkMe?1:0)>0;
+ const me=TR.mine,lkMe=TR.lk.includes(NET.uid),lkOp=TR.lk.length-(lkMe?1:0)>0,cnt=TR.at&&TR.lk.length===2;
  let h=`<div>🤝 <b style="color:#ffe9a8">${esc(TR.op)}</b> 님과 거래 중</div>
  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px"><div class="row" style="display:block;margin:0"><b style="color:#ffe066">내가 줄 것</b>${lkMe?' ✅':''}<div style="font-size:12px;margin-top:4px;line-height:1.6">${offerText(me)}</div></div>
  <div class="row" style="display:block;margin:0"><b style="color:#9dffb0">받을 것</b>${lkOp?' ✅':''}<div style="font-size:12px;margin-top:4px;line-height:1.6">${offerText(TR.theirs)}</div></div></div>
+ ${cnt?`<div style="text-align:center;margin-top:10px;padding:8px;border:2px solid #ffe066;border-radius:8px;color:#ffe066">⏳ <b id="trCount">${Math.max(0,Math.ceil((TR.at-Date.now())/1000))}</b>초 뒤에 거래돼요 · 지금 취소할 수 있어요</div>`:''}
  <div style="display:flex;gap:6px;margin:10px 0"><button class="btn gold" id="trLock" style="flex:1">${lkMe?'확정 취소':'✅ 확정'}</button><button class="btn red" id="trCancel">거래 취소</button></div>
  <div style="color:#b7a6d9;font-size:11px">물건을 바꾸면 둘 다 확정이 풀려요. 둘 다 확정하면 거래가 끝나요.</div>
  <div style="color:#ffe9a8;margin-top:10px">💰 골드 올리기</div><div style="display:flex;gap:6px"><input type="text" id="trGold" inputmode="numeric" value="${me.g||''}" placeholder="0" style="flex:1"><button class="btn gold" id="trGoldSet">적용</button></div>
@@ -1728,7 +1759,8 @@ function tradeBind(B){const k=NET.sock;
   if(kind==='it'){const pl=+x||0,have=P.bag.filter(e=>e.id===id&&(e.plus||0)===pl).length;let r=me.it.find(q=>q[0]===id&&q[1]===pl);if(add){if(!r){r=[id,pl,0];me.it.push(r);}if(r[2]<have)r[2]++;}else if(r){r[2]--;if(r[2]<=0)me.it.splice(me.it.indexOf(r),1);}}
   else{const box=kind==='m'?P.mats:P.pots,n=add?(+x||1):-1;me[kind][id]=clamp((me[kind][id]||0)+n,0,box[id]||0);if(!me[kind][id])delete me[kind][id];}
   tradeSend();renderMenu();});}
-function tradeReset(msg){TR.id=null;TR.mine=null;TR.theirs=null;TR.lk=[];if(msg)toast(msg);if(menuTab==='trade'&&!$('menu').classList.contains('hidden'))renderMenu();}
+setInterval(()=>{const c=$('trCount');if(c&&TR.at)c.textContent=Math.max(0,Math.ceil((TR.at-Date.now())/1000));},200);
+function tradeReset(msg){TR.at=0;TR.id=null;TR.mine=null;TR.theirs=null;TR.lk=[];if(msg)toast(msg);if(menuTab==='trade'&&!$('menu').classList.contains('hidden'))renderMenu();}
 // 거래 완료: 내 물건을 빼고 상대 물건을 넣는다
 function tradeApply(give,get){const N=(v,hi)=>Math.max(0,Math.min(hi,Math.floor(+v||0)));
  P.gold=Math.max(0,P.gold-N(give.g,P.gold));
@@ -1745,7 +1777,7 @@ function tradeNet(k){
  k.on('tr:ask',d=>{if(!d||!P||P.dead)return;$('menu').classList.add('hidden');dialog('🤝 거래 신청',[`${String(d.op||'?').slice(0,12)} 님이 거래를 신청했어요.`],[{t:'수락',c:'gold',f:()=>k.emit('tr:ans',{id:d.id,yes:1})},{t:'거절',f:()=>k.emit('tr:ans',{id:d.id,yes:0})}]);});
  k.on('tr:open',d=>{if(!d)return;TR.id=d.id;TR.op=String(d.op||'?').slice(0,12);TR.mine=offerEmpty();TR.theirs=null;TR.lk=[];if(dlgState)closeDlg();openMenu('trade');sfx('coin');});
  k.on('tr:offer',d=>{if(!d||d.id!==TR.id)return;TR.theirs=d.offer;if(menuTab==='trade')renderMenu();});
- k.on('tr:st',d=>{if(!d||d.id!==TR.id)return;TR.lk=Array.isArray(d.lk)?d.lk:[];if(menuTab==='trade')renderMenu();});
+ k.on('tr:st',d=>{if(!d||d.id!==TR.id)return;TR.lk=Array.isArray(d.lk)?d.lk:[];TR.at=d.at?Date.now()+Math.max(0,Math.min(6000,d.at-Date.now())):0;if(TR.at)sfx('coin');if(menuTab==='trade')renderMenu();});
  k.on('tr:end',d=>{if(!d||d.id!==TR.id)return;tradeReset(d.msg||'거래가 끝났어요');});
  k.on('tr:done',d=>{if(!d||d.id!==TR.id)return;tradeApply(d.give||{},d.get||{});tradeReset();toast('🤝 거래 완료!');sfx('win');});}
 // ================= 실시간 음성 =================
@@ -1794,10 +1826,10 @@ function drawMap(){const c=$('mapCv');if(!c||menuTab!=='map'||$('menu').classLis
  for(const n of map.npcs){if(n.invisible)continue;g.fillStyle='#4fc3f7';g.fillRect(n.x*sc-2.5*K,n.y*sc-2.5*K,5*K,5*K);txt(n.name,n.x*sc,n.y*sc+11*K,'#b3e5fc',8);}
  if(guideActive()&&GUIDE.goal){g.strokeStyle='#ffe066';g.lineWidth=2*K;g.beginPath();g.arc(GUIDE.goal.x*sc,GUIDE.goal.y*sc,(6+Math.sin(performance.now()/150)*2)*K,0,7);g.stroke();}
  for(const e of enemies)if(e.b.boss)dot(e.x,e.y,'#e040fb',9,'👑');
- for(const o of NET.others.values())dot(o.x,o.y,'#7dff7d',8,o.name);
+ for(const[uid,o]of NET.others)dot(o.x,o.y,inParty(uid)?'#ea80fc':'#7dff7d',8,(inParty(uid)?'👥':'')+o.name);
  dot(P.x,P.y,(performance.now()/300|0)%2?'#ffe066':'#fff',9,P.name);
- const L=$('mapList');if(L){let t='';if(!NET.live)t='<span style="color:#b7a6d9">로그인하면 다른 사람들의 위치가 보여요</span>';else if(whoList){const by={};for(const a of whoList){if(a[0]===NET.uid)continue;(by[a[3]]=by[a[3]]||[]).push(esc(String(a[1]))+' <span style="color:#b7a6d9">Lv'+(+a[2]||1)+'</span>');}
-   const ks=Object.keys(by);t='<b style="color:#ffe9a8">지금 접속 중 '+whoList.length+'명</b><br>'+(ks.length?ks.map(k=>(k===map.key?'<span style="color:#7dff7d">':'<span>')+'📍 '+mapName(k)+'</span>: '+by[k].join(', ')).join('<br>'):'다른 사람은 아직 없어요');}
+ const L=$('mapList');if(L){let t='';if(PT.id){const far=PT.st.filter(a=>a[0]!==NET.uid&&a[3]!==map.key);if(far.length)t+='<b style="color:#ea80fc">👥 다른 지역의 파티원</b><br>'+far.map(a=>esc(String(a[1]))+' · 📍 '+(a[3]?mapName(a[3]):'끊김')+' · ❤ '+(+a[6]||0)+'%').join('<br>')+'<br>';}if(!NET.live)t+='<span style="color:#b7a6d9">로그인하면 다른 사람들의 위치가 보여요</span>';else if(whoList){const by={};for(const a of whoList){if(a[0]===NET.uid)continue;(by[a[3]]=by[a[3]]||[]).push(esc(String(a[1]))+' <span style="color:#b7a6d9">Lv'+(+a[2]||1)+'</span>');}
+   const ks=Object.keys(by);t+='<b style="color:#ffe9a8">지금 접속 중 '+whoList.length+'명</b><br>'+(ks.length?ks.map(k=>(k===map.key?'<span style="color:#7dff7d">':'<span>')+'📍 '+mapName(k)+'</span>: '+by[k].join(', ')).join('<br>'):'다른 사람은 아직 없어요');}
   if(L._t!==t){L._t=t;L.innerHTML=t;}}
  if(NET.sock&&NET.sock.connected&&performance.now()-whoT>1000){whoT=performance.now();NET.sock.emit('who',l=>{if(Array.isArray(l))whoList=l;});}}
 setInterval(drawMap,200);
@@ -1931,7 +1963,7 @@ setInterval(()=>netFlush(),4000);
 addEventListener('visibilitychange',()=>{if(document.hidden&&P&&map&&NET.playing){save(true);netFlush(true);}});
 function netConnect(){if(!NET.token||NET.sock)return;
  const go=()=>{if(NET.sock||!window.io)return;const k=window.io(NET.base+'/rpg',{auth:{token:NET.token},transports:['websocket','polling']});NET.sock=k;
-  k.on('connect',()=>{NET.live=true;NET.host=true;NET.hostMap=null;if(document.hidden)k.emit('idle',true);});k.on('disconnect',()=>{NET.live=false;NET.others.clear();NET.host=true;NET.hostMap=null;if(P&&map)takeOver();});
+  k.on('connect',()=>{NET.live=true;NET.host=true;NET.hostMap=null;if(document.hidden)k.emit('idle',true);});k.on('disconnect',()=>{PT.id=null;PT.m=[];PT.st=[];NET.live=false;NET.others.clear();NET.host=true;NET.hostMap=null;if(P&&map)takeOver();});
   k.on('host',d=>{if(!d||!map||d.m!==map.key)return;const was=NET.host&&NET.hostMap===map.key;NET.host=!!d.h;NET.hostMap=map.key;
    if(d.h&&map.boss&&d.bd!=null&&d.bd<10000&&!was){map.bossDeadAt=Date.now()-d.bd;spawnBoss();}
    if(NET.host){if(enemies.some(e=>e.mirror))takeOver();}else if(!enemies.every(e=>e.mirror)){enemies=[];projs=projs.filter(q=>q.owner!=='e');$('boss').classList.add('hidden');}});
@@ -1955,7 +1987,7 @@ function netConnect(){if(!NET.token||NET.sock)return;
    else if(d.k==='bf'){const q=d.o;if(!q||isHost()||fx.length>300)return;const N=(v,lo,hi)=>{v=+v;return v===v?Math.min(hi,Math.max(lo,v)):lo;};if(q.k==='line'||q.k==='warn')fx.push({k:q.k,x:N(q.x,0,map.w*TS),y:N(q.y,0,map.h*TS),r:N(q.r,0,400),ang:N(q.ang,-7,7),len:N(q.len,0,1200),life:N(q.life,.05,3),max:N(q.max,.05,3),color:/^#[0-9a-f]{6}$/i.test(q.color)?q.color:'#ff3d3d'});}
    else if(d.k==='ep'){if(projs.length<400)projs.push({wob:!!d.w,eh:!!d.h,x:+d.x,y:+d.y,vx:+d.vx,vy:+d.vy,r:Math.min(20,+d.r||7),life:Math.min(4,+d.life||1),owner:'e',dmg:Math.max(0,+d.dmg||0),color:/^#[0-9a-f]{6}$/i.test(d.color)?d.color:'#c56cf0',kind:'orb',hit:new Set()});}});
   k.on('n',n=>{NET.total=+n||0;});
-  tradeNet(k);vcNet(k);
+  tradeNet(k);vcNet(k);partyNet(k);
   k.on('duel:wait',()=>{toast('⚔ 상대를 기다리는 중… (15초)');log('⚔ 결투 신청! 상대도 15초 안에 결투 심판에게 말을 걸어야 해요');});
   k.on('duel:ask',d=>{if(!d||!P||P.dead)return;const nm=String(d.op||'?').slice(0,12);$('menu').classList.add('hidden');dialog('결투 심판 바론',[`너희 둘이 싸울 거야?\n\n상대: ${nm}`],[{t:'⚔ 싸운다',c:'gold',f:()=>{k.emit('duel:ans',{id:d.id,yes:1});toast('상대의 대답을 기다리는 중…');}},{t:'안 싸운다',f:()=>k.emit('duel:ans',{id:d.id,yes:0})}]);});
   k.on('duel:cancel',()=>{if(dlgState&&dlgState.who==='결투 심판 바론')closeDlg();toast('결투가 취소됐어요');});
