@@ -212,7 +212,9 @@ function netEv(d){if(NET.sock&&NET.sock.connected)NET.sock.emit('ev',d);}
 const NET={host:true,hostMap:null,dead:new Set(),checking:true,on:false,base:SERVER,token:null,uid:'',nick:'',cloud:null,dirty:false,busy:false,fail:0,guest:false,sock:null,live:false,playing:false,others:new Map()};
 const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 // ================= 배경음악 =================
-const BGM=new Audio('village2.mp3');BGM.loop=true;BGM.volume=.22;BGM.preload='auto';
+// 지역별 배경음악 파일
+const TRACKS={village:'village2.mp3',field:'field.mp3',sea:'sea.mp3',abyss:'levi.mp3'};
+const BGM=new Audio();BGM.loop=true;BGM.volume=.22;BGM.preload='auto';let bgmSrc='';
 let muted=false;try{muted=localStorage.getItem('dobakrpg_mute')==='1';}catch(e){}
 // 들판·보스전 음악은 직접 만든 8비트 연주 (웹 오디오)
 const SONGS={
@@ -235,9 +237,11 @@ function musPlay(name){if(MUS.name===name)return;MUS.name=name;MUS.step=0;MUS.ne
 let winAway=false; // 다른 창·탭을 보고 있으면 음악을 멈춘다
 addEventListener('blur',()=>{winAway=true;bgmUpdate();});addEventListener('focus',()=>{winAway=false;bgmUpdate();});
 document.addEventListener('visibilitychange',()=>{winAway=document.hidden;bgmUpdate();if(NET.sock&&NET.sock.connected)NET.sock.emit('idle',document.hidden);});
-function bgmUpdate(){const k=P&&map&&NET.playing&&!winAway?map.key:null;const want=!muted&&k==='village';if(want&&BGM.paused)BGM.play().catch(()=>{});else if(!want&&!BGM.paused)BGM.pause();
- const boss=(k==='dungeon'||k==='abyss')&&(map.sealed||enemies.some(e=>e.b.boss&&e.aggroed));
- musPlay(muted||!k?null:k==='field'?'field':boss?'boss':null);
+function bgmUpdate(){const k=P&&map&&NET.playing&&!winAway?map.key:null;const tr=!muted&&k?TRACKS[k]:null;
+ if(tr&&tr!==bgmSrc){bgmSrc=tr;BGM.src=tr;BGM.currentTime=0;}
+ if(tr&&BGM.paused)BGM.play().catch(()=>{});else if(!tr&&!BGM.paused)BGM.pause();
+ const boss=k==='dungeon'&&(map.sealed||enemies.some(e=>e.b.boss&&e.aggroed)); // 모르간 전투는 직접 만든 8비트 곡
+ musPlay(muted||!k?null:boss?'boss':null);
  const b=document.getElementById('bMute');if(b){const t=muted?'🔇':'🔊';if(b.textContent!==t)b.textContent=t;}}
 addEventListener('pointerdown',()=>{winAway=false;if(AC&&AC.state==='suspended')AC.resume();bgmUpdate();},true);addEventListener('keydown',()=>bgmUpdate(),true);
 
