@@ -1503,9 +1503,24 @@ function drawSign(n){const x=n.x,y=n.y,t=signText(n.sign);
  const lines=(t||'(아직 아무것도 적혀 있지 않다)').split('\n');ctx.fillText(lines[0].length>9?lines[0].slice(0,9)+'…':lines[0],x,y-49);if(lines.length>1||lines[0].length>9){ctx.font='8px Galmuri11, sans-serif';ctx.fillText('…자세히 보기',x,y-37);}
  const glow=.5+.5*Math.sin(gameT*3);if(t){ctx.globalAlpha=.25+.25*glow;ctx.strokeStyle='#ffe066';ctx.lineWidth=2;ctx.strokeRect(x-37,y-69,74,44);ctx.globalAlpha=1;}
  label('📋 '+n.name,x,y-74,'#ffe9a8');}
-function signTalk(n){const t=signText(n.sign),v=SIGNS[n.sign];
- const opts=[{t:'닫기'}];if(NET.admin&&NET.live)opts.unshift({t:'✏ 내용 바꾸기',c:'gold',f:()=>setTimeout(()=>editSign(n.sign),50)});
- dialog('📋 '+n.name,[t||'아직 아무것도 적혀 있지 않다.'],opts);}
+let signKey='village';
+function signTalk(n){signKey=n.sign;openMenu('sign');}
+const fmtAgo=t=>{const s2=Math.max(0,(Date.now()-t)/1000|0);return s2<60?'방금':s2<3600?(s2/60|0)+'분 전':s2<86400?(s2/3600|0)+'시간 전':(s2/86400|0)+'일 전';};
+function signHtml(){const k=signKey,v=SIGNS[k]||{t:'',c:[]},c=v.c||[],mine=c.find(x=>x.u===NET.uid);
+ let h=`<div style="background:#d7b98a;color:#3e2723;border:3px solid #6d4c41;border-radius:8px;padding:10px 12px;white-space:pre-wrap;line-height:1.6;font-size:14px">${v.t?esc(v.t):'<span style="color:#795548">아직 아무것도 적혀 있지 않다.</span>'}</div>`;
+ if(NET.admin&&NET.live)h+=`<div style="margin-top:6px"><button class="btn gold" id="signEdit">✏ 표지판 내용 바꾸기</button></div>`;
+ h+=`<div style="color:#ffe9a8;margin-top:12px">💬 댓글 ${c.length}개 <small style="color:#b7a6d9">(한 사람당 1개 · 수정·삭제 가능)</small></div>`;
+ if(!NET.live)h+='<div style="color:#999">댓글은 계정으로 로그인해 접속 중일 때 쓸 수 있어요</div>';
+ else h+=`<div style="display:flex;gap:6px;margin:6px 0"><input id="cmtIn" maxlength="60" placeholder="${mine?'내 댓글 수정하기':'댓글 쓰기 (최대 60자)'}" value="${mine?esc(mine.t):''}" style="flex:1;min-width:0;padding:8px"><button class="btn gold" id="cmtGo">${mine?'수정':'등록'}</button>${mine?'<button class="btn red" id="cmtDel">삭제</button>':''}</div>`;
+ if(!c.length)h+='<div style="color:#777">아직 댓글이 없어요. 첫 댓글을 남겨 보세요!</div>';
+ for(const x of c){const me=x.u===NET.uid;h+=`<div class="row" style="${me?'border-color:#ffe066':''}"><div class="t"><b style="color:${me?'#ffe066':'#e1bee7'}">${esc(x.n)}${me?' (나)':''}</b> <small style="display:inline;color:#8f84a8">${fmtAgo(x.at)}${x.ed?' · 수정됨':''}</small><div style="color:#fff;margin-top:2px;word-break:break-all">${esc(x.t)}</div></div>${NET.admin&&!me?`<button class="btn red" data-cdel="${esc(x.u)}">삭제</button>`:''}</div>`;}
+ return h;}
+function signBind(B){const k=NET.sock,m=signKey;
+ const se=$('signEdit');if(se)se.onclick=()=>editSign(m);
+ const go=$('cmtGo'),inp=$('cmtIn');const send=()=>{const t=(inp.value||'').trim();if(!t){toast('댓글 내용을 적어 주세요');return;}if(k)k.emit('sign:cmt',{m,t});toast('💬 댓글을 '+(go.textContent==='수정'?'수정':'등록')+'했어요');inp.blur();};
+ if(go)go.onclick=send;if(inp)inp.onkeydown=e=>{e.stopPropagation();if(e.key==='Enter')send();};
+ const dl=$('cmtDel');if(dl)dl.onclick=()=>{if(!confirm('내 댓글을 삭제할까요?'))return;if(k)k.emit('sign:del',{m});toast('🗑 댓글을 삭제했어요');};
+ B.querySelectorAll('[data-cdel]').forEach(b=>b.onclick=()=>{if(!confirm('이 댓글을 삭제할까요? (관리자)'))return;if(k)k.emit('sign:del',{m,u:b.dataset.cdel});});}
 function editSign(k){const cur=signText(k);const v=prompt('표지판 내용 (줄바꿈은 / 로 · 최대 6줄, 줄마다 40자)',cur.replace(/\n/g,' / '));if(v==null)return;
  const t=v.split(/\s*\/\s*/).join('\n');if(NET.sock)NET.sock.emit('sign:set',{m:k,t});toast('📋 표지판을 바꿨어요');}
 function drawNpc(n){
@@ -1766,7 +1781,8 @@ function renderMenu(){
  if(menuTab==='party')tabs.splice(0,9,['party','👥 파티']);
  if(menuTab==='daily')tabs.splice(0,9,['daily','📋 일일 의뢰']);
  if(menuTab==='fish')tabs.splice(0,9,['fish','🎣 낚시']);
- $('mTitle').textContent={shop:'상점',sell:'상점',gamble:'도박장',book:'아르카의 마법 도서관',equip:'인벤토리',nick:'작명가 렌',title:'칭호',map:'지도',craft:'대장장이 볼프의 대장간',daily:'의뢰 게시판',fish:'낚시',trade:'거래',party:'파티'}[menuTab]||'메뉴';
+ if(menuTab==='sign')tabs.splice(0,9,['sign','📋 마을 표지판']);
+ $('mTitle').textContent={sign:'📋 '+(signKey==='sea'?'해저마을':'평화의 마을')+' 표지판',shop:'상점',sell:'상점',gamble:'도박장',book:'아르카의 마법 도서관',equip:'인벤토리',nick:'작명가 렌',title:'칭호',map:'지도',craft:'대장장이 볼프의 대장간',daily:'의뢰 게시판',fish:'낚시',trade:'거래',party:'파티'}[menuTab]||'메뉴';
  $('mTabs').innerHTML=tabs.map(t=>`<button class="${t[0]===menuTab?'on':''}" data-t="${t[0]}">${t[1]}</button>`).join('');
  $('mTabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{menuTab=b.dataset.t;renderMenu();});
  const B=$('mBody');calc();const s=P.st;let h='';
@@ -1792,6 +1808,7 @@ function renderMenu(){
   h+='<div style="color:#b7a6d9;font-size:11px;margin-top:10px">새 스킬은 레벨업(Lv4·7·9·11)과 마을의 마법 도서관에서 얻어요</div>';
  }else if(menuTab==='map'){
   h=`<div style="font-size:12px;margin-bottom:6px">📍 ${map.name} · <span style="color:#ffe066">● 나</span> · <span style="color:#ea80fc">● 파티원</span> · <span style="color:#7dff7d">● 다른 사람</span> · <span style="color:#4fc3f7">■ NPC</span> · <span style="color:#ff5252">■ 몬스터</span> · <span style="color:#c9b3ff">◆ 포탈</span> · 빨간 구역 = 나보다 강한 사냥터</div><canvas id="mapCv" style="position:static;width:100%;border:2px solid #4d3880;border-radius:8px;background:#0d0818;image-rendering:pixelated"></canvas><div id="mapList" style="font-size:12px;margin-top:8px;line-height:1.7"></div>${mapGuideHtml()}`;
+ }else if(menuTab==='sign'){h=signHtml();
  }else if(menuTab==='party'){h=partyHtml();
  }else if(menuTab==='trade'){h=tradeHtml();
  }else if(menuTab==='craft'){
@@ -1864,6 +1881,7 @@ function renderMenu(){
  B.querySelectorAll('[data-dq]').forEach(b=>b.onclick=()=>{const q=P.dq.list[+b.dataset.dq];if(!q||q.done||q.c<q.n)return;q.done=1;P.dqn=(P.dqn||0)+1;P.gold+=q.gold;gainExp(q.exp);sfx('win');log(`📋 의뢰 완료! ${q.gold}G · 경험치 ${q.exp}`);save(true);renderMenu();});
  const fg=$('fGo');if(fg)fg.onclick=fishGo;
  const uc=$('useConch');if(uc)uc.onclick=useConch;
+ if(menuTab==='sign')signBind(B);
  const ag=$('annGo');if(ag)ag.onclick=()=>{const v=($('annIn').value||'').trim();if(!v)return;if(NET.sock)NET.sock.emit('ann',v.slice(0,60));$('annIn').value='';toast('📢 공지를 보냈어요');};
  if(menuTab==='trade')tradeBind(B);
  if(menuTab==='party')partyBind(B);
@@ -1951,7 +1969,7 @@ function partyBind(B){const k=NET.sock;if(k&&!whoList)k.emit('who',l=>{if(Array.
 let annTm=0;function showAnn(d){$('annBy').textContent='📢 '+String(d.by||'관리자').slice(0,12)+' 님의 공지';$('annTxt').textContent=String(d.t||'').slice(0,60);const b=$('annBox');b.classList.add('hidden');void b.offsetWidth;b.classList.remove('hidden');sfx('lvl');log('📢 <b style="color:#ffd740">공지</b>: '+esc(String(d.t||'')));clearTimeout(annTm);annTm=setTimeout(()=>b.classList.add('hidden'),5000);}
 function partyNet(k){
  k.on('ann',d=>{if(d&&d.t)showAnn(d);});
- k.on('signs',d=>{if(!d||typeof d!=='object')return;for(const m of ['village','sea'])if(d[m]&&typeof d[m].t==='string')SIGNS[m]={t:d[m].t.slice(0,200),by:String(d[m].by||'').slice(0,12)};else delete SIGNS[m];});
+ k.on('signs',d=>{if(!d||typeof d!=='object')return;for(const m of ['village','sea']){const v=d[m];if(!v){delete SIGNS[m];continue;}const c=[];for(const u in (v.c||{})){const x=v.c[u];if(x&&typeof x.t==='string')c.push({u,n:String(x.n||'?').slice(0,12),t:x.t.slice(0,60),at:+x.at||0,ed:!!x.ed});}c.sort((a,b)=>b.at-a.at);SIGNS[m]={t:String(v.t||'').slice(0,200),by:String(v.by||'').slice(0,12),c};}if(menuTab==='sign'&&!$('menu').classList.contains('hidden')&&document.activeElement!==$('cmtIn'))renderMenu();});
  const rqQ=[];const rqShow=()=>{if(!rqQ.length||dlgState)return;const d=rqQ.shift();dialog('👥 파티 참가 요청',[`${d.nm}${d.lv?' (Lv'+d.lv+')':''} 님이 파티에 들어오고 싶어해요. 받아 줄까요?`],[{t:'수락',c:'gold',f:()=>{k.emit('pt:rans',{from:d.from,yes:1});setTimeout(rqShow,300);}},{t:'거절',f:()=>{k.emit('pt:rans',{from:d.from,yes:0});setTimeout(rqShow,300);}}]);};
  k.on('pt:rq',d=>{if(!d||!P)return;rqQ.push({from:d.from,nm:String(d.op||'?').slice(0,12),lv:+d.lv||0});sfx('lvl');toast('👥 파티 참가 요청이 왔어요');rqShow();});
  setInterval(rqShow,1500);
