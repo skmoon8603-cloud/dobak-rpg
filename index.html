@@ -960,7 +960,8 @@ function useItem(k){if(map&&map.pvp){toast('결투 중에는 쓸 수 없어요')
   P.pots.seascroll--;P.flags.sea=1;$('mClose').click();puff(P.x,P.y,'#4fc3f7');enterMap('sea',9*TS,15*TS);P.portalLock=1.5;sfx('lvl');toast('🌊 해저마을로 돌아왔다');return;}
  if(k==='scroll'){if(map.key==='village'){toast('이미 마을이에요');return;}if(map.sealed){toast('⛓ 결계 안에서는 귀환서를 쓸 수 없어요');return;}
   P.pots.scroll--;$('mClose').click();puff(P.x,P.y,'#ffe066');enterMap('village',30*TS,25*TS);sfx('lvl');toast('📜 마을로 돌아왔다');}}
-function usePot(k){if(P.dead)return;if(map&&map.pvp){toast('결투 중에는 물약을 쓸 수 없어요');return;}if(P.pots[k]<=0){log('물약이 없어요');return;}if(k==='hp'&&P.hp>=P.st.hp)return;if(k==='mp'&&P.mp>=P.st.mp)return;P.pots[k]--;if(k==='hp'){P.hp=Math.min(P.st.hp,P.hp+Math.round((60+P.lv*8)/3));addText(P.x,P.y-24,'+HP','#7dff7d',12);}else{P.mp=Math.min(P.st.mp,P.mp+Math.round((40+P.lv*4)/3));addText(P.x,P.y-24,'+MP','#7dbfff',12);}sfx('coin');}
+function inBossFight(){return enemies.some(e=>e.b&&e.b.boss&&!e.dead&&e.hp>0&&(e.aggroed||e.intro>0)&&Math.hypot(e.x-P.x,e.y-P.y)<1400);}
+function usePot(k){if(P.dead)return;if(map&&map.pvp){toast('결투 중에는 물약을 쓸 수 없어요');return;}if(inBossFight()){toast('⚔ 보스전 중에는 회복 물약을 쓸 수 없어요!');return;}if(P.pots[k]<=0){log('물약이 없어요');return;}if(k==='hp'&&P.hp>=P.st.hp)return;if(k==='mp'&&P.mp>=P.st.mp)return;P.pots[k]--;if(k==='hp'){P.hp=Math.min(P.st.hp,P.hp+Math.round((60+P.lv*8)/3));addText(P.x,P.y-24,'+HP','#7dff7d',12);}else{P.mp=Math.min(P.st.mp,P.mp+Math.round((40+P.lv*4)/3));addText(P.x,P.y-24,'+MP','#7dbfff',12);}sfx('coin');}
 
 // ================= 공격 =================
 function basicAttack(){
