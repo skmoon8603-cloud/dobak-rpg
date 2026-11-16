@@ -54,7 +54,7 @@ button{font-family:inherit;cursor:pointer}
 #bDash{right:92px;bottom:4px;width:58px;height:58px;background:rgba(30,120,140,.92);border-color:#b3f0ff}
 .pot{width:42px;height:42px;font-size:9px}
 #annBox{position:fixed;left:50%;top:13%;transform:translateX(-50%);z-index:40;width:min(92vw,760px);text-align:center;pointer-events:none;padding:12px 16px;background:linear-gradient(rgba(60,10,10,.92),rgba(30,5,30,.92));border:3px solid #ffd740;border-radius:14px;box-shadow:0 0 30px rgba(255,215,64,.6);animation:annIn .35s}#annBox small{display:block;color:#ffd740;font-size:13px;margin-bottom:4px}#annBox b{display:block;color:#fff;font-size:clamp(20px,5vw,34px);line-height:1.3;text-shadow:0 2px 0 #000,0 0 12px #ff5252;word-break:keep-all}@keyframes annIn{from{transform:translateX(-50%) scale(.6);opacity:0}}
-#bDodge{position:fixed;left:50%;top:58%;transform:translate(-50%,-50%);z-index:30;padding:16px 30px;font:bold 22px Galmuri11,sans-serif;color:#fff;background:linear-gradient(#ffb300,#ff6d00);border:3px solid #fff3;border-radius:14px;box-shadow:0 0 24px #ff9100;animation:dgp .18s infinite alternate;cursor:pointer}@keyframes dgp{to{transform:translate(-50%,-50%) scale(1.08)}}
+#bDodge{position:fixed;left:50%;top:58%;transform:translate(-50%,-50%);z-index:9999;touch-action:none;padding:16px 30px;font:bold 22px Galmuri11,sans-serif;color:#fff;background:linear-gradient(#ffb300,#ff6d00);border:3px solid #fff3;border-radius:14px;box-shadow:0 0 24px #ff9100;animation:dgp .18s infinite alternate;cursor:pointer}@keyframes dgp{to{transform:translate(-50%,-50%) scale(1.08)}}
 #bHp{right:172px;bottom:0;background:rgba(150,30,40,.85)}#bMp{right:172px;bottom:46px;background:rgba(30,60,150,.85)}
 #bAct{right:166px;bottom:98px;width:60px;height:60px;background:rgba(200,150,30,.92);border-color:#fff2b3;font-size:13px}
 #hint{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + 190px);background:rgba(20,10,40,.85);border:2px solid #ffe066;border-radius:8px;padding:5px 10px;font-size:12px;color:#ffe9a8;pointer-events:none;white-space:nowrap;z-index:5}
@@ -112,6 +112,7 @@ input[type=text],input[type=password]{font-family:inherit;background:#120a24;bor
 </head>
 <body>
 <canvas id="game"></canvas>
+<button id="bDodge" class="hidden">💨 피하기!</button>
 
 <div id="hud" class="hidden">
   <div id="stat">
@@ -147,7 +148,6 @@ input[type=text],input[type=password]{font-family:inherit;background:#120a24;bor
   <button class="cb" id="bDash"><span class="key">Shift</span><b>💨</b>대쉬<div class="cd"></div></button>
   <button class="cb pot" id="bHp"><span class="key">Z</span>❤<span id="nHp">0</span></button>
   <div id="annBox" class="hidden"><small id="annBy"></small><b id="annTxt"></b></div>
-  <button id="bDodge" class="hidden">💨 피하기!</button>
   <button class="cb pot" id="bMp"><span class="key">X</span>💧<span id="nMp">0</span></button>
   <button class="cb hidden" id="bAct">대화</button>
 </div>
@@ -954,8 +954,8 @@ function hurtPlayer(d){
 }
 const CUT={t:0,max:0,name:'',sub:''};
 let shake=0,flashA=0,lakeT=0; // lakeT: 호수 판정 대기시간 (저장하지 않는다)
-function die(){if(map&&map.pvp){pvLose();return;}P.hp=0;P.dead=true;$('boss').classList.add('hidden');const lost=Math.floor(P.gold*.1);P.gold-=lost;
- setTimeout(()=>dialog('💀','쓰러지고 말았다…\n골드 '+lost+'G를 잃고 마을에서 깨어납니다.',[{t:'다시 일어서기',f:()=>{P.dead=false;armed=-1;calc();P.hp=P.st.hp;P.mp=P.st.mp;enterMap('village',30*TS,25*TS);}}]),600);}
+function die(){if(map&&map.pvp){pvLose();return;}P.hp=0;P.dead=true;const inBoss=inBossFight()||!!(map&&map.sealed);$('boss').classList.add('hidden');const lost=Math.floor(P.gold*(inBoss?.05:.1));P.gold-=lost;
+ setTimeout(()=>dialog('💀','쓰러지고 말았다…\n골드 '+lost+'G를 잃고 마을에서 깨어납니다.'+(inBoss?'\n(보스전이라 평소의 절반만 잃었어요)':''),[{t:'다시 일어서기',f:()=>{P.dead=false;armed=-1;calc();P.hp=P.st.hp;P.mp=P.st.mp;enterMap('village',30*TS,25*TS);}}]),600);}
 function useItem(k){if(map&&map.pvp){toast('결투 중에는 쓸 수 없어요');return;}if(P.dead||!(P.pots[k]>0))return;
  if(k==='hp'||k==='mp'){const full=k==='hp'?P.hp>=P.st.hp:P.mp>=P.st.mp;if(full){toast('이미 가득 차 있어요');return;}usePot(k);renderMenu();return;}
  if(k==='burger'){P.pots.burger--;P.burger=10;P.bg=(P.bg||0)+1;sfx('lvl');toast('🍔 냠! 10초간 공격력 +10%');renderMenu();return;}
@@ -968,7 +968,7 @@ function lairLocked(){return !!(map&&map.key==='lair'&&enemies.some(e=>e.type===
 function inBossFight(){return enemies.some(e=>e.b&&e.b.boss&&!e.dead&&e.hp>0&&(e.aggroed||e.intro>0)&&Math.hypot(e.x-P.x,e.y-P.y)<1400);}
 const POTCD={hp:0,mp:0};
 const DODGE={t:0};
-function showDodge(){if(!map||map.key!=='lair'||!P||P.dead)return;DODGE.t=.7;$('bDodge').classList.remove('hidden');}
+function showDodge(){if(!map||map.key!=='lair'||!P||P.dead)return;DODGE.t=1.5;$('bDodge').classList.remove('hidden');}
 function doDodge(){if(DODGE.t<=0)return;DODGE.t=0;$('bDodge').classList.add('hidden');P.inv=Math.max(P.inv,3);P.dgT=3;sfx('lvl');addText(P.x,P.y-40,'회피! 3초 무적','#ffe066',14);for(let i=0;i<20;i++)parts.push({x:P.x,y:P.y-14,vx:rnd(-160,160),vy:rnd(-160,60),life:.5,color:'#ffe066',s:3});}
 function usePot(k){if(P.dead)return;if(map&&map.pvp){toast('결투 중에는 물약을 쓸 수 없어요');return;}if(P.pots[k]<=0){log('물약이 없어요');return;}if(k==='hp'&&P.hp>=P.st.hp)return;if(k==='mp'&&P.mp>=P.st.mp)return;if(POTCD[k]>0){if(gameT-(POTCD.msg||0)>.8){POTCD.msg=gameT;toast(`⏳ ${k==='hp'?'체력':'마나'} 물약은 ${Math.ceil(POTCD[k])}초 뒤에 쓸 수 있어요`);}return;}POTCD[k]=10;P.pots[k]--;if(k==='hp'){const v=Math.round(P.st.hp*.35);P.hp=Math.min(P.st.hp,P.hp+v);addText(P.x,P.y-24,'+'+v,'#7dff7d',12);}else{const v=Math.round(P.st.mp*.35);P.mp=Math.min(P.st.mp,P.mp+v);addText(P.x,P.y-24,'+'+v,'#7dbfff',12);}sfx('coin');}
 
@@ -1307,7 +1307,7 @@ function dragonAI(e,dt,d,sp,T){
   else if(S.k==='dash'){moveEnt(e,S.x*900*dt,S.y*900*dt);for(const q of allTargets())if(!S.hit.has(q.uid||'me')&&Math.hypot(q.x-e.x,q.y-e.y)<e.r+20){S.hit.add(q.uid||'me');hitTarget(q,e.atk*1.6);}
    if(Math.random()<.7)parts.push({x:e.x,y:e.y,vx:rnd(-40,40),vy:rnd(-40,40),life:.4,color:'#ff6d00',s:5});
    if(S.t<=0){S.n--;if(S.n>0){const t2=pickTarget(e)||T,m=norm(t2.x-e.x,t2.y-e.y);S.k='aim';S.t=rage?.45:.65;S.x=m.x;S.y=m.y;bfx({k:'line',x:e.x,y:e.y,ang:Math.atan2(m.y,m.x),len:700,life:S.t,max:S.t,color:'#ff3d3d'});}else{e.st=null;e.pt=rage?.9:1.5;}}}
-  else if(S.k==='fly'){e.fly=1;if(!S.dg&&S.t<=.7){S.dg=1;showDodge();netEv({k:'bf',o:{k:'dodge'}});}if(S.t<=0){e.fly=0;const t2=pickTarget(e)||T;if(!blocked(t2.x,t2.y,30)){e.x=t2.x;e.y=t2.y-10;}explodeFx(e.x,e.y,170,'#ff6d00');netEv({k:'sk',v:[{t:'x',x:Math.round(e.x),y:Math.round(e.y),r:170,c:'#ff6d00'}]});shake=.5;sfx('boom');for(const q of allTargets())if(Math.hypot(q.x-e.x,q.y-e.y)<175)hitTarget(q,e.atk*1.5);e.st=null;e.pt=rage?1:1.6;}}
+  else if(S.k==='fly'){e.fly=1;if(!S.dg&&S.t<=1.5){S.dg=1;showDodge();netEv({k:'bf',o:{k:'dodge'}});}if(S.t<=0){e.fly=0;const t2=pickTarget(e)||T;if(!blocked(t2.x,t2.y,30)){e.x=t2.x;e.y=t2.y-10;}explodeFx(e.x,e.y,170,'#ff6d00');netEv({k:'sk',v:[{t:'x',x:Math.round(e.x),y:Math.round(e.y),r:170,c:'#ff6d00'}]});shake=.5;sfx('boom');for(const q of allTargets())if(Math.hypot(q.x-e.x,q.y-e.y)<175)hitTarget(q,e.atk*1.5);e.st=null;e.pt=rage?1:1.6;}}
   else if(S.k==='tail'){if(S.t<=0){explodeFx(e.x,e.y,170,'#ff9100');netEv({k:'sk',v:[{t:'x',x:Math.round(e.x),y:Math.round(e.y),r:170,c:'#ff9100'}]});shake=.35;for(const q of allTargets())if(Math.hypot(q.x-e.x,q.y-e.y)<175){hitTarget(q,e.atk*1.2);if(q.me){const k2=norm(P.x-e.x,P.y-e.y);moveEnt(P,k2.x*90,k2.y*90);}}e.st=null;e.tailCd=4;e.pt=Math.max(e.pt,.8);}}
   return;}
  if(d<150&&!(e.tailCd>0)){e.st={k:'tail',t:.7};bfx({k:'warn',x:e.x,y:e.y,r:170,life:.7,max:.7,color:'#ff9100'});addText(e.x,e.y-110,'꼬리치기!','#ffcc80',13);return;}
