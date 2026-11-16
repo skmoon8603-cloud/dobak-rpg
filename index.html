@@ -536,6 +536,7 @@ function makeVillage(){
   {x:11.5*TS,y:20.6*TS,name:'여관 주인 로사',type:'inn',color:'#c2185b',hat:'#fff',hatType:'cap'},
   {x:11.5*TS,y:33.6*TS,name:'도박꾼 럭키',type:'gamble',color:'#b8860b',hat:'#222'},
   {x:30*TS,y:24.3*TS,name:'회복의 샘',type:'fountain',invisible:1},
+  {x:30*TS,y:28.4*TS,name:'마을 표지판',type:'sign',sign:'village'},
   {x:24.5*TS,y:18.7*TS,name:'의뢰 게시판',type:'board',color:'#795548',hat:'#5d4037',hatType:'',board:1},
   {x:33.5*TS,y:18.7*TS,name:'결투 심판 바론',type:'duel',color:'#4e342e',hat:'#b71c1c',hatType:'helm'},
   {x:33.5*TS,y:24.6*TS,name:'작명가 렌',type:'nick',color:'#00838f',hat:'#004d56',hatType:'wiz'},
@@ -598,6 +599,7 @@ function makeSea(){
   {x:16*TS,y:13.7*TS,name:'소라 할아버지',type:'talk',color:'#8d6e63',hat:'#eee',hatType:'',beard:1,skin:'#c8e6c9',lines:()=>P.flags.statue?['이 동상은 예전에 우리 마을을 지킨 사람을 기리는 거예요.','허허, 이제는 그 옆에 자네 동상도 생겼구먼! 나란히 서 있으니 보기 좋아.']:['이 동상은 예전에 우리 마을을 지킨 사람을 기리는 거예요.','참 잘생겼지요? 우리 할머니의 할머니가 그분을 직접 봤다고 하더군요.']},
   {x:23*TS,y:17.6*TS,name:'주민 해초',type:'talk',color:'#2e7d32',hat:'#1b5e20',hatType:'hood',skin:'#b2dfdb',lines:()=>P.flags.levi?['사라졌던 우리 언니가 돌아왔어요! 정말 고마워요!']:['무언가가… 사람들을 잡아가요. 어젯밤엔 옆집 아저씨가 사라졌어요.','밤에는 절대 마을 밖으로 나가지 마세요.']},
   {x:12*TS,y:15.6*TS,name:'주민 산호',type:'talk',color:'#ef6c00',hat:'#bf360c',hatType:'cap',skin:'#ffccbc',lines:()=>P.flags.levi?['이제 밤에도 마음 놓고 잘 수 있어요.']:['들었어요? 무언가가 사람들을 잡아간대요. 소용돌이 쪽에서 긴 그림자를 봤다는 사람도 있어요…']},
+  {x:8*TS,y:18.8*TS,name:'마을 표지판',type:'sign',sign:'sea'},
   {x:33*TS,y:15.7*TS,name:'꼬마 인어 루루',type:'talk',color:'#f06292',hat:'#fff',hatType:'',tail:'#f8bbd0',skin:'#ffe0d0',hair:'#80deea',lines:()=>P.flags.levi?['우와! 진짜 레비아탄을 이긴 사람이다!']:['엄마가 그러는데, 무언가가 사람들을 잡아간대요. 무서워요…','언니(오빠)는 물속에서 숨 쉴 수 있어요? 신기하다!']},
   {x:35*TS,y:12.7*TS,name:'식당 주인 집게',type:'talk',color:'#c62828',hat:'#fff',hatType:'cap',skin:'#ffab91',lines:['우리 집게리아 버거는 바다에서 제일 맛있다네!','…그런데 요즘 꽃게 녀석들이 버거를 죄다 훔쳐 가서 장사를 못 하고 있어. 꽃게를 잡으면 버거를 되찾을 수 있을 걸세.']},
   {x:39*TS,y:13.4*TS,name:'해마 경비병',type:'talk',color:'#546e7a',hat:'#999',hatType:'helm',skin:'#b3e5fc',lines:['이 문 밖은 위험하다. 청새치는 2초마다 엄청난 속도로 돌진해 온다. 옆으로 피해라!','더 가면 옆으로 걷는 꽃게, 그 너머에는 물 소용돌이가 있다.']}];
@@ -1206,7 +1208,7 @@ function update(dt){
  for(let i=fx.length-1;i>=0;i--){fx[i].life-=dt;if(fx[i].life<=0)fx.splice(i,1);}
  shake=Math.max(0,shake-dt);
  // 상호작용 버튼
- const n=nearNpc();const ab=$('bAct');if(n){ab.classList.remove('hidden');ab.textContent=n.type==='fountain'?'회복':'대화';}else ab.classList.add('hidden');
+ const n=nearNpc();const ab=$('bAct');if(n){ab.classList.remove('hidden');ab.textContent=n.type==='fountain'?'회복':n.type==='sign'?'보기':'대화';}else ab.classList.add('hidden');
 }
 function isWater(x,y){const tx=Math.floor(x/TS),ty=Math.floor(y/TS);return map.t[ty]&&map.t[ty][tx]==='~';}
 // 몬스터가 노릴 사람: 나와 같은 맵의 다른 플레이어 중 가장 가까운 사람
@@ -1489,7 +1491,24 @@ function drawPlayer(){
  if(P.say&&P.sayT>nowS())bubble(P.say,P.x,P.y-(tt?76:62));
 }
 function drawOther(o){ctx.globalAlpha=.9;drawChar(o);ctx.globalAlpha=1;const pid=[...NET.others.entries()].find(e=>e[1]===o);if(pid&&inParty(pid[0])&&!map.pvp){px(o.x-16,o.y-72,32,4,'#300');px(o.x-16,o.y-72,32*clamp(o.php!=null?o.php:(o.hp||100),0,100)/100,4,'#ff5252');label('👥',o.x-(o.name.length*4+16),o.y-46,'#e1bee7');}if(o.vc){ctx.font='11px sans-serif';ctx.textAlign='center';ctx.fillText('🎙',o.x+(o.name.length*4+14),o.y-42);}if(map.pvp&&o.hp!=null){px(o.x-16,o.y-72,32,5,'#300');px(o.x-16,o.y-72,32*o.hp/100,5,'#ff5252');}label(o.name+' Lv'+o.lv,o.x,o.y-46,'#9dffb0');const tt=TITLES[o.tt];if(tt)label(tt[0],o.x,o.y-59,tt[1]);if(o.say&&o.sayT>nowS())bubble(o.say,o.x,o.y-(tt?76:62));}
+const SIGNS={};
+function signText(k){const v=SIGNS[k];return v&&v.t?v.t:'';}
+function drawSign(n){const x=n.x,y=n.y,t=signText(n.sign);
+ ctx.fillStyle='rgba(0,0,0,.3)';ctx.beginPath();ctx.ellipse(x,y,30,7,0,0,7);ctx.fill();
+ px(x-22,y-30,6,30,'#5d4037');px(x+16,y-30,6,30,'#5d4037');
+ px(x-36,y-66,72,40,'#6d4c41');px(x-33,y-63,66,34,'#d7b98a');px(x-33,y-63,66,4,'#e8cfa3');px(x-36,y-68,72,4,'#4e342e');
+ for(const[dx,dy]of[[-32,-62],[29,-62],[-32,-33],[29,-33]])px(x+dx,y+dy,3,3,'#3e2723');
+ ctx.font='bold 9px Galmuri11, sans-serif';ctx.textAlign='center';ctx.fillStyle='#4e342e';
+ const lines=(t||'(아직 아무것도 적혀 있지 않다)').split('\n');ctx.fillText(lines[0].length>9?lines[0].slice(0,9)+'…':lines[0],x,y-49);if(lines.length>1||lines[0].length>9){ctx.font='8px Galmuri11, sans-serif';ctx.fillText('…자세히 보기',x,y-37);}
+ const glow=.5+.5*Math.sin(gameT*3);if(t){ctx.globalAlpha=.25+.25*glow;ctx.strokeStyle='#ffe066';ctx.lineWidth=2;ctx.strokeRect(x-37,y-69,74,44);ctx.globalAlpha=1;}
+ label('📋 '+n.name,x,y-74,'#ffe9a8');}
+function signTalk(n){const t=signText(n.sign),v=SIGNS[n.sign];
+ const opts=[{t:'닫기'}];if(NET.admin&&NET.live)opts.unshift({t:'✏ 내용 바꾸기',c:'gold',f:()=>setTimeout(()=>editSign(n.sign),50)});
+ dialog('📋 '+n.name,[t||'아직 아무것도 적혀 있지 않다.'],opts);}
+function editSign(k){const cur=signText(k);const v=prompt('표지판 내용 (줄바꿈은 / 로 · 최대 6줄, 줄마다 40자)',cur.replace(/\n/g,' / '));if(v==null)return;
+ const t=v.split(/\s*\/\s*/).join('\n');if(NET.sock)NET.sock.emit('sign:set',{m:k,t});toast('📋 표지판을 바꿨어요');}
 function drawNpc(n){
+ if(n.type==='sign'){drawSign(n);return;}
  if(n.board){px(n.x-16,n.y-34,32,22,'#6d4c41');px(n.x-14,n.y-32,28,18,'#d7ccc8');px(n.x-11,n.y-29,10,6,'#fff59d');px(n.x+1,n.y-27,10,8,'#ffccbc');px(n.x-10,n.y-21,8,5,'#b3e5fc');px(n.x-13,n.y-12,3,12,'#5d4037');px(n.x+10,n.y-12,3,12,'#5d4037');label(n.name,n.x,n.y-40,'#ffe9a8');if(P.dq&&P.dq.day===kstDay()&&P.dq.list.some(q=>!q.done&&q.c>=q.n)){ctx.font='16px Galmuri11, sans-serif';ctx.fillStyle='#7dff7d';ctx.textAlign='center';ctx.fillText('?',n.x,n.y-52+Math.sin(gameT*5)*2);}return;}
  drawHuman(n.x,n.y,{tail:n.tail,skin:n.skin||'#f1c27d',hair:n.hair||'#ccc',outfit:n.color,hat:n.hat,hatType:n.hatType!==undefined?n.hatType:n.type==='elder'?'wiz':n.type==='gamble'?'cow':'cap',left:P.x<n.x,walk:n.walk||0,beard:n.type==='elder'});
  {const ch=n.chase>gameT||n.rT>nowS();label(ch?'Lv999 '+n.name+' · 체력 ∞':n.name,n.x,n.y-46,ch?'#ff8a8a':'#ffe9a8');}
@@ -1629,6 +1648,7 @@ function closeDlg(){dlgState=null;$('dlg').classList.add('hidden');if($('menu').
 
 function interact(){
  if(paused||P.dead)return;const n=nearNpc();if(!n)return;
+ if(n.type==='sign'){signTalk(n);return;}
  if(n.type==='fountain'){P.hp=P.st.hp;P.mp=P.st.mp;toast('💧 체력과 마나가 회복되었다');sfx('lvl');save(true);return;}
  if(n.type==='elder')elderTalk();
  if(n.type==='shop')dialog(n.name,['어서 오세요! 무기, 방어구, 물약 다 있어요.'],[{t:'구매하기',f:()=>openMenu('shop')},{t:'판매하기',f:()=>openMenu('sell')},{t:'나가기'}]);
@@ -1930,6 +1950,7 @@ function partyBind(B){const k=NET.sock;if(k&&!whoList)k.emit('who',l=>{if(Array.
 let annTm=0;function showAnn(d){$('annBy').textContent='📢 '+String(d.by||'관리자').slice(0,12)+' 님의 공지';$('annTxt').textContent=String(d.t||'').slice(0,60);const b=$('annBox');b.classList.add('hidden');void b.offsetWidth;b.classList.remove('hidden');sfx('lvl');log('📢 <b style="color:#ffd740">공지</b>: '+esc(String(d.t||'')));clearTimeout(annTm);annTm=setTimeout(()=>b.classList.add('hidden'),5000);}
 function partyNet(k){
  k.on('ann',d=>{if(d&&d.t)showAnn(d);});
+ k.on('signs',d=>{if(!d||typeof d!=='object')return;for(const m of ['village','sea'])if(d[m]&&typeof d[m].t==='string')SIGNS[m]={t:d[m].t.slice(0,200),by:String(d[m].by||'').slice(0,12)};else delete SIGNS[m];});
  const rqQ=[];const rqShow=()=>{if(!rqQ.length||dlgState)return;const d=rqQ.shift();dialog('👥 파티 참가 요청',[`${d.nm}${d.lv?' (Lv'+d.lv+')':''} 님이 파티에 들어오고 싶어해요. 받아 줄까요?`],[{t:'수락',c:'gold',f:()=>{k.emit('pt:rans',{from:d.from,yes:1});setTimeout(rqShow,300);}},{t:'거절',f:()=>{k.emit('pt:rans',{from:d.from,yes:0});setTimeout(rqShow,300);}}]);};
  k.on('pt:rq',d=>{if(!d||!P)return;rqQ.push({from:d.from,nm:String(d.op||'?').slice(0,12),lv:+d.lv||0});sfx('lvl');toast('👥 파티 참가 요청이 왔어요');rqShow();});
  setInterval(rqShow,1500);
