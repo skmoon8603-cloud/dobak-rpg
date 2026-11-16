@@ -200,7 +200,15 @@ const isTouch=('ontouchstart' in window)||navigator.maxTouchPoints>0;
 
 // ================= 사운드 =================
 let AC=null;
-function sfx(type){try{if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();const o=AC.createOscillator(),g=AC.createGain();o.connect(g);g.connect(AC.destination);const t=AC.currentTime;const S={hit:[220,110,.06,'square',.05],shoot:[660,440,.05,'triangle',.04],coin:[880,1320,.08,'square',.04],lvl:[440,880,.4,'triangle',.08],hurt:[160,80,.12,'sawtooth',.06],boom:[120,40,.25,'sawtooth',.08],win:[523,1046,.3,'square',.06],lose:[300,100,.35,'sawtooth',.06],meow:[650,1250,.16,'triangle',.07]}[type]||[440,440,.05,'sine',.03];o.type=S[3];o.frequency.setValueAtTime(S[0],t);o.frequency.exponentialRampToValueAtTime(S[1],t+S[2]);g.gain.setValueAtTime(S[4],t);g.gain.exponentialRampToValueAtTime(.0001,t+S[2]);o.start(t);o.stop(t+S[2]+.02);}catch(e){}}
+// 효과음: 음악보다 잘 들리게 크게, 압축기로 한꺼번에 터져도 찢어지지 않게
+let SFXOUT=null;const sfxLast={};
+function sfxOut(){if(!SFXOUT){const c=AC.createDynamicsCompressor();c.threshold.value=-8;c.knee.value=6;c.ratio.value=4;c.attack.value=.003;c.release.value=.15;const g=AC.createGain();g.gain.value=3.4;g.connect(c);c.connect(AC.destination);SFXOUT=g;}return SFXOUT;}
+function noise(t,d,v,hp){const n=Math.floor(AC.sampleRate*d),b=AC.createBuffer(1,n,AC.sampleRate),a=b.getChannelData(0);for(let i=0;i<n;i++)a[i]=(Math.random()*2-1)*(1-i/n);const src=AC.createBufferSource();src.buffer=b;const f=AC.createBiquadFilter();f.type='highpass';f.frequency.value=hp||800;const g=AC.createGain();g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);src.connect(f);f.connect(g);g.connect(sfxOut());src.start(t);src.stop(t+d+.02);}
+function sfx(type){try{if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();if(muted)return;const t=AC.currentTime;if(sfxLast[type]&&t-sfxLast[type]<.035)return;sfxLast[type]=t;
+ const S={hit:[220,110,.07,'square',.32],shoot:[700,420,.06,'triangle',.42],coin:[880,1320,.08,'square',.16],lvl:[440,880,.4,'triangle',.16],hurt:[170,80,.14,'sawtooth',.24],boom:[130,40,.3,'sawtooth',.2],win:[523,1046,.3,'square',.16],lose:[300,100,.35,'sawtooth',.18],meow:[650,1250,.16,'triangle',.24]}[type]||[440,440,.05,'sine',.12];
+ const o=AC.createOscillator(),g=AC.createGain();o.connect(g);g.connect(sfxOut());o.type=S[3];o.frequency.setValueAtTime(S[0],t);o.frequency.exponentialRampToValueAtTime(S[1],t+S[2]);g.gain.setValueAtTime(S[4],t);g.gain.exponentialRampToValueAtTime(.0001,t+S[2]);o.start(t);o.stop(t+S[2]+.02);
+ if(type==='hit')noise(t,.06,.3,1500);else if(type==='boom')noise(t,.32,.24,200);else if(type==='hurt')noise(t,.1,.2,600);else if(type==='shoot')noise(t,.04,.08,3000);
+}catch(e){}}
 
 const SERVER=/github\.io$/.test(location.hostname)?'https://random-football-cflg.onrender.com':''; // 계정·실시간 서버 (RANDOM FOOTBALL)
 const safeHere=()=>!!map&&(map['safe']===1||(map.safeX!=null&&P.x<map.safeX*TS)); // 마을(또는 맵의 마을 구역) 안인지
@@ -214,7 +222,7 @@ const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'
 // ================= 배경음악 =================
 // 지역별 배경음악 파일
 const TRACKS={village:'village2.mp3',field:'field.mp3',sea:'sea.mp3',abyss:'levi.mp3'};
-const BGM=new Audio();BGM.loop=true;BGM.volume=.22;BGM.preload='auto';let bgmSrc='';
+const BGM=new Audio();BGM.loop=true;BGM.volume=.2; // 모든 곡은 같은 크기(-18 LUFS)로 맞춰 둠BGM.preload='auto';let bgmSrc='';
 let muted=false;try{muted=localStorage.getItem('dobakrpg_mute')==='1';}catch(e){}
 // 들판·보스전 음악은 직접 만든 8비트 연주 (웹 오디오)
 const SONGS={
@@ -223,13 +231,13 @@ const SONGS={
        76,0,79,76,72,0,76,79, 81,0,84,81,76,0,81,84, 81,79,77,81,84,81,77,81, 79,83,86,83,79,0,79,0],
   bass:[48,0,55,0,48,0,55,0, 43,0,50,0,43,0,50,0, 45,0,52,0,45,0,52,0, 41,0,48,0,41,0,48,0,
         48,0,55,0,48,0,55,0, 45,0,52,0,45,0,52,0, 41,0,48,0,41,0,48,0, 43,0,50,0,43,0,47,0]},
- boss:{bpm:158,lead:'sawtooth',vol:.03,tr:0,drum:1,
+ boss:{bpm:158,lead:'sawtooth',vol:.065,tr:0,drum:1,
   mel:[69,0,72,76,0,76,74,72, 71,0,72,69,0,0,76,0, 77,0,76,77,0,81,79,77, 79,0,74,79,0,83,81,79,
        81,0,76,81,0,84,83,81, 79,76,72,76,81,76,72,76, 77,72,69,72,77,81,84,81, 80,76,71,76,80,83,88,0],
   bass:[45,45,57,45,45,57,45,57, 45,45,57,45,45,57,45,57, 41,41,53,41,41,53,41,53, 43,43,55,43,43,55,43,55,
         45,45,57,45,45,57,45,57, 45,45,57,45,45,57,45,57, 41,41,53,41,41,53,41,53, 40,40,52,40,40,52,40,52]}};
 const MUS={name:null,step:0,next:0,timer:null};
-function tone(m,t,d,type,v){if(!m)return;const o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.value=440*Math.pow(2,(m-69)/12);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+d+.02);}
+function tone(m,t,d,type,v){if(!m)return;const o=AC.createOscillator(),g=AC.createGain(),f=AC.createBiquadFilter();f.type='lowpass';f.frequency.value=2400;o.type=type;o.frequency.value=440*Math.pow(2,(m-69)/12);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(f);f.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+d+.02);}
 function kick(t){const o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.setValueAtTime(140,t);o.frequency.exponentialRampToValueAtTime(40,t+.1);g.gain.setValueAtTime(.09,t);g.gain.exponentialRampToValueAtTime(.0001,t+.12);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+.14);}
 function musTick(){if(!MUS.name||!AC||AC.state!=='running')return;const S=SONGS[MUS.name],sd=30/S.bpm;if(MUS.next<AC.currentTime)MUS.next=AC.currentTime+.05;
  while(MUS.next<AC.currentTime+.2){const i=MUS.step%S.mel.length;if(S.mel[i])tone(S.mel[i]+S.tr,MUS.next,sd*.9,S.lead,S.vol);if(S.bass[i])tone(S.bass[i],MUS.next,sd*(S.drum?.8:1.8),'triangle',S.vol*2.2);if(S.drum&&i%2===0)kick(MUS.next);MUS.step++;MUS.next+=sd;}}
