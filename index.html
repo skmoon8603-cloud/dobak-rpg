@@ -428,7 +428,7 @@ const ENEMIES={
  firelizard:{name:'불 도마뱀',hp:3000,atk:140,def:26,spd:2.2,r:14,exp:1200,gold:[180,260],aggro:280,ai:'dash'},
  lavacrab:{name:'용암 게',spr:'crab',col:'#4e342e',lava:1,hp:4400,atk:160,def:38,spd:2.2,r:15,exp:1600,gold:[220,320],aggro:260,ai:'side'},
  golem:{name:'화산 골렘',hp:8000,atk:195,def:45,spd:1.1,r:20,exp:2500,gold:[300,450],aggro:250,ai:'slam'},
- dragon:{name:'화염 드래곤',hp:140000,atk:540,def:32,spd:1.6,r:70,exp:60000,gold:[20000,30000],aggro:620,boss:1,ai:'dragon'},
+ dragon:{name:'화염 드래곤',hp:140000,atk:540,def:32,spd:1.6,r:70,exp:180000,split:1,gold:[20000,30000],aggro:620,boss:1,ai:'dragon'},
  leviathan:{name:'레비아탄',hp:16000,atk:92,def:14,spd:1.5,r:34,exp:6000,gold:[3000,4000],aggro:520,boss:1,ai:'levi'},
  lich:{name:'리치 모르간',hp:2200,atk:26,def:6,spd:1.3,r:22,exp:800,gold:[900,1100],aggro:420,boss:1}
 };
@@ -907,7 +907,7 @@ function explode(x,y,r,d,color,eff){
  for(const e of enemies.slice())if(Math.hypot(e.x-x,e.y-y)<r+e.r)hurtEnemy(e,d,eff);sfx('boom');}
 function killEnemy(e){ // 방장(또는 혼자일 때)만 부른다
  e.dead=true;enemies=enemies.filter(x=>x!==e);
- const info={k:'kill',id:e.id,t:e.type,x:Math.round(e.x),y:Math.round(e.y),bs:e.b.boss?1:0};
+ const info={k:'kill',id:e.id,t:e.type,x:Math.round(e.x),y:Math.round(e.y),bs:e.b.boss?1:0,n:e.b.split?1+(NET.live?NET.others.size:0):1};
  if(e.b.boss)enemies=enemies.filter(s=>!s.summon);
  netEv(info);rewardKill(info);
 }
@@ -923,7 +923,8 @@ function rewardKill(i){
  if(P.dead||(!b.boss&&Math.hypot(i.x-P.x,i.y-P.y)>800))return;
  P.kills++;P.kc[i.t]=(P.kc[i.t]||0)+1;if(P.job==='dark')P.hp=Math.min(P.st.hp,P.hp+P.st.hp*.04);
  const rm=lvMul(b.lv||1);
- gainExp(Math.max(1,Math.round(b.exp*rm)));
+ const nn=b.split?Math.max(1,i.n||1):1;if(nn>1)log(`🐉 ${nn}명이 함께 잡아 경험치를 ${nn}등분했어요`);
+ gainExp(Math.max(1,Math.round(b.exp*rm/nn)));
  const g=Math.max(1,Math.round(ri(b.gold[0],b.gold[1])*(1+P.st.gold/100)*rm));
  const coins=Math.min(6,Math.ceil(g/8));for(let k=0;k<coins;k++)pickups.push({k:'gold',v:Math.ceil(g/coins),x:i.x+rnd(-10,10),y:i.y+rnd(-10,10),t:0});
  if(Math.random()<.1/3)pickups.push({k:Math.random()<.6?'potHp':'potMp',x:i.x,y:i.y,t:0});
@@ -2226,7 +2227,7 @@ function netConnect(){if(!NET.token||NET.sock)return;
    if(d.k==='hit'){if(!isHost())return;const e=enemies.find(x=>x.id===d.id);if(!e||e.dead||e.fly>0||e.intro>0)return;const v=Math.max(1,Math.min(1e7,Math.round(+d.d||0)));e.hp-=v;e.hitT=.12;e.aggroed=true;addText(e.x+rnd(-6,6),e.y-e.r-8,v>=1e7?'∞':v,'#cfe8ff',10);
     if(d.s>0)e.slow=Math.max(e.slow,Math.min(6,+d.s));if(d.r>0&&!e.b.boss)e.root=Math.max(e.root,Math.min(4,+d.r));if(d.b>0){e.burn=Math.min(6,+d.b);e.burnD=Math.max(1,Math.min(1e6,+d.bd||1));}if((d.kx||d.ky)&&!e.b.boss)moveEnt(e,clamp(+d.kx||0,-1,1)*10,clamp(+d.ky||0,-1,1)*10);
     if(e.hp<=0)killEnemy(e);}
-   else if(d.k==='kill'){NET.dead.add(d.id);if(NET.dead.size>200)NET.dead.clear();enemies=enemies.filter(x=>x.id!==d.id);if(ENEMIES[d.t])rewardKill({t:d.t,x:+d.x||0,y:+d.y||0});}
+   else if(d.k==='kill'){NET.dead.add(d.id);if(NET.dead.size>200)NET.dead.clear();enemies=enemies.filter(x=>x.id!==d.id);if(ENEMIES[d.t])rewardKill({t:d.t,x:+d.x||0,y:+d.y||0,n:Math.max(1,Math.min(50,Math.round(+d.n)||1))});}
    else if(d.k==='sk'){if(!Array.isArray(d.v)||fx.length>300||projs.length>400)return;const N=(v,lo,hi)=>{v=+v;return v===v?Math.min(hi,Math.max(lo,v)):lo;},C=c=>/^#[0-9a-f]{6}$/i.test(c)?c:'#ffffff',W=map.w*TS,H2=map.h*TS;
     for(const o of d.v.slice(0,30)){if(!o||typeof o!=='object')continue;
      if(o.t==='p'){const kd=['bolt','orb','fire','ice','arrow','wave','bullet','cat','vortex'].includes(o.k)?o.k:'orb';projs.push({x:N(o.x,0,W),y:N(o.y,0,H2),vx:N(o.vx,-1500,1500),vy:N(o.vy,-1500,1500),r:N(o.r,2,30),life:N(o.l,.05,3),owner:'g',dmg:0,color:C(o.c),kind:kd,glow:!!o.g,big:!!o.b,home:!!o.h,pc:!!o.pc,tier:N(o.tr,0,4),pierce:0,hit:new Set()});}
