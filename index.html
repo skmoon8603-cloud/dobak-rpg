@@ -442,7 +442,7 @@ const DROPS={dragon:[['dscale',5,10,1],['dtooth',1,2,1],['dheart',1,1,.2]],fires
 const RECIPES=[['a_hide',{hide:8,bone2:4},200],['r_slime',{slime:30},150],['a_bone',{bone2:20,hide:5},500],['r_heart',{heart:3,flesh:10},800],
  ['r_lich',{bone:6},1500],['r_horn',{horn:4,scale:6},1500],['w_{cls}5',{dscale:50,dtooth:13,dheart:3},0],['a_dragon',{dscale:100,dheart:5},0],['a_scale',{scale:35,hide:20,horn:3,ltooth:2},4000],['w_{cls}4',{ltooth:12,scale:45,horn:8,bone:4},9000]];
 const MATP={dscale:300,dtooth:1500,dheart:6000,bone:50,slime:2,hide:6,bone2:4,heart:60,flesh:3,scale:25,horn:80,ltooth:150,fish:12,bigfish:60,goldfish:400}; // 재료 판매가
-const CONS={hp:['체력 물약','❤ 최대 체력의 35% 회복 · 쿨타임 10초 · 단축키 Z · 결투장에서는 못 씀',25,'❤'],mp:['마나 물약','💧 최대 마나의 35% 회복 · 쿨타임 10초 · 단축키 X · 결투장에서는 못 씀',25,'💧'],haste:['신속 물약','💨 30초간 이동·공격 속도 증가 (공격 간격 35% 짧아짐) · 쿨타임 없음',60,'💨'],scroll:['귀환서','📜 어디서든 마을로 돌아온다 · 보스 결계·드래곤 전투 중에는 못 씀',80,'📜'],seascroll:['바다마을 귀환권','🌊 어디서든 해저마을로 돌아간다 · 보스 결계·드래곤 전투 중에는 못 씀 (해저마을 상점)',150,'🌊'],jobticket:['직업 변경권','🎫 다른 기본 직업(마법사·검사·궁수·레인저)으로 바꾼다 · 찍은 직업 스킬 포인트는 모두 돌려받고, 낀 무기는 같은 등급의 새 직업 무기로 바뀐다 · 2차 전직은 Lv20부터 다시 · 출석 7일째 보상 / 낚시 20%',0,'🎫'],burger:['집게리아 버거','🍔 10초간 공격력 +10% · 쿨타임 없음 (꽃게가 떨어뜨린다)',0,'🍔']};
+const CONS={hp:['체력 물약','❤ 최대 체력의 35% 회복 · 쿨타임 10초 · 단축키 Z · 결투장에서는 못 씀',25,'❤'],mp:['마나 물약','💧 최대 마나의 35% 회복 · 쿨타임 10초 · 단축키 X · 결투장에서는 못 씀',25,'💧'],haste:['신속 물약','💨 30초간 이동·공격 속도 증가 (공격 간격 35% 짧아짐) · 쿨타임 없음',60,'💨'],scroll:['귀환서','📜 어디서든 마을로 돌아온다 · 보스 결계·드래곤 전투 중에는 못 씀',80,'📜'],seascroll:['바다마을 귀환권','🌊 어디서든 해저마을로 돌아간다 · 보스 결계·드래곤 전투 중에는 못 씀 (해저마을 상점)',150,'🌊'],jobticket:['직업 변경권','🎫 지금 직업을 없애고 초보자로 돌아간다 · 직업 스킬 포인트는 모두 돌려받고, 낀 무기는 가방으로 · 전직관 카인에게 가서 직업을 다시 고른다 · 출석 7일째 보상 / 낚시 20%',0,'🎫'],burger:['집게리아 버거','🍔 10초간 공격력 +10% · 쿨타임 없음 (꽃게가 떨어뜨린다)',0,'🍔']};
 // 칭호: [이름, 색, 얻는 조건 설명, 조건]
 const TITLES={
  admin:['👑 관리자','#ff5252','관리자 계정',()=>!!(NET.admin&&NET.token)],
@@ -1634,7 +1634,7 @@ function interact(){
  if(n.type==='shop')dialog(n.name,['어서 오세요! 무기, 방어구, 물약 다 있어요.'],[{t:'구매하기',f:()=>openMenu('shop')},{t:'판매하기',f:()=>openMenu('sell')},{t:'나가기'}]);
  if(n.type==='book')dialog(n.name,['어서 오게. 이곳은 온갖 마법과 기술이 잠든 도서관일세.','스킬북을 읽으면 새로운 스킬을 바로 익힐 수 있지.'],[{t:'📚 스킬북 보기',c:'gold',f:()=>openMenu('book')},{t:'나가기'}]);
  if(n.type==='job'&&P.cls==='novice'){const C4=['mage','sword','archer','ranger'];
-  dialog(n.name,['이곳은 전직의 전당. 모험가여, 어떤 길을 걸을 텐가?',C4.map(k=>`· ${CLASSES[k].name} — ${CLASSES[k].desc}`).join('\n')+'\n\n한번 고르면 바꿀 수 없네. (직업을 고르면 히든 직업의 길은 닫힌다네)'],C4.map(k=>({t:CLASSES[k].name,c:'gold',f:()=>dialog(n.name,[`정말 「${CLASSES[k].name}」의 길을 걷겠나?`],[{t:'그래!',c:'gold',f:()=>firstJob(k)},{t:'다시 생각할래'}])})).concat([{t:'나중에'}]));return;}
+  dialog(n.name,['이곳은 전직의 전당. 모험가여, 어떤 길을 걸을 텐가?',C4.map(k=>`· ${CLASSES[k].name} — ${CLASSES[k].desc}`).join('\n')+'\n\n한번 고르면 바꿀 수 없네. 🎫 직업 변경권이 있다면 모를까. (직업을 고르면 히든 직업의 길은 닫힌다네)'],C4.map(k=>({t:CLASSES[k].name,c:'gold',f:()=>dialog(n.name,[`정말 「${CLASSES[k].name}」의 길을 걷겠나?`],[{t:'그래!',c:'gold',f:()=>firstJob(k)},{t:'다시 생각할래'}])})).concat([{t:'나중에'}]));return;}
  if(n.type==='job'){const ks=Object.keys(JOBS).filter(k=>JOBS[k].cls===P.cls);const list=ks.map(k=>`· ${JOBS[k].name} — ${JOBS[k].desc}`);
   if(P.job)dialog(n.name,[`자네는 이미 「${JOBS[P.job].name}」의 길을 걷고 있네. 그 길의 끝을 보게나.`]);
   else if(P.lv<20)dialog(n.name,['이곳은 전직의 전당. 2차 전직은 Lv20부터 가능하네.',`${CLASSES[P.cls].name}의 길${ks.length>1?'은 둘로 나뉘지':'은 하나뿐이지'}.\n\n${list.join('\n')}`,`지금은 Lv${P.lv}… 더 강해져서 다시 오게.`]);
@@ -1674,19 +1674,16 @@ function shadyTalk(n){const q=P.hq;
  else if(q.s==='active')dialog(n.name,[`아직 멀었다. 슬라임 ${q.c}/100.`]);
  else dialog(n.name,['…정말 100마리를 잡아왔군.',`「마검사」가 되면 다른 직업은 고를 수 없다. 한번 정하면 되돌릴 수 없다.\n\n마검사가 되겠나?`],[{t:'⚔🔮 마검사가 된다',c:'gold',f:becomeMsword},{t:'조금 더 생각한다'}]);}
 function useJobTicket(){if(!(P.pots.jobticket>0))return;$('mClose').click();
- if(P.cls==='novice'){dialog('🎫 직업 변경권',['아직 초보자예요. 먼저 전직관 카인에게 직업을 배운 뒤에 쓸 수 있어요.']);return;}
+ if(P.cls==='novice'){dialog('🎫 직업 변경권',['이미 초보자예요. 전직관 카인에게 가서 직업을 고르면 돼요.']);return;}
  if(inBossFight()){toast('보스전 중에는 쓸 수 없어요');return;}
- const L=['mage','sword','archer','ranger'].filter(k=>k!==P.cls);
- dialog('🎫 직업 변경권',[`지금 직업: ${CLASSES[P.cls].name}${P.job&&JOBS[P.job]?' · '+JOBS[P.job].name:''}\n어떤 직업으로 바꿀까요?\n(직업 스킬 포인트는 모두 돌려받고, 2차 전직은 Lv20부터 다시 할 수 있어요)`],L.map(k=>({t:CLASSES[k].name,c:'gold',f:()=>changeClass(k)})).concat([{t:'그만두기',f:()=>{}}]));}
-function changeClass(k){if(!(P.pots.jobticket>0)||P.cls==='novice'||k===P.cls||!['mage','sword','archer','ranger'].includes(k))return;
- P.pots.jobticket--;
+ dialog('🎫 직업 변경권',[`지금 직업: ${CLASSES[P.cls].name}${P.job&&JOBS[P.job]?' · '+JOBS[P.job].name:''}\n\n직업을 없애고 초보자로 돌아갈까요?\n· 직업 스킬 포인트는 모두 돌려받아요\n· 끼고 있던 무기는 가방으로 들어가요\n· 전직관 카인에게 가서 직업을 다시 고르면 돼요`],[{t:'직업 없애기',c:'gold',f:()=>resetClass()},{t:'그만두기',f:()=>{}}]);}
+function resetClass(){if(!(P.pots.jobticket>0)||P.cls==='novice')return;P.pots.jobticket--;
  let back=0;for(const id in P.skl){if(/^u\d+$/.test(id)||/^special\d+$/.test(id))continue;back+=P.skl[id]-1;delete P.skl[id];}
  P.sp+=back;P.slots=P.slots.map(id=>id&&P.skl[id]?id:null);
- const w=P.eq.weapon;if(w&&ITEMS[w.id]&&ITEMS[w.id].cls){const t=ITEMS[w.id].tier||1;const nid='w_'+k+Math.min(5,Math.max(1,t));P.eq.weapon={id:ITEMS[nid]?nid:'w_'+k+'1',plus:w.plus||0};}else if(!w)P.eq.weapon={id:'w_'+k+'1',plus:0};
- P.bag=P.bag.map(it=>{const I=ITEMS[it.id];if(I&&I.cls&&I.cls!==k&&I.slot==='weapon'){const nid='w_'+k+(I.tier||1);return ITEMS[nid]?{id:nid,plus:it.plus||0}:it;}return it;});
- const was=CLASSES[P.cls].name;P.cls=k;P.job='';P.cds={};calc();P.hp=P.st.hp;P.mp=P.st.mp;autoLearn(true);if(!P.slots.some(Boolean)&&P.skl[k+'0'])P.slots[0]=k+'0';
- toast(`🎫 ${was} → ${CLASSES[k].name} 직업 변경!`);sfx('lvl');flashA=.35;for(let i=0;i<50;i++)parts.push({x:P.x,y:P.y,vx:rnd(-180,180),vy:rnd(-220,20),life:rnd(.5,1.2),color:CLASSES[k].color,s:3});
- log(`🎫 ${CLASSES[k].name}(으)로 바꿨어요. 스킬 포인트 ${back}개를 돌려받았어요${P.lv>=20?' · 2차 전직은 「전직의 전당」에서 다시':''}`);save(true);}
+ const w=P.eq.weapon;if(w&&w.id!=='w_novice1')P.bag.push(w);P.eq.weapon={id:'w_novice1',plus:0};
+ const was=CLASSES[P.cls].name;P.cls='novice';P.job='';P.cds={};calc();P.hp=P.st.hp;P.mp=P.st.mp;autoLearn(true);
+ toast(`🎫 ${was} 직업을 내려놓았다! 카인에게 가서 다시 고르세요`);sfx('lvl');flashA=.35;for(let i=0;i<50;i++)parts.push({x:P.x,y:P.y,vx:rnd(-180,180),vy:rnd(-220,20),life:rnd(.5,1.2),color:'#ffd740',s:3});
+ log(`🎫 초보자로 돌아왔어요. 스킬 포인트 ${back}개를 돌려받았어요 · 전직관 카인에게 가서 직업을 다시 고르세요`);GUIDE.t=0;save(true);}
 const DAILY=[['💰 500 골드',{g:500}],['❤ 체력 물약 ×3 · 💧 마나 물약 ×3',{c:{hp:3,mp:3}}],['💰 1,000 골드',{g:1000}],['💨 신속 물약 ×2',{c:{haste:2}}],['📜 귀환서 ×2 · 💰 2,000 골드',{g:2000,c:{scroll:2}}],['💰 3,000 골드 · ❤ 체력 물약 ×5',{g:3000,c:{hp:5}}],['🎫 직업 변경권',{c:{jobticket:1}}]];
 function attendCheck(){if(!P||P.dead||!NET.playing)return;if(!P.daily)P.daily={n:0,last:''};if(P.daily.last===kstDay())return;if(dlgState||CUT.t>0){setTimeout(attendCheck,2000);return;}
  const day=P.daily.n%7;let board='';DAILY.forEach((d,i)=>{board+=`${i<day?'✅':i===day?'👉':'⬜'} ${i+1}일째 · ${d[0]}\n`;});
