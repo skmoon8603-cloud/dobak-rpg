@@ -619,7 +619,7 @@ function makePolice(){
   npcs:[{x:4*TS,y:4*TS,name:'경찰관 박순경',type:'talk',color:'#1a237e',hat:'#0d1440',hatType:'cap',lines:()=>P.jailUntil>Date.now()?['반성하고 있게! 시간이 되면 꺼내 주지.']:['여기는 평화의 마을 파출소일세.','말썽을 부리면 저기 감옥에서 30초 동안 반성하게 될 거야. 경찰봉 한 방이면 끝이지!']}],
   labels:[{x:11*TS,y:2*TS-2,t:'🔒 감옥'}],spawns:[],start:{x:7*TS,y:7.4*TS}};
 }
-function makePlain(){const N=3000;return{name:'🌾 끝없는 평야',key:'plain',w:N,h:N,t:null,inf:1,portals:[],npcs:[{x:(N/2+42)*TS,y:(N/2+30)*TS,name:'정령술사 엘라',type:'spiritnpc',color:'#2e7d32',hat:'#1b5e20',hatType:'hood'}],spawns:[],labels:[],start:{x:N/2*TS,y:N/2*TS}};}
+function makePlain(){const N=3000;return{name:'🌾 끝없는 평야',key:'plain',w:N,h:N,t:null,inf:1,portals:[],npcs:[{x:(N/2+300)*TS,y:(N/2+220)*TS,name:'정령술사 엘라',type:'spiritnpc',color:'#2e7d32',hat:'#1b5e20',hatType:'hood'}],spawns:[],labels:[],start:{x:N/2*TS,y:N/2*TS}};}
 const PLP=2900;const pm=v=>((v%PLP)+PLP)%PLP;
 function plainWrap(){if(!map||!map.inf||!P)return;const tx=P.x/TS,ty=P.y/TS;let dx=0,dy=0;if(tx<60)dx=PLP;else if(tx>2940)dx=-PLP;if(ty<60)dy=PLP;else if(ty>2940)dy=-PLP;if(dx||dy){P.x+=dx*TS;P.y+=dy*TS;}}
 const hsh=(x,y)=>{x=pm(x);y=pm(y);let h=(x*374761393+y*668265263)|0;h=(h^(h>>>13))*1274126177|0;return (h^(h>>>16))>>>0;};
