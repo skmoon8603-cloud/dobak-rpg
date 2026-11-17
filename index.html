@@ -563,7 +563,7 @@ function makeVillage(){
  house(6,6,8,'R');house(18,6,8,'U');house(34,6,8,'B');house(46,6,6,'K');
  house(8,16,7,'G');house(42,16,6,'R');house(15,16,5,'B');house(49,16,5,'K');
  house(6,29,10,'G');house(20,29,6,'R');house(36,29,6,'B');house(46,29,6,'R');
- rect(t,56,35,1,7,',');rect(t,26,40,2,3,'.');
+ rect(t,56,35,1,7,',');
  house(8,38,6,'K');rect(t,11,42,5,1,',');rect(t,15,35,1,8,',');house(20,38,6,'B');house(38,38,6,'R');house(48,38,6,'U');
  const npcs=[
   {x:10.5*TS,y:10.6*TS,name:'촌장',type:'elder',color:'#7b5ea7',hat:'#d4af37'},
@@ -576,7 +576,6 @@ function makeVillage(){
   {x:30*TS,y:28.4*TS,name:'마을 표지판',type:'sign',sign:'village'},
   {x:24.5*TS,y:18.7*TS,name:'의뢰 게시판',type:'board',color:'#795548',hat:'#5d4037',hatType:'',board:1},
   {x:33.5*TS,y:18.7*TS,name:'결투 심판 바론',type:'duel',color:'#4e342e',hat:'#b71c1c',hatType:'helm'},
-  {x:26.5*TS,y:41.7*TS,name:'정령술사 엘라',type:'spiritnpc',color:'#2e7d32',hat:'#1b5e20',hatType:'hood'},
   {x:40.5*TS,y:33.4*TS,name:'요리사 쿡',type:'cook',color:'#fafafa',hat:'#fff',hatType:'cap'},
   {x:33.5*TS,y:24.6*TS,name:'작명가 렌',type:'nick',color:'#00838f',hat:'#004d56',hatType:'wiz'},
   {x:27.5*TS,y:17.7*TS,name:'소식통 할아범',type:'rank',color:'#455a64',hat:'#263238',hatType:'cap',sit:1},
@@ -620,10 +619,13 @@ function makePolice(){
   npcs:[{x:4*TS,y:4*TS,name:'경찰관 박순경',type:'talk',color:'#1a237e',hat:'#0d1440',hatType:'cap',lines:()=>P.jailUntil>Date.now()?['반성하고 있게! 시간이 되면 꺼내 주지.']:['여기는 평화의 마을 파출소일세.','말썽을 부리면 저기 감옥에서 30초 동안 반성하게 될 거야. 경찰봉 한 방이면 끝이지!']}],
   labels:[{x:11*TS,y:2*TS-2,t:'🔒 감옥'}],spawns:[],start:{x:7*TS,y:7.4*TS}};
 }
-function makePlain(){const N=3000;return{name:'🌾 끝없는 평야',key:'plain',w:N,h:N,t:null,inf:1,portals:[],npcs:[],spawns:[],labels:[],start:{x:N/2*TS,y:N/2*TS}};}
+function makePlain(){const N=3000;return{name:'🌾 끝없는 평야',key:'plain',w:N,h:N,t:null,inf:1,portals:[],npcs:[{x:(N/2+42)*TS,y:(N/2+30)*TS,name:'정령술사 엘라',type:'spiritnpc',color:'#2e7d32',hat:'#1b5e20',hatType:'hood'}],spawns:[],labels:[],start:{x:N/2*TS,y:N/2*TS}};}
 const PLP=2900;const pm=v=>((v%PLP)+PLP)%PLP;
 function plainWrap(){if(!map||!map.inf||!P)return;const tx=P.x/TS,ty=P.y/TS;let dx=0,dy=0;if(tx<60)dx=PLP;else if(tx>2940)dx=-PLP;if(ty<60)dy=PLP;else if(ty>2940)dy=-PLP;if(dx||dy){P.x+=dx*TS;P.y+=dy*TS;}}
 const hsh=(x,y)=>{x=pm(x);y=pm(y);let h=(x*374761393+y*668265263)|0;h=(h^(h>>>13))*1274126177|0;return (h^(h>>>16))>>>0;};
+function drawPlainBeacon(){const n=map.npcs.find(q=>q.type==='spiritnpc');if(!n)return;const vw=W/SC,vh=H/SC,cx=cam.x+vw/2,cy=cam.y+vh/2,dx=n.x-cx,dy=n.y-cy;
+ if(Math.abs(dx)<vw/2+40&&Math.abs(dy)<vh/2+80){ctx.globalCompositeOperation='lighter';const a=.25+.1*Math.sin(gameT*2);const g=ctx.createLinearGradient(0,n.y-260,0,n.y);g.addColorStop(0,'rgba(156,204,101,0)');g.addColorStop(1,'rgba(156,204,101,'+a+')');ctx.fillStyle=g;ctx.fillRect(n.x-14,n.y-260,28,260);ctx.globalCompositeOperation='source-over';if(Math.random()<.3)parts.push({x:n.x+rnd(-14,14),y:n.y-rnd(0,40),vx:0,vy:-rnd(30,60),life:1,color:['#66bb6a','#29b6f6','#ff7043','#fdd835','#8d6e63'][ri(0,4)],s:2});}
+ else{const L=Math.hypot(dx,dy),ux=dx/L,uy=dy/L,ex=cx+ux*Math.min(vw/2-18,Math.abs(vw/2/ux||1e9)),ey=cy+uy*Math.min(vh/2-30,Math.abs(vh/2/uy||1e9));const k=Math.min(Math.abs((vw/2-18)/(ux||1e-9)),Math.abs((vh/2-40)/(uy||1e-9)));const ax=cx+ux*k,ay=cy+uy*k;ctx.globalAlpha=.6+.3*Math.sin(gameT*4);ctx.fillStyle='#c5e1a5';ctx.beginPath();ctx.arc(ax,ay,6,0,7);ctx.fill();ctx.globalAlpha=1;}}
 function drawPlain(){const vw=W/SC,vh=H/SC,x0=Math.floor(cam.x/TS)-1,y0=Math.floor(cam.y/TS)-1,x1=x0+Math.ceil(vw/TS)+3,y1=y0+Math.ceil(vh/TS)+3;
  for(let ty=y0;ty<y1;ty++)for(let tx=x0;tx<x1;tx++){const h=hsh(tx,ty),X=tx*TS,Y=ty*TS;
   const band=Math.sin(tx*(Math.PI*2*23/PLP)+Math.sin(ty*(Math.PI*2*14/PLP))*2)*.5+.5;ctx.fillStyle=band>.55?((tx+ty)&1?'#79b84a':'#7dbd4e'):((tx+ty)&1?'#6aab3f':'#6eaf43');ctx.fillRect(X,Y,TS,TS);
@@ -860,7 +862,7 @@ function enterMap(k,x,y){
  enemies=[];projs=[];pickups=[];traps=[];timers=[];fx=[];parts=[];texts=[];zones=[];turrets=[];
  map.spawnT=map.spawns.map(()=>0);
  map.spawns.forEach(s=>{let left=s.max;while(left>0){const before=enemies.length;spawnIn(s,left);const made=enemies.length-before;if(!made)break;left-=made;}});
- if(k==='plain'&&fromKey!=='plain'){P.pots.scroll=(P.pots.scroll||0)+1;setTimeout(()=>{toast('📜 바람에 날려 온 귀환서를 하나 주웠다!');log('🌾 끝없는 평야 — 걸어서는 나갈 수 없어요. 📜 귀환서로만 돌아갈 수 있어요');},900);}
+ if(k==='plain'&&fromKey!=='plain'){P.pots.scroll=(P.pots.scroll||0)+1;setTimeout(()=>{toast('📜 바람에 날려 온 귀환서를 하나 주웠다!');log('🌾 끝없는 평야 — 걸어서는 나갈 수 없어요. 📜 귀환서로만 돌아갈 수 있어요');setTimeout(()=>toast('🍃 바람이 남동쪽(오른쪽 아래)으로 불어간다… 저 멀리 무언가가 빛나고 있다'),2600);},900);}
  if(k==='lair'){P.flags.volcano=1;setTimeout(()=>{if(map&&map.key==='lair'&&!CUT.t&&enemies.some(e=>e.b.boss&&!e.intro)){CUT.t=CUT.max=3;CUT.name='Lv80 화염 드래곤';CUT.sub='불타는 화산의 지배자';playRoar();shake=.6;}},1200);}
  if(k==='volcano')P.flags.volcano=1;
  spawnBoss(); // 아무도 없다가 누가 들어오면 보스가 다시 나타난다 (쓰러진 뒤 최소 10초)
@@ -1601,6 +1603,7 @@ function draw(){
    for(let i=0;i<2;i++)parts.push({x:sx+rnd(-R,R)*.5,y:sy+rnd(-R,R)*.5,vx:rnd(20,60),vy:rnd(-90,-30),life:.3,color:i?f.color:'#ffe066',s:4});}
  }ctx.globalAlpha=1;
  for(const L of map.labels||[])label(L.t,L.x,L.y,'#fff');
+ if(map.inf)drawPlainBeacon();
  if(!P.dead){if(P.shield>0){ctx.globalAlpha=.3;ctx.fillStyle='#6fc3ff';ctx.beginPath();ctx.arc(P.x,P.y-12,24,0,7);ctx.fill();ctx.globalAlpha=1;}if(P.rage>0||P.dbl>0){ctx.globalAlpha=.5+.2*Math.sin(gameT*14);ctx.strokeStyle=P.dbl>0?'#ffe066':'#ff5252';ctx.lineWidth=2;ctx.beginPath();ctx.arc(P.x,P.y-10,19,0,7);ctx.stroke();ctx.globalAlpha=1;}if(P.haste>0&&Math.random()<.4)parts.push({x:P.x+rnd(-8,8),y:P.y-rnd(0,6),vx:0,vy:-20,life:.3,color:'#c6ff9e',s:2});}
  if(!P.dead&&P.holy>0){ctx.globalAlpha=.35+.15*Math.sin(gameT*12);ctx.fillStyle='#fff3a8';ctx.beginPath();ctx.arc(P.x,P.y-12,26,0,7);ctx.fill();ctx.globalAlpha=1;}
  if(armed>=0&&!P.dead){ctx.globalAlpha=.5;ctx.strokeStyle='#ffe066';ctx.lineWidth=1;ctx.setLineDash([6,6]);ctx.beginPath();ctx.arc(P.x,P.y,320,0,7);ctx.stroke();ctx.setLineDash([]);ctx.globalAlpha=1;}
