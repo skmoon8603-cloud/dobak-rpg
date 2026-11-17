@@ -586,7 +586,7 @@ function makeField(){
  for(let y=15;y<=17;y++){t[y][0]=',';}
  t[3][41]='.';t[4][41]='.';t[5][41]=',';t[4][42]='.';
  rect(t,37,26,6,5,'.');
- return{name:'바람의 들판',key:'field',w,h,t,labels:[{x:24*TS,y:15.6*TS,t:'🌊 호수 속 해저마을 (Lv25+)'}],
+ return{name:'바람의 들판',key:'field',w,h,t,labels:[{x:24*TS,y:15.6*TS,t:'🌊 호수 속 해저마을 (Lv24+)'}],
   portals:[{look:'gate',x:6,y:16*TS+16,to:'village',tx:57*TS,ty:22*TS,label:'마을'},{look:'cave',x:41.5*TS,y:4*TS,to:'dungeon',tx:5*TS,ty:5*TS+16,label:'던전'},{look:'tomb',x:41.5*TS,y:28.5*TS,to:'ruins',tx:4.5*TS,ty:15.5*TS,label:'폐허 Lv12+'}],
   npcs:[],
   spawns:[{type:'slime',zone:[3,8,18,30],max:7},{type:'wolf',zone:[16,8,34,30],max:5},{type:'goblin',zone:[30,8,42,30],max:9,pack:3},{type:'slime',zone:[18,2,40,8],max:3}],
@@ -780,7 +780,7 @@ const need=lv=>Math.floor(30*Math.pow(lv,1.6));
 const SAVEKEY='dobakrpg_save_v1';
 function snap(){const d=Object.assign({},P);delete d.st;delete d.dash;delete d.say;delete d.sayT;return d;}
 function save(silent){let ok=true;try{localStorage.setItem(SAVEKEY,JSON.stringify(snap()));}catch(e){ok=false;}
- if(NET.token){NET.dirty=true;ok=true;}
+ if(NET.token&&!NET.stopped){NET.dirty=true;ok=true;}
  if(!silent)log(ok?(NET.token?'💾 저장되었습니다 (서버)':'💾 저장되었습니다'):'⚠ 이 브라우저에서는 저장할 수 없어요');return ok;}
 function hasSave(){try{return !!localStorage.getItem(SAVEKEY);}catch(e){return false;}}
 function applySave(d){if(!d||!d.race||!RACES[d.race]||!CLASSES[d.cls])return false;P=Object.assign(newPlayer(d.name,d.race,d.cls),d);fixPlayer();return true;}
@@ -1028,7 +1028,8 @@ function cookHtml(){let h=`<div>💰 ${P.gold.toLocaleString()} G · 몹 재료�
 function cookBind(B){B.querySelectorAll('[data-cook]').forEach(b=>b.onclick=()=>{const r=COOK.find(x=>x[0]===b.dataset.cook);if(!r)return;const[id,need,g]=r;if(P.gold<g||!Object.keys(need).every(m=>(P.mats[m]||0)>=need[m]))return;
   for(const m in need)P.mats[m]-=need[m];P.gold-=g;P.pots[id]=(P.pots[id]||0)+1;sfx('win');toast(`🍳 ${CONS[id][0]} 완성!`);renderMenu();save(true);});}
 // ===== 탈것 =====
-const VEH={kick:{name:'킥보드',ic:'🛴',price:150000,spd:.1,seats:0,up:3},fixie:{name:'픽시',ic:'🚲',price:1500000,spd:.3,seats:0,up:7},moto:{name:'오토바이',ic:'🏍',price:5000000,spd:.5,seats:1,up:8},bonggu:{name:'봉구차',ic:'🚐',price:10000000,spd:.7,seats:2,up:12},lambo:{name:'람보르기니',ic:'🏎',price:100000000,spd:1,seats:2,up:9}};
+const VEH={kick:{name:'킥보드',ic:'🛴',price:150000,spd:.1,seats:0,up:4,ped:1},fixie:{name:'픽시',ic:'🚲',price:1500000,spd:.3,seats:0,up:9,ped:1},moto:{name:'오토바이',ic:'🏍',price:5000000,spd:.5,seats:1,up:10},bonggu:{name:'봉구차',ic:'🚐',price:10000000,spd:.7,seats:2,up:20,car:1},lambo:{name:'람보르기니',ic:'🏎',price:100000000,spd:1,seats:2,up:5,car:1}};
+const seatOff=(v,seat)=>v==='moto'?15:12+12*seat;
 const vehMul=()=>P.ride&&VEH[P.ride]&&!P.rideOn&&!(map&&map.pvp)?1+VEH[P.ride].spd:1;
 function mount(id){if(!P.veh.includes(id))return;if(map&&map.pvp){toast('결투장에서는 탈 수 없어요');return;}if(P.rideOn){toast('먼저 내려 주세요');return;}P.ride=P.ride===id?'':id;sfx('lvl');toast(P.ride?`${VEH[id].ic} ${VEH[id].name} 탑승! 속도 +${Math.round(VEH[id].spd*100)}%${VEH[id].seats?` · 뒤에 ${VEH[id].seats}명 탈 수 있어요`:''}`:'탈것에서 내렸어요');renderMenu();save(true);}
 function drawVehicle(x,y,id,f){const W=(a,b,r)=>{ctx.fillStyle='#212121';ctx.beginPath();ctx.arc(a,b,r,0,7);ctx.fill();ctx.fillStyle='#9e9e9e';ctx.beginPath();ctx.arc(a,b,r*.4,0,7);ctx.fill();};
@@ -1036,10 +1037,19 @@ function drawVehicle(x,y,id,f){const W=(a,b,r)=>{ctx.fillStyle='#212121';ctx.beg
  if(id==='kick'){px(x-13,y-5,26,3,'#e53935');W(x-10,y-1,3);W(x+10,y-1,3);px(x+f*11-1,y-28,2,24,'#90a4ae');px(x+f*11-5,y-29,10,2,'#37474f');}
  else if(id==='fixie'){ctx.strokeStyle='#212121';ctx.lineWidth=2;for(const a of[-12,12]){ctx.beginPath();ctx.arc(x+a,y-8,8,0,7);ctx.stroke();}ctx.strokeStyle='#00bfa5';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(x-12,y-8);ctx.lineTo(x-2,y-20);ctx.lineTo(x+9,y-20);ctx.lineTo(x+12,y-8);ctx.moveTo(x-2,y-20);ctx.lineTo(x+2,y-8);ctx.lineTo(x-12,y-8);ctx.stroke();px(x-f*4-3,y-23,7,3,'#212121');px(x+f*9-3,y-25,7,2,'#212121');}
  else if(id==='moto'){W(x-14,y-7,8);W(x+14,y-7,8);px(x-16,y-21,32,10,'#c62828');px(x-4,y-26,14,6,'#e53935');px(x-16,y-24,16,4,'#212121');px(x+f*16-(f<0?6:0),y-22,6,5,'#ffeb3b');px(x-f*18-(f>0?8:0),y-12,8,3,'#9e9e9e');px(x+f*12-1,y-32,2,10,'#424242');}
- else if(id==='bonggu'){px(x-28,y-38,56,30,'#eceff1');px(x-28,y-22,56,4,'#1565c0');px(x+(f>0?8:-26),y-34,18,10,'#81d4fa');px(x+(f>0?-20:2),y-34,18,10,'#81d4fa');px(x-28,y-40,56,3,'#cfd8dc');W(x-17,y-6,7);W(x+17,y-6,7);px(x+f*28-(f<0?0:3),y-16,3,5,'#ffeb3b');}
+ else if(id==='bonggu'){px(x-30,y-54,60,46,'#eceff1');px(x-28,y-50,56,16,'#455a64');px(x-30,y-56,60,3,'#cfd8dc');W(x-18,y-6,7);W(x+18,y-6,7);}
  else if(id==='lambo'){px(x-32,y-18,64,12,'#ffd600');px(x-14,y-27,26,10,'#ffea00');px(x-10,y-25,18,6,'#263238');px(x-f*32-(f>0?4:0),y-24,4,8,'#212121');px(x-f*36-(f>0?6:-2),y-26,10,3,'#212121');px(x+f*30-(f<0?0:4),y-14,4,3,'#fff59d');px(x-32,y-9,64,2,'#f9a825');W(x-19,y-6,7);W(x+19,y-6,7);}}
+// 차 앞쪽(탄 사람의 아랫부분을 덮는다)
+function drawVehicleFront(x,y,id,f){const W=(a,b,r)=>{ctx.fillStyle='#212121';ctx.beginPath();ctx.arc(a,b,r,0,7);ctx.fill();ctx.fillStyle='#9e9e9e';ctx.beginPath();ctx.arc(a,b,r*.4,0,7);ctx.fill();};
+ if(id==='bonggu'){px(x-30,y-34,60,26,'#eceff1');px(x-30,y-26,60,4,'#1565c0');px(x-30,y-52,3,20,'#eceff1');px(x+27,y-52,3,20,'#eceff1');px(x-1,y-52,2,20,'#eceff1');px(x-30,y-36,60,3,'#cfd8dc');ctx.globalAlpha=.12;px(x-27,y-50,54,14,'#b3e5fc');ctx.globalAlpha=1;px(x+f*30-(f<0?0:3),y-18,3,5,'#ffeb3b');px(x-f*30-(f>0?3:0),y-18,3,5,'#e53935');W(x-18,y-6,7);W(x+18,y-6,7);}
+ else if(id==='lambo'){px(x-32,y-18,64,12,'#ffd600');px(x-32,y-9,64,2,'#f9a825');px(x+f*8-(f<0?14:0),y-30,14,12,'rgba(38,50,56,.55)');px(x+f*30-(f<0?0:4),y-14,4,3,'#fff59d');px(x-f*36-(f>0?6:-2),y-26,10,3,'#212121');px(x-f*32-(f>0?4:0),y-24,4,8,'#212121');W(x-19,y-6,7);W(x+19,y-6,7);}}
+// 탈것 위의 사람 그리기 (킥보드·픽시는 페달을 밟고, 차는 안에 앉는다)
+function drawRider(c,x,y,v,moving,walk){const V=VEH[v];const f=c.fx<0?-1:1;
+ if(V.car){if(v==='lambo')px(x-32,y-18,64,12,'#ffd600');}
+ const leg=V.ped&&moving?walk:0;drawChar(Object.assign({},c,{x,y:y-V.up,walk:leg}));
+ if(V.car)drawVehicleFront(x,y,v,f);}
 function rideTick(){if(!P||!P.rideOn)return;const o=NET.others.get(P.rideOn.uid);if(!o){if(!P.rideOn.lost)P.rideOn.lost=Date.now();else if(Date.now()-P.rideOn.lost>3000){P.rideOn=null;toast('운전자가 사라져서 내렸어요');}return;}P.rideOn.lost=0;
- const f=o.fx<0?-1:1;P.x=o.x-f*(20+P.rideOn.seat*16);P.y=o.y-1;P.fx=f;P.fy=0;}
+ const f=o.fx<0?-1:1;P.x=o.x-f*seatOff(o.v,P.rideOn.seat);P.y=o.y-1;P.fx=f;P.fy=0;P.rideV=o.v;}
 function nearDriver(){if(!NET.live||P.rideOn)return null;for(const[uid,o]of NET.others){const V=VEH[o.v];if(V&&V.seats&&!o.rd&&Math.hypot(o.x-P.x,o.y-P.y)<70)return uid;}return null;}
 function usePot(k){if(P.dead)return;if(map&&map.pvp){toast('결투 중에는 물약을 쓸 수 없어요');return;}if(P.pots[k]<=0){log('물약이 없어요');return;}if(k==='hp'&&P.hp>=P.st.hp)return;if(k==='mp'&&P.mp>=P.st.mp)return;if(POTCD[k]>0){if(gameT-(POTCD.msg||0)>.8){POTCD.msg=gameT;toast(`⏳ ${k==='hp'?'체력':'마나'} 물약은 ${Math.ceil(POTCD[k])}초 뒤에 쓸 수 있어요`);}return;}POTCD[k]=10;P.pots[k]--;if(k==='hp'){const v=Math.round(P.st.hp*.35);P.hp=Math.min(P.st.hp,P.hp+v);addText(P.x,P.y-24,'+'+v,'#7dff7d',12);}else{const v=Math.round(P.st.mp*.35);P.mp=Math.min(P.st.mp,P.mp+v);addText(P.x,P.y-24,'+'+v,'#7dbfff',12);}sfx('coin');}
 
@@ -1213,10 +1223,13 @@ function update(dt){
  if(map.key==='abyss'&&ml>0&&mx>.3){const tx=Math.floor((P.x+16)/TS),ty=Math.floor(P.y/TS);if(map.t[ty]&&map.t[ty][tx]==='Q'){toast('…벽이 물결처럼 일렁인다!');sfx('lvl');enterMap('grotto',3*TS,6*TS);P.portalLock=1.2;return;}}
  if(map.key==='grotto'&&!P.flags.conch&&Math.hypot(P.x-7.5*TS,P.y-5*TS)<34){P.flags.conch=1;P.mats.conch=(P.mats.conch||0)+1;toast('🐚 수상한 고동을 얻었다!');log('🐚 수상한 고동… 귀에 대면 노랫소리가 들린다. (어디에 쓰는 걸까?)');sfx('win');flashA=.3;save(true);}
  if(map.key==='field'&&ml>0&&!(lakeT>gameT)&&(isWater(P.x+mx/ml*18,P.y+my/ml*18)||isWater(P.x+mx/ml*12,P.y-6+my/ml*12))){lakeT=gameT+1.5;
-  if(P.lv>=25||P.flags.admin){P.flags.sea=1;toast('🌊 호수 속으로 가라앉는다…');sfx('lvl');enterMap('sea',9*TS,15*TS);P.portalLock=1.5;return;}
+  if(P.lv>=24||P.flags.admin){P.flags.sea=1;toast('🌊 호수 속으로 가라앉는다…');sfx('lvl');enterMap('sea',9*TS,15*TS);P.portalLock=1.5;return;}
   P.hp=Math.max(1,Math.ceil(P.hp/2));moveEnt(P,-mx/ml*34,-my/ml*34);for(let i=0;i<16;i++)parts.push({x:P.x,y:P.y-8,vx:rnd(-90,90),vy:rnd(-150,-30),g:400,life:rnd(.3,.7),color:'#6fb8ff',s:3});shake=.2;sfx('hurt');addText(P.x,P.y-30,'어푸푸!','#6fb8ff',12);toast('더 강해져야 들어갈 수 있나 보다...');}
+ P.moving=0;
  if(P.dash){P.dash.t-=dt;moveEnt(P,P.dash.x*720*dt,P.dash.y*720*dt);parts.push({x:P.x,y:P.y,vx:0,vy:0,life:.25,color:'#ffffff',s:4});if(P.dash.dmg)for(const e of enemies.slice())if(!P.dash.hit.has(e)&&Math.hypot(e.x-P.x,e.y-P.y)<e.r+20){P.dash.hit.add(e);hurtEnemy(e,P.dash.dmg,{kb:{x:P.dash.x,y:P.dash.y}});}if(P.dash.t<=0)P.dash=null;}
- else if(ml>0){const n=ml>1?ml:1;const sp=P.st.spd*60*dt*(P.haste>0?1.4:1)*vehMul();moveEnt(P,mx/n*sp,my/n*sp);P.fx=mx/ml;P.fy=my/ml;P.walk+=dt*10;}
+ else if(ml>0){const n=ml>1?ml:1;const sp=P.st.spd*60*dt*(P.haste>0?1.4:1)*vehMul();P.moving=1;
+  if(P.ride==='fixie'&&vehMul()>1){const want=Math.atan2(my,mx);if(P.hd==null||!P.hdT||gameT-P.hdT>.4)P.hd=want;let da=((want-P.hd+Math.PI*3)%(Math.PI*2))-Math.PI;const turn=2.6*dt;P.hd+=clamp(da,-turn,turn);P.hdT=gameT;const slow=Math.abs(da)>1.2?.55:1;moveEnt(P,Math.cos(P.hd)*sp*slow,Math.sin(P.hd)*sp*slow);P.fx=Math.cos(P.hd);P.fy=Math.sin(P.hd);}
+  else{moveEnt(P,mx/n*sp,my/n*sp);P.fx=mx/ml;P.fy=my/ml;}P.walk+=dt*10;}
  // 공격
  jailTick();rideTick();
  P.acd-=dt;if((atkHeld||keys[' ']||keys['j']||mouse.down)&&P.acd<=0)basicAttack();
@@ -1557,13 +1570,17 @@ function drawChar(o){
 }
 function drawPlayer(){
  if(P.inv>0&&!(P.holy>0)&&(gameT*20|0)%2)return;
- const myV=!P.rideOn&&!(map&&map.pvp)&&VEH[P.ride]?P.ride:'';if(myV)drawVehicle(P.x,P.y,myV,P.fx<0?-1:1);const vup=myV?VEH[myV].up:P.rideOn?9:0;
- drawChar({x:P.x,y:P.y-vup,race:P.race,cls:P.cls,job:P.job,fx:P.fx,fy:P.fy,walk:myV||P.rideOn?0:P.walk,atk:P.atkAnim>0,wp:P.eq&&P.eq.weapon?P.eq.weapon.id:'',ar:P.eq&&P.eq.armor?P.eq.armor.id:''});
- if(P.name)label(P.name+' Lv'+P.lv,P.x,P.y-46,'#ffe9a8');
- const tt=TITLES[P.title];if(tt&&P.name)label(tt[0],P.x,P.y-59,tt[1]);
+ const myV=!P.rideOn&&!(map&&map.pvp)&&VEH[P.ride]?P.ride:'';if(myV)drawVehicle(P.x,P.y,myV,P.fx<0?-1:1);const pv=P.rideOn&&VEH[P.rideV]?P.rideV:'';
+ const meC={x:P.x,y:P.y,race:P.race,cls:P.cls,job:P.job,fx:P.fx,fy:P.fy,walk:P.walk,atk:P.atkAnim>0,wp:P.eq&&P.eq.weapon?P.eq.weapon.id:'',ar:P.eq&&P.eq.armor?P.eq.armor.id:''};
+ if(myV||pv)drawRider(meC,P.x,P.y,myV||pv,!!myV&&P.moving,P.walk);else
+ drawChar({x:P.x,y:P.y,race:P.race,cls:P.cls,job:P.job,fx:P.fx,fy:P.fy,walk:P.walk,atk:P.atkAnim>0,wp:P.eq&&P.eq.weapon?P.eq.weapon.id:'',ar:P.eq&&P.eq.armor?P.eq.armor.id:''});
+ const lup=(myV||pv)==='bonggu'?18:(myV||pv)?VEH[myV||pv].up:0;
+ if(P.name)label(P.name+' Lv'+P.lv,P.x,P.y-46-lup,'#ffe9a8');
+ const tt=TITLES[P.title];if(tt&&P.name)label(tt[0],P.x,P.y-59-lup,tt[1]);
  if(P.say&&P.sayT>nowS())bubble(P.say,P.x,P.y-(tt?76:62));
 }
-function drawOther(o){if(VEH[o.v])drawVehicle(o.x,o.y,o.v,o.fx<0?-1:1);const vup=VEH[o.v]?VEH[o.v].up:o.rd?9:0;ctx.globalAlpha=.9;if(vup){const w0=o.walk;drawChar(Object.assign({},o,{y:o.y-vup,walk:0}));o.walk=w0;}else drawChar(o);ctx.globalAlpha=1;const pid=[...NET.others.entries()].find(e=>e[1]===o);if(pid&&inParty(pid[0])&&!map.pvp){px(o.x-16,o.y-72,32,4,'#300');px(o.x-16,o.y-72,32*clamp(o.php!=null?o.php:(o.hp||100),0,100)/100,4,'#ff5252');label('👥',o.x-(o.name.length*4+16),o.y-46,'#e1bee7');}if(o.vc){ctx.font='11px sans-serif';ctx.textAlign='center';ctx.fillText('🎙',o.x+(o.name.length*4+14),o.y-42);}if(map.pvp&&o.hp!=null){px(o.x-16,o.y-72,32,5,'#300');px(o.x-16,o.y-72,32*o.hp/100,5,'#ff5252');}label(o.name+' Lv'+o.lv,o.x,o.y-46,'#9dffb0');const tt=TITLES[o.tt];if(tt)label(tt[0],o.x,o.y-59,tt[1]);if(o.say&&o.sayT>nowS())bubble(o.say,o.x,o.y-(tt?76:62));}
+function drawOther(o){if(VEH[o.v])drawVehicle(o.x,o.y,o.v,o.fx<0?-1:1);let rv=VEH[o.v]?o.v:'';if(!rv&&o.rd){for(const q of NET.others.values())if(VEH[q.v]&&Math.abs(q.x-o.x)<40&&Math.abs(q.y-o.y)<4){rv=q.v;break;}if(!rv&&P.ride&&!P.rideOn&&Math.abs(P.x-o.x)<40&&Math.abs(P.y-o.y)<4)rv=P.ride;}
+ ctx.globalAlpha=.9;if(rv)drawRider(o,o.x,o.y,rv,!!o.w&&!o.rd,o.walk);else if(o.rd){drawChar(Object.assign({},o,{y:o.y-9,walk:0}));}else drawChar(o);ctx.globalAlpha=1;const pid=[...NET.others.entries()].find(e=>e[1]===o);if(pid&&inParty(pid[0])&&!map.pvp){px(o.x-16,o.y-72,32,4,'#300');px(o.x-16,o.y-72,32*clamp(o.php!=null?o.php:(o.hp||100),0,100)/100,4,'#ff5252');label('👥',o.x-(o.name.length*4+16),o.y-46,'#e1bee7');}if(o.vc){ctx.font='11px sans-serif';ctx.textAlign='center';ctx.fillText('🎙',o.x+(o.name.length*4+14),o.y-42);}if(map.pvp&&o.hp!=null){px(o.x-16,o.y-72,32,5,'#300');px(o.x-16,o.y-72,32*o.hp/100,5,'#ff5252');}const lup=rv==='bonggu'?18:rv?VEH[rv].up:o.rd?9:0;label(o.name+' Lv'+o.lv,o.x,o.y-46-lup,'#9dffb0');const tt=TITLES[o.tt];if(tt)label(tt[0],o.x,o.y-59-lup,tt[1]);if(o.say&&o.sayT>nowS())bubble(o.say,o.x,o.y-(tt?76:62));}
 const SIGNS={};
 function signText(k){const v=SIGNS[k];return v&&v.t?v.t:'';}
 function behindProp(x,y,w,h){const near=q=>q&&Math.abs(q.x-x)<w&&q.y<y&&q.y>y-h;if(P&&near(P))return true;for(const o of NET.others.values())if(near(o))return true;return false;}
@@ -2158,7 +2175,7 @@ const mapName=k=>String(k).startsWith('arena')?'결투장':MAPN[k]||k;
 const MAPN={police:'파출소',volcano:'불타는 화산',lair:'화염 드래곤의 둥지',grotto:'비밀의 해저 동굴',sea:'해저마을',abyss:'레비아탄의 둥지',village:'평화의 마을',field:'바람의 들판',dungeon:'모르간의 던전',ruins:'저주받은 폐허',house:'수상한 집'};
 let whoList=null,whoT=0;
 function mapGuideHtml(){const lines=[];for(const pt of map.portals){if(pt.need&&!P.flags[pt.need])continue;if(pt.door||!pt.to)continue;const m2=getMap(pt.to);const mobs=[...new Set(m2.spawns.map(z=>ENEMIES[z.type].name+' Lv'+ENEMIES[z.type].lv))];lines.push(`◆ <b>${pt.label||mapName(pt.to)}</b> → ${m2.name}${mobs.length?' · '+mobs.join(', '):''}${m2.boss?' · 👑 '+ENEMIES[m2.boss.type].name+' Lv'+ENEMIES[m2.boss.type].lv:''}`);}
- if(map.key==='field')lines.push('🌊 <b>호수</b> → 해저마을 (Lv25 이상) · 청새치 Lv28, 꽃게 Lv35, 레비아탄 Lv42');
+ if(map.key==='field')lines.push('🌊 <b>호수</b> → 해저마을 (Lv24 이상) · 청새치 Lv28, 꽃게 Lv35, 레비아탄 Lv42');
  return lines.length?'<div style="font-size:12px;margin-top:8px;line-height:1.8;color:#e1bee7"><b style="color:#ffe9a8">🧭 이 지역에서 갈 수 있는 곳</b><br>'+lines.join('<br>')+'</div>':'';}
 function drawMap(){const c=$('mapCv');if(!c||menuTab!=='map'||$('menu').classList.contains('hidden')||!map)return;
  const sc=Math.min(1,760/(map.w*TS));const w=Math.round(map.w*TS*sc),hh=Math.round(map.h*TS*sc);if(c.width!==w||c.height!==hh){c.width=w;c.height=hh;}
@@ -2287,6 +2304,7 @@ function startGame(isNew){
  checkTitles();
  if(NET.token&&NET.grants&&NET.grants.length)applyGrants();
  enterMap('village',30*TS,25*TS); // 새로고침하면 항상 마을에서 시작
+ if(P.dead||!(P.hp>0)){P.dead=false;calc();P.hp=P.st.hp;P.mp=P.st.mp;} // 죽은 채로 저장됐으면 마을에서 살려서 시작
  setTimeout(attendCheck,2500);
  if(inJail())enterMap('police',11.5*TS,4*TS);
  if(blocked(P.x,P.y,8)){P.x=map.start.x;P.y=map.start.y;}
@@ -2299,7 +2317,7 @@ function startGame(isNew){
 function netLogout(){NET.token=null;NET.cloud=null;NET.uid='';NET.live=false;try{localStorage.removeItem('dobakrpg_session');}catch(e){}if(NET.sock){try{NET.sock.disconnect();}catch(e){}NET.sock=null;}NET.others.clear();}
 async function netApi(path,body){const o={method:body?'POST':'GET',cache:'no-store',headers:{}};if(NET.token)o.headers.Authorization='Bearer '+NET.token;if(body){o.headers['Content-Type']='application/json';o.body=JSON.stringify(body);}
  const r=await fetch(NET.base+path,o);let j=null;try{j=await r.json();}catch(e){}return{status:r.status,ok:r.ok,j:j||{}};}
-async function netCloud(){const r=await netApi('/api/rpg/save');if(r.status===401){netLogout();return false;}if(!r.ok)return false;NET.uid=r.j.id;NET.admin=!!r.j.admin;NET.grants=Array.isArray(r.j.grants)?r.j.grants:[];NET.nick=r.j.nick||'';NET.cloud=r.j.save||null;return true;}
+async function netCloud(){const r=await netApi('/api/rpg/save');if(r.status===401){netLogout();return false;}if(!r.ok)return false;NET.uid=r.j.id;NET.admin=!!r.j.admin;NET.grants=Array.isArray(r.j.grants)?r.j.grants:[];NET.nick=r.j.nick||'';NET.cloud=r.j.save||null;NET.saveT=+r.j.t||0;return true;}
 const AUTHERR={exists:'이미 있는 아이디예요',bad_username:'아이디는 2~20자로 해주세요',bad_password:'비밀번호는 6자 이상이어야 해요',bad_login:'아이디 또는 비밀번호가 틀렸어요',locked:'5번 틀려서 5분 동안 잠겼어요',too_many_requests:'잠시 후 다시 시도해 주세요'};
 async function netAuth(kind){const msg=$('lMsg'),u=$('lId').value.trim(),pw=$('lPw').value;if(u.length<2){msg.textContent=AUTHERR.bad_username;return;}if(pw.length<6){msg.textContent=AUTHERR.bad_password;return;}
  msg.style.color='#c9b3ff';msg.textContent='서버에 연결하는 중…';
@@ -2308,9 +2326,11 @@ async function netAuth(kind){const msg=$('lMsg'),u=$('lId').value.trim(),pw=$('l
   NET.token=r.j.session;try{localStorage.setItem('dobakrpg_session',NET.token);}catch(e){}
   await netCloud();renderTitle();
  }catch(e){msg.style.color='#ff9a9a';msg.textContent='서버에 연결하지 못했어요';}}
-async function netFlush(keep){if(!NET.token||!NET.dirty||NET.busy||!P)return;NET.busy=true;NET.dirty=false;const d=snap();
- try{const r=await fetch(NET.base+'/api/rpg/save',{method:'POST',keepalive:!!keep,headers:{'Content-Type':'application/json',Authorization:'Bearer '+NET.token},body:JSON.stringify({save:d})});
-  if(r.ok){NET.cloud=d;NET.fail=0;}else if(r.status===401){log('⚠ 로그인이 만료됐어요. 타이틀에서 다시 로그인해 주세요');NET.token=null;}else{NET.dirty=true;}
+function netStop(why){if(NET.stopped)return;NET.stopped=true;NET.dirty=false;try{if(NET.sock)NET.sock.disconnect();}catch(e){}
+ setTimeout(()=>dialog('⚠ 저장 멈춤',[why+'\n\n이 기기의 예전 데이터가 서버의 최신 데이터를 덮어쓰지 않도록 이 기기에서는 저장을 멈췄어요.\n새로고침하면 서버에 있는 최신 데이터로 이어서 할 수 있어요.'],[{t:'🔄 새로고침',c:'gold',f:()=>location.reload()}]),300);}
+async function netFlush(keep){if(!NET.token||!NET.dirty||NET.busy||!P||NET.stopped)return;NET.busy=true;NET.dirty=false;const d=snap();
+ try{const r=await fetch(NET.base+'/api/rpg/save',{method:'POST',keepalive:!!keep,headers:{'Content-Type':'application/json',Authorization:'Bearer '+NET.token},body:JSON.stringify({save:d,base:NET.saveT||0})});
+  if(r.ok){NET.cloud=d;NET.fail=0;try{const j=await r.json();if(j&&j.t)NET.saveT=j.t;}catch(e){}}else if(r.status===409){netStop('다른 기기에서 이 계정으로 더 최근에 저장했어요.');}else if(r.status===401){log('⚠ 로그인이 만료됐어요. 타이틀에서 다시 로그인해 주세요');NET.token=null;}else{NET.dirty=true;}
  }catch(e){NET.dirty=true;if(!(NET.fail++%10))log('⚠ 서버 저장에 실패했어요. 다시 시도할게요');}
  NET.busy=false;}
 setInterval(()=>netFlush(),4000);
@@ -2348,7 +2368,7 @@ function netConnect(){if(!NET.token||NET.sock)return;
   k.on('duel:go',d=>{if(!d||!/^arena[a-z]{5}$/.test(d.arena)||!P||P.dead)return;closeDlg();$('menu').classList.add('hidden');paused=false;P.pvOver=0;P.pvGone=0;calc();P.hp=P.st.hp;P.mp=P.st.mp;
    enterMap(d.arena,(d.side?21.5:4.5)*TS,9.5*TS);P.pvStart=gameT+3;for(let i=3;i>=1;i--)timers.push({t:3-i,f:()=>toast('⚔ '+i)});timers.push({t:3,f:()=>{toast('⚔ 결투 시작!');sfx('boom');}});});
   k.on('c',d=>{if(!d||typeof d.t!=='string')return;const t=d.t.slice(0,60),o=NET.others.get(d.u);if(o){o.say=t;o.sayT=nowS()+5;}log('<b style="color:#9dffb0">'+esc(String(d.n||'?').slice(0,12))+'</b>: '+esc(t));});
-  k.on('kicked',()=>log('⚠ 다른 기기에서 접속해서 실시간 연결이 끊겼어요'));
+  k.on('kicked',()=>netStop('다른 기기에서 이 계정으로 접속했어요.'));
   k.on('ps',list=>{if(!Array.isArray(list))return;const seen=new Set();for(const a of list){if(!a||a[0]===NET.uid)continue;seen.add(a[0]);let o=NET.others.get(a[0]);if(!o){o={x:a[6],y:a[7],walk:0,fy:0};NET.others.set(a[0],o);}
     o.name=String(a[1]);o.race=a[2];o.cls=a[3];o.job=a[4];o.lv=a[5];o.tx=a[6];o.ty=a[7];o.fx=a[8];o.atk=!!a[9];o.w=!!a[10];o.wp=a[11];o.ar=a[12];o.tt=a[13];o.hp=a[14];o.v=a[15]||'';o.rd=!!a[16];if(Math.hypot(o.tx-o.x,o.ty-o.y)>200){o.x=o.tx;o.y=o.ty;}}
    for(const id of NET.others.keys())if(!seen.has(id))NET.others.delete(id);});};
