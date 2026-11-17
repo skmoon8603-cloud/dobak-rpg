@@ -801,7 +801,6 @@ function calc(){
  const j=P.job;if(j==='dark')s.atk*=1.25;if(j==='white'){s.hp*=1.25;s.hpr+=3;s.mpr+=2;}if(j==='magicbow'){s.mp+=50;s.mpr+=1;}if(j==='expert')s.atk*=1.2;if(j==='peak'){s.hp*=1.25;s.def+=10;}if(j==='assault'){s.hp*=1.2;s.spd+=.3;}if(j==='msorder'){s.atk*=1.2;s.hp*=1.15;}
  {const F=foodOn();if(F){if(F.atk)s.atk*=1+F.atk;if(F.def)s.def*=1+F.def;if(F.spd)s.spd*=1+F.spd;}}
  s.hp=Math.round(s.hp);s.mp=Math.round(s.mp);s.atk=Math.round(s.atk);s.def=Math.round(s.def);
- if(NET.admin&&NET.token)s.spd*=3; // 관리자 계정은 항상 3배 빠르다
  s.hpr*=.5;s.mpr*=.5; // 회복 속도 절반 (2배 느리게)
  const pt=P.pts||{def:0,patk:0,matk:0};s.def+=pt.def;s.patk=s.atk+pt.patk;s.matk=s.atk+pt.matk;s.hatk=s.atk+2*Math.min(pt.patk,pt.matk)+Math.round(Math.abs(pt.patk-pt.matk)/3); // 반반 직업: 물리·마법을 고르게 찍어야 강하다
  P.st=s;P.hp=Math.min(P.hp,s.hp);P.mp=Math.min(P.mp,s.mp);
@@ -1943,9 +1942,9 @@ function claimAttend(){if(!P.daily||P.daily.last===kstDay())return;const day=P.d
  toast(`📅 ${day+1}일째 출석 보상: ${DAILY[day][0]}`);log(`📅 출석 ${day+1}일째 보상: ${DAILY[day][0]}${day===6?' — 다음 날부터 1일째로 다시 시작해요':''}`);sfx('win');save(true);}
 function flowerTick(dt){if(!map||!map.t||P.dead)return;const tx=Math.floor(P.x/TS),ty=Math.floor(P.y/TS),on=map.t[ty]&&map.t[ty][tx]==='f';
  if(on&&P.moving){P.fd=(P.fd||0)+dt;if(Math.random()<.25)parts.push({x:P.x+rnd(-8,8),y:P.y-2,vx:rnd(-20,20),vy:-rnd(20,50),life:.6,color:['#ff80ab','#ffffff','#ffe066'][ri(0,2)],s:2});
-  if(!P.flags.fdance&&Math.floor(P.fd)!==Math.floor(P.fd-dt)&&P.fd>=3&&P.fd<10)addText(P.x,P.y-50,'🌸 '+Math.floor(P.fd)+'/10','#ff80ab',10);
+  if(!P.flags.fdance&&Math.floor(P.fd)!==Math.floor(P.fd-dt)&&P.fd>=1&&P.fd<10)addText(P.x,P.y-50,'🌸 '+Math.floor(P.fd)+'/10','#ff80ab',10);
   if(P.fd>=10&&!P.flags.fdance){P.flags.fdance=1;learnSpecial('special3');timers.push({t:1.2,f:()=>toast('🏅 칭호 「꽃 위에서 춤을」 획득!')});}}
- else if(!on)P.fd=Math.max(0,(P.fd||0)-dt*2);}
+ }
 function becomeSpirit(){if(P.cls!=='novice')return;P.cls='spirit';P.job='';
  const old=P.eq.weapon;if(old&&old.id==='w_novice1')P.eq.weapon={id:'w_spirit1',plus:old.plus};else{if(old)P.bag.push(old);P.eq.weapon={id:'w_spirit1',plus:0};}
  P.cds={};calc();P.hp=P.st.hp;P.mp=P.st.mp;autoLearn();if(!P.slots.some(Boolean)&&P.skl.spirit0)P.slots[0]='spirit0';
@@ -2323,7 +2322,7 @@ function drawMap(){const c=$('mapCv');if(!c||menuTab!=='map'||$('menu').classLis
  for(const e of enemies)if(!e.b.boss&&!e.pv){g.fillStyle='#ff5252';g.fillRect(e.x*sc-1.5*K,e.y*sc-1.5*K,3*K,3*K);}
  if(map.boss)txt('👑 '+ENEMIES[map.boss.type].name+' Lv'+ENEMIES[map.boss.type].lv,map.boss.x*sc,map.boss.y*sc+24*K,'#ea80fc',11);
  for(const L of map.labels||[])txt(L.t,L.x*sc,L.y*sc+4*K,'#fff59d',10);
- for(const n of map.npcs){if(n.invisible)continue;g.fillStyle='#4fc3f7';g.fillRect(n.x*sc-2.5*K,n.y*sc-2.5*K,5*K,5*K);txt(n.name,n.x*sc,n.y*sc+11*K,'#b3e5fc',8);}
+ for(const n of map.npcs){if(n.invisible||n.type==='spiritnpc')continue;g.fillStyle='#4fc3f7';g.fillRect(n.x*sc-2.5*K,n.y*sc-2.5*K,5*K,5*K);txt(n.name,n.x*sc,n.y*sc+11*K,'#b3e5fc',8);}
  if(guideActive()&&GUIDE.goal){g.strokeStyle='#ffe066';g.lineWidth=2*K;g.beginPath();g.arc(GUIDE.goal.x*sc,GUIDE.goal.y*sc,(6+Math.sin(performance.now()/150)*2)*K,0,7);g.stroke();}
  for(const e of enemies)if(e.b.boss)dot(e.x,e.y,'#e040fb',9,'👑');
  for(const[uid,o]of NET.others)dot(o.x,o.y,inParty(uid)?'#ea80fc':'#7dff7d',8,(inParty(uid)?'👥':'')+o.name);
