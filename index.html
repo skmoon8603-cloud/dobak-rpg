@@ -476,6 +476,7 @@ const CONS={hp:['체력 물약','❤ 최대 체력의 35% 회복 · 쿨타임 10
  hornsoup:['청새치 뿔 탕','🥘 3분간 공격력 +35% · 방어 +10% · 음식 버프 1개만 · 요리사 쿡',0,'🥘'],
  goldcarp:['황금 잉어찜','🍱 4분간 공격력 +30% · 방어 +30% · 이동 속도 +15% · 음식 버프 1개만 · 요리사 쿡',0,'🍱'],
  dragonelix:['드래곤 하트 엘릭서','🔥 5분간 공격력 +60% · 방어 +40% · 이동 속도 +25% · 음식 버프 1개만 · 요리사 쿡',0,'🔥'],
+ statreset:['스탯 초기화권','🔄 찍은 능력치 포인트(방어·물리 공격·마법 공격)를 전부 돌려받아 다시 찍을 수 있다 · 레벨·스킬은 그대로',500,'🔄'],
  jobticket:['직업 변경권','🎫 지금 직업을 없애고 초보자로 돌아간다 · 직업 스킬 포인트는 모두 돌려받고, 낀 무기는 가방으로 · 전직관 카인에게 가서 직업을 다시 고른다 · 출석 7일째 보상 / 낚시 20%',0,'🎫'],burger:['집게리아 버거','🍔 10초간 공격력 +10% · 쿨타임 없음 (꽃게가 떨어뜨린다)',0,'🍔']};
 // 칭호: [이름, 색, 얻는 조건 설명, 조건]
 const TITLES={
@@ -1026,6 +1027,8 @@ function die(){spirits=[];if(map&&map.pvp){pvLose();return;}P.hp=0;P.dead=true;c
  setTimeout(()=>dialog('💀','쓰러지고 말았다…\n골드 '+lost+'G를 잃고 마을에서 깨어납니다.'+(inBoss?'\n(보스전이라 평소의 절반만 잃었어요)':''),[{t:'다시 일어서기',f:()=>{P.dead=false;armed=-1;calc();P.hp=P.st.hp;P.mp=P.st.mp;enterMap('village',30*TS,25*TS);}}]),600);}
 function useItem(k){if(map&&map.pvp){toast('결투 중에는 쓸 수 없어요');return;}if(P.dead||!(P.pots[k]>0))return;
  if(k==='jobticket'){useJobTicket();return;}
+ if(k==='statreset'){const pt=P.pts||{def:0,patk:0,matk:0},n=(pt.def||0)+(pt.patk||0)+(pt.matk||0);$('mClose').click();if(!n){dialog('🔄 스탯 초기화권',['아직 찍은 능력치 포인트가 없어요.']);return;}
+  dialog('🔄 스탯 초기화권',[`찍은 능력치 포인트 ${n}개(방어 ${pt.def||0} · 물리 ${pt.patk||0} · 마법 ${pt.matk||0})를 전부 돌려받을까요?`],[{t:'초기화',c:'gold',f:()=>{if(!(P.pots.statreset>0))return;P.pots.statreset--;P.pts={def:0,patk:0,matk:0};P.ap=(P.ap||0)+n;calc();P.hp=Math.min(P.hp,P.st.hp);sfx('lvl');toast(`🔄 능력치 포인트 ${n}개를 돌려받았어요! (상태 창에서 다시 찍기)`);save(true);}},{t:'그만두기'}]);return;}
  if(FOOD[k]){eatFood(k);return;}
  if(k==='hp'||k==='mp'){const full=k==='hp'?P.hp>=P.st.hp:P.mp>=P.st.mp;if(full){toast('이미 가득 차 있어요');return;}usePot(k);renderMenu();return;}
  if(k==='burger'){P.pots.burger--;P.burger=10;P.bg=(P.bg||0)+1;sfx('lvl');toast('🍔 냠! 10초간 공격력 +10%');renderMenu();return;}
