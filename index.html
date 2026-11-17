@@ -281,6 +281,7 @@ const CLASSES={
  archer:{name:'궁수',desc:'활과 활 마법으로 저격',hp:0,mp:20,atk:2,def:0,spd:.2,color:'#2e8b57',range:330,cd:.5},
  novice:{name:'초보자',desc:'아직 직업이 없다',hp:10,mp:0,atk:1,def:1,spd:0,color:'#8d6e63',range:58,cd:.42,hidden:1},
  msword:{name:'마검사',desc:'검과 마법을 함께 쓰는 히든 직업',hp:25,mp:25,atk:3,def:2,spd:.15,color:'#3b2a7a',range:74,cd:.34,hidden:1},
+ spirit:{name:'정령술사',desc:'풀·물·불·전기·땅 정령을 소환해 함께 싸운다',hp:5,mp:35,atk:2,def:1,spd:.05,color:'#2e7d32',range:260,cd:.5,hidden:1},
  ranger:{name:'레인저',desc:'총과 덫으로 전장 장악',hp:15,mp:10,atk:1,def:1,spd:.1,color:'#8a6233',range:240,cd:.22}
 };
 const SKILLS={
@@ -340,11 +341,21 @@ SKILLS.msword=[
   {name:'얼음 칼날',ic:'❄',lv:5,book:800,mp:14,cd:5,desc:'얼음 검기 3갈래 (속박)'},
   {name:'마력 각성',ic:'✨',lv:8,book:1500,mp:22,cd:20,desc:'8초간 공격력 +50%, 이동·공격 속도 증가'},
   {name:'차원 베기',ic:'🌌',lv:12,book:3000,mp:34,cd:13,desc:'순간이동해서 강하게 벤다'}];
+SKILLS.spirit=[
+  {name:'풀 정령 소환',ic:'🌿',lv:1,mp:18,cd:6,desc:'주인을 치유하고 적을 느리게 하는 풀 정령 (정령은 최대 3마리 · 같은 정령을 다시 부르면 새로 고침)'},
+  {name:'물 정령 소환',ic:'💧',lv:4,mp:20,cd:6,desc:'물방울을 쏘아 적을 느리게 하는 물 정령'},
+  {name:'불 정령 소환',ic:'🔥',lv:7,mp:24,cd:7,desc:'터지는 불덩이를 던지는 불 정령 (화상)'},
+  {name:'전기 정령 소환',ic:'⚡',lv:9,mp:26,cd:7,desc:'적 여럿에게 튀는 번개를 쏘는 전기 정령'},
+  {name:'땅 정령 소환',ic:'🪨',lv:11,mp:28,cd:8,desc:'적에게 달려가 땅을 내려찍는 튼튼한 땅 정령'},
+  {name:'정령의 축복',ic:'✨',lv:6,book:1500,mp:24,cd:20,desc:'10초간 모든 정령의 공격 속도 2배'},
+  {name:'정령 폭발',ic:'💥',lv:12,book:3000,mp:30,cd:14,desc:'모든 정령이 제자리에서 크게 폭발한다 (정령은 그대로)'}];
+SKILLS.spiritking=[{name:'철 정령 소환',ic:'⚙',lv:20,mp:34,cd:10,desc:'거대한 철 정령이 적에게 돌진해 주변을 쓸어버린다'},{name:'바람 정령 소환',ic:'🌪',lv:23,mp:38,cd:10,desc:'빠른 바람 정령이 관통하는 회오리를 날린다'}];
 SKILLS.msorder=[{name:'룬 블레이드',ic:'🗡',lv:20,mp:24,cd:6,desc:'적을 쫓아가는 마법 검 6자루'},{name:'마검 해방',ic:'💥',lv:23,mp:42,cd:22,desc:'주변 폭발 + 8초간 공격력 2배'}];
 SKILLS.special=[
   {name:'마나참',ic:'🌊',lv:7,mp:14,cd:3,desc:'앞으로 파란 소용돌이를 발사 (마법) · 빙글빙글 10바퀴 돌면 깨닫는다'},
   {name:'박기',ic:'🐏',lv:7,mp:12,cd:6,desc:'앞뒤로 빠르게 움직이며 주변에 지속 피해 (물리) · 왔다 갔다 50번 하면 깨닫는다'},
-  {name:'물방울 쏘기',ic:'💧',lv:11,mp:10,cd:1.5,desc:'적을 쫓아가는 물방울 3발 (마법) · 레비아탄이 30% 확률로 남긴다'}];
+  {name:'물방울 쏘기',ic:'💧',lv:11,mp:10,cd:1.5,desc:'적을 쫓아가는 물방울 3발 (마법) · 레비아탄이 30% 확률로 남긴다'},
+  {name:'꽃 댄스',ic:'🌸',lv:1,mp:18,cd:10,desc:'빙글빙글 춤추며 꽃잎을 흩뿌린다 · 주변 적 피해(마법) + 체력 15% 회복 · 꽃 위에서 10초 동안 움직이면 깨닫는다'}];
 SKILLS.dark=[{name:'어둠의 창',ic:'🔱',lv:20,mp:22,cd:4,desc:'관통하는 암흑 창 · 피해의 30% 흡혈'},{name:'영혼 수확',ic:'💀',lv:23,mp:40,cd:14,desc:'저주의 장판 5초 뒤 대폭발'}];
 SKILLS.white=[{name:'신성한 빛',ic:'🌟',lv:20,mp:24,cd:6,desc:'주변 적에게 피해 + 체력 회복'},{name:'천사의 가호',ic:'👼',lv:23,mp:40,cd:30,desc:'4초 무적 + 체력 지속 회복'}];
 SKILLS.magicbow=[{name:'원소 화살',ic:'🌈',lv:20,mp:22,cd:5,desc:'불·얼음·번개 화살 3발'},{name:'별똥별 화살',ic:'🌠',lv:23,mp:42,cd:13,desc:'거대한 폭발을 일으키는 화살'}];
@@ -362,9 +373,10 @@ const JOBS={
  peak:{cls:'sword',name:'절정의 경지',color:'#e8e8f0',hat:'#d4af37',desc:'최대 체력 +25% · 방어 +10 · 벨 때마다 검기 발사'},
  sniper:{cls:'ranger',name:'저격수',color:'#3d4a3a',hat:'#2a3328',desc:'한 발이 1.6배 강하지만 느림 · 사거리·치명타 피해 증가'},
  msorder:{cls:'msword',name:'매직소드너',color:'#5b2bd6',hat:'#2a1560',desc:'공격력 +20% · 최대 체력 +15% · 벨 때마다 마력 검기 발사'},
+ spiritking:{cls:'spirit',name:'정령의 왕',color:'#1b5e20',hat:'#ffd740',desc:'정령을 1마리 더 부림 · 정령 공격력 +25% · 철·바람 정령 소환'},
  assault:{cls:'ranger',name:'돌격대장',color:'#a0522d',hat:'#5a2d16',desc:'최대 체력 +20% · 이동 속도 증가 · 기본 공격 2연발'}};
 const jobName=o=>o.job&&JOBS[o.job]?JOBS[o.job].name:CLASSES[o.cls].name;
-const SELF=new Set(['sword2','sword6','archer6','u0','u2','u3','ranger0','ranger2','ranger5','ranger6','white0','white1','tradbow0','expert1','peak1','msword3','msword6','msorder1','special1']);
+const SELF=new Set(['spirit0','spirit1','spirit2','spirit3','spirit4','spirit5','spirit6','spiritking0','spiritking1','special3','sword2','sword6','archer6','u0','u2','u3','ranger0','ranger2','ranger5','ranger6','white0','white1','tradbow0','expert1','peak1','msword3','msword6','msorder1','special1']);
 const SK={};for(const c in SKILLS)SKILLS[c].forEach((x,i)=>{x.id=(c==='common'?'u':c)+i;SK[x.id]=x;});
 // 기본 스킬은 Lv1, 4, 7, 9, 11 에 하나씩 / 스킬북은 Lv5, 8, 12
 for(const c of ['mage','sword','archer','ranger']){const a=SKILLS[c];delete a[4].book;SKILLS[c]=[a[0],a[1],a[2],a[4],a[3],a[5],a[6],a[7]];[1,4,7,9,11].forEach((lv,i)=>SKILLS[c][i].lv=lv);[5,8,12].forEach((lv,i)=>SKILLS[c][5+i].lv=lv);}
@@ -415,6 +427,11 @@ const ITEMS={
  w_ranger5:{name:'드래곤 브레스 캐논',slot:'weapon',cls:'ranger',atk:70,mp:70,hp:80,tier:5,price:30000,craft:1},
  w_msword5:{name:'용혈의 마검',slot:'weapon',cls:'msword',atk:76,mp:130,tier:5,price:30000,craft:1},
  a_dragon:{name:'드래곤 비늘 갑옷',slot:'armor',def:48,hp:550,mp:120,hpr:3,tier:5,price:40000,craft:1},
+ w_spirit1:{name:'새싹 지팡이',slot:'weapon',cls:'spirit',atk:4,tier:1,price:60},
+ w_spirit2:{name:'정령석 지팡이',slot:'weapon',cls:'spirit',atk:10,mp:20,tier:2,price:400},
+ w_spirit3:{name:'대정령의 홀',slot:'weapon',cls:'spirit',atk:20,mp:50,tier:3,price:1600},
+ w_spirit4:{name:'심해 정령의 홀',slot:'weapon',cls:'spirit',atk:32,mp:70,tier:4,price:6000,craft:1},
+ w_spirit5:{name:'용혼의 정령홀',slot:'weapon',cls:'spirit',atk:72,mp:160,mpr:2,tier:5,price:30000,craft:1},
  w_msword4:{name:'심연의 마검',slot:'weapon',cls:'msword',atk:33,mp:70,tier:4,price:6000,craft:1},
  r4:{name:'황금 주사위',slot:'acc',luck:15,gold:50,atk:10,tier:4,price:5000}
 };
@@ -477,6 +494,8 @@ const TITLES={
  lv20:['숙련자','#9dffb0','Lv20 달성',()=>P.lv>=20],
  lv50:['고수','#6fe3ff','Lv50 달성',()=>P.lv>=50],
  lv100:['전설','#ffe066','Lv100 달성',()=>P.lv>=100],
+ police:['🚓 경찰청장','#82b1ff','경찰봉을 가진 자',()=>!!(P.eq&&P.eq.weapon&&P.eq.weapon.id==='baton')||(P.bag||[]).some(x=>x.id==='baton')],
+ fdance:['🌸 꽃 위에서 춤을','#ff80ab','꽃 위에서 10초 동안 춤추기',()=>!!P.flags.fdance],
  fav:['💖 ^관리자의 최애^','#ff80ab','운영자가 직접 내린 칭호',()=>(P.gt||[]).includes('fav')],
  lost:['💀 최초로 계정이 날라간 자','#9be7ff','운영자가 직접 내린 칭호',()=>(P.gt||[]).includes('lost')],
  sea:['해저 탐험가','#4fc3f7','해저마을에 들어가기',()=>!!P.flags.sea],
@@ -544,7 +563,7 @@ function makeVillage(){
  house(6,6,8,'R');house(18,6,8,'U');house(34,6,8,'B');house(46,6,6,'K');
  house(8,16,7,'G');house(42,16,6,'R');house(15,16,5,'B');house(49,16,5,'K');
  house(6,29,10,'G');house(20,29,6,'R');house(36,29,6,'B');house(46,29,6,'R');
- rect(t,56,35,1,7,',');
+ rect(t,56,35,1,7,',');rect(t,26,40,2,3,'.');
  house(8,38,6,'K');rect(t,11,42,5,1,',');rect(t,15,35,1,8,',');house(20,38,6,'B');house(38,38,6,'R');house(48,38,6,'U');
  const npcs=[
   {x:10.5*TS,y:10.6*TS,name:'촌장',type:'elder',color:'#7b5ea7',hat:'#d4af37'},
@@ -557,6 +576,7 @@ function makeVillage(){
   {x:30*TS,y:28.4*TS,name:'마을 표지판',type:'sign',sign:'village'},
   {x:24.5*TS,y:18.7*TS,name:'의뢰 게시판',type:'board',color:'#795548',hat:'#5d4037',hatType:'',board:1},
   {x:33.5*TS,y:18.7*TS,name:'결투 심판 바론',type:'duel',color:'#4e342e',hat:'#b71c1c',hatType:'helm'},
+  {x:26.5*TS,y:41.7*TS,name:'정령술사 엘라',type:'spiritnpc',color:'#2e7d32',hat:'#1b5e20',hatType:'hood'},
   {x:40.5*TS,y:33.4*TS,name:'요리사 쿡',type:'cook',color:'#fafafa',hat:'#fff',hatType:'cap'},
   {x:33.5*TS,y:24.6*TS,name:'작명가 렌',type:'nick',color:'#00838f',hat:'#004d56',hatType:'wiz'},
   {x:27.5*TS,y:17.7*TS,name:'소식통 할아범',type:'rank',color:'#455a64',hat:'#263238',hatType:'cap',sit:1},
@@ -915,8 +935,8 @@ $('bMute').onclick=()=>{muted=!muted;try{localStorage.setItem('dobakrpg_mute',mu
 let curTier=0; // 지금 쓰는 스킬의 등급(1~4). 높을수록 연출이 화려하다
 let curKind='p'; // 지금 쓰는 공격이 물리(p)인지 마법(m)인지
 const isHybrid=()=>P.cls==='msword'||P.job==='magicbow';
-const kindOf=id=>{const c=id.replace(/\d+$/,'');if(id==='special1')return 'p';if(c==='special')return 'm';if(c==='u')return 'm';if(isHybrid())return 'h';return ['mage','dark','white'].includes(c)?'m':'p';};
-const basicKind=()=>isHybrid()?'h':P.cls==='mage'?'m':'p';
+const kindOf=id=>{const c=id.replace(/\d+$/,'');if(id==='special1')return 'p';if(c==='special')return 'm';if(c==='u')return 'm';if(isHybrid())return 'h';return ['mage','dark','white','spirit','spiritking'].includes(c)?'m':'p';};
+const basicKind=()=>isHybrid()?'h':P.cls==='mage'||P.cls==='spirit'?'m':'p';
 function dmgOf(mult,skLv){return (curKind==='m'?P.st.matk:curKind==='h'?P.st.hatk:P.st.patk)*mult*(1+.2*((skLv||1)-1))*rnd(.9,1.1)*(P.rage>0?1.5:1)*(P.dbl>0?2:1)*(P.burger>0?1.1:1)*(1+.08*(P.eq.weapon&&P.eq.weapon.plus||0));} // 무기 강화 1단계마다 모든 피해 +8%
 function aim(range){
  if(mouse.down&&gameT-mouse.t<3){const wx=mouse.x/SC+cam.x,wy=mouse.y/SC+cam.y;return{d:norm(wx-P.x,wy-(P.y-6)),t:null,px:wx,py:wy};}
@@ -1001,7 +1021,7 @@ function hurtPlayer(d){
 }
 const CUT={t:0,max:0,name:'',sub:''};
 let shake=0,flashA=0,lakeT=0; // lakeT: 호수 판정 대기시간 (저장하지 않는다)
-function die(){if(map&&map.pvp){pvLose();return;}P.hp=0;P.dead=true;const inBoss=inBossFight()||!!(map&&map.sealed);$('boss').classList.add('hidden');const lost=Math.floor(P.gold*(inBoss?.05:.1));P.gold-=lost;
+function die(){spirits=[];if(map&&map.pvp){pvLose();return;}P.hp=0;P.dead=true;const inBoss=inBossFight()||!!(map&&map.sealed);$('boss').classList.add('hidden');const lost=Math.floor(P.gold*(inBoss?.05:.1));P.gold-=lost;
  setTimeout(()=>dialog('💀','쓰러지고 말았다…\n골드 '+lost+'G를 잃고 마을에서 깨어납니다.'+(inBoss?'\n(보스전이라 평소의 절반만 잃었어요)':''),[{t:'다시 일어서기',f:()=>{P.dead=false;armed=-1;calc();P.hp=P.st.hp;P.mp=P.st.mp;enterMap('village',30*TS,25*TS);}}]),600);}
 function useItem(k){if(map&&map.pvp){toast('결투 중에는 쓸 수 없어요');return;}if(P.dead||!(P.pots[k]>0))return;
  if(k==='jobticket'){useJobTicket();return;}
@@ -1078,6 +1098,37 @@ function drawRider(c,x,y,v,moving,walk){const V=VEH[v];const f=c.fx<0?-1:1;
 function rideTick(){if(!P||!P.rideOn)return;const o=NET.others.get(P.rideOn.uid);if(!o){if(!P.rideOn.lost)P.rideOn.lost=Date.now();else if(Date.now()-P.rideOn.lost>3000){P.rideOn=null;toast('운전자가 사라져서 내렸어요');}return;}P.rideOn.lost=0;
  const f=o.fx<0?-1:1;P.x=o.x-f*seatOff(o.v,P.rideOn.seat);P.y=o.y-1;P.fx=f;P.fy=0;P.rideV=o.v;}
 function nearDriver(){if(!NET.live||P.rideOn)return null;for(const[uid,o]of NET.others){const V=VEH[o.v];if(V&&V.seats&&!o.rd&&Math.hypot(o.x-P.x,o.y-P.y)<70)return uid;}return null;}
+// ===== 정령술사의 정령 =====
+const SPT={grass:{n:'풀 정령',c:'#66bb6a',c2:'#dcedc8',m:.5,rate:1.6,range:180},water:{n:'물 정령',c:'#29b6f6',c2:'#e1f5fe',m:.7,rate:.8,range:290},fire:{n:'불 정령',c:'#ff7043',c2:'#ffe0b2',m:1,rate:1.2,range:270},elec:{n:'전기 정령',c:'#fdd835',c2:'#fffde7',m:.75,rate:1.3,range:250},earth:{n:'땅 정령',c:'#8d6e63',c2:'#d7ccc8',m:1.25,rate:1.3,range:230,melee:1},iron:{n:'철 정령',c:'#90a4ae',c2:'#eceff1',m:1.8,rate:1.1,range:260,melee:1,big:1},wind:{n:'바람 정령',c:'#80deea',c2:'#ffffff',m:.9,rate:.7,range:320}};
+const SPI=['grass','water','fire','elec','earth','iron','wind'];let spirits=[];
+function summonSpirit(t,lv){const S=SPT[t],max=P.job==='spiritking'?4:3;spirits=spirits.filter(q=>q.t!==t);while(spirits.length>=max)spirits.shift();const life=25+lv*5;spirits.push({t,x:P.x+rnd(-20,20),y:P.y-20,life,max:life,lv,cd:.4,ph:Math.random()*6,mult:S.m*(P.job==='spiritking'?1.25:1)});puff(P.x,P.y-10,S.c);addText(P.x,P.y-62,S.n+' 소환!',S.c,12);for(let i=0;i<16;i++)parts.push({x:P.x,y:P.y-14,vx:rnd(-120,120),vy:rnd(-140,20),life:.6,color:i%2?S.c:S.c2,s:3});}
+function spiritTick(dt){if(P.spBoost>0)P.spBoost-=dt;if(!spirits.length)return;const boost=P.spBoost>0?2:1;
+ for(let i=spirits.length-1;i>=0;i--){const q=spirits[i];q.life-=dt;q.ph+=dt;if(q.life<=0||P.dead){puff(q.x,q.y,SPT[q.t].c);spirits.splice(i,1);}}
+ spirits.forEach((q,i)=>{const S=SPT[q.t];const tgt=safeHere()?null:nearest({x:P.x,y:P.y},S.range+40);
+  let gx,gy;const ang=gameT*.9+i*(Math.PI*2/spirits.length);
+  if(S.melee&&tgt){gx=tgt.x;gy=tgt.y;}else{gx=P.x+Math.cos(ang)*(S.big?46:36);gy=P.y-14+Math.sin(ang)*16;}
+  const sp=(q.t==='wind'?360:S.big?200:240)*dt,dx=gx-q.x,dy=gy-q.y,dl=Math.hypot(dx,dy);if(dl>600){q.x=gx;q.y=gy;}else if(dl>2){const k=Math.min(1,sp/dl);q.x+=dx*k;q.y+=dy*k;}
+  q.cd-=dt*boost;if(q.cd>0)return;
+  if(q.t==='grass'&&P.hp<P.st.hp){const h=Math.max(1,Math.round(P.st.hp*.03));P.hp=Math.min(P.st.hp,P.hp+h);addText(P.x,P.y-30,'+'+h,'#9ccc65',10);for(let k=0;k<5;k++)parts.push({x:q.x,y:q.y,vx:(P.x-q.x)*2+rnd(-20,20),vy:(P.y-20-q.y)*2,life:.4,color:'#9ccc65',s:3});q.cd=S.rate;}
+  if(!tgt)return;const tx=tgt.x,ty=tgt.y-6,n=norm(tx-q.x,ty-q.y),dd=Math.hypot(tx-q.x,ty-q.y);curKind='m';curTier=2;const dm=dmgOf(q.mult,q.lv);
+  if(q.t==='grass'){if(dd>S.range)return;hurtEnemy(tgt,dm,{slow:.6},true);for(let k=0;k<8;k++)parts.push({x:tx+rnd(-12,12),y:ty+rnd(-8,8),vx:0,vy:-30,life:.5,color:'#66bb6a',s:3});}
+  else if(q.t==='water'){if(dd>S.range)return;shoot({x:q.x,y:q.y,vx:n.x*430,vy:n.y*430,dmg:dm,life:.9,r:6,color:'#29b6f6',kind:'orb',eff:{slow:.5}});}
+  else if(q.t==='fire'){if(dd>S.range)return;shoot({x:q.x,y:q.y,vx:n.x*380,vy:n.y*380,dmg:dm,life:.9,r:8,color:'#ff7043',kind:'fire',aoe:50,eff:{burn:3}});}
+  else if(q.t==='elec'){if(dd>S.range)return;hurtEnemy(tgt,dm,{},true);chainFrom(tgt,3,dm*.7);for(let k=0;k<=8;k++)parts.push({x:q.x+(tx-q.x)*k/8+rnd(-5,5),y:q.y+(ty-q.y)*k/8+rnd(-5,5),vx:0,vy:0,life:.18,color:'#fff59d',s:3});}
+  else if(q.t==='wind'){if(dd>S.range)return;shoot({x:q.x,y:q.y,vx:n.x*480,vy:n.y*480,dmg:dm,pierce:99,life:.9,r:11,color:'#b2ebf2',kind:'wave'});}
+  else if(S.melee){if(dd>(S.big?44:34)){q.cd=.15;return;}explode(q.x,q.y,S.big?92:64,dm,S.big?'#b0bec5':'#a1887f',{slow:.6});shake=Math.max(shake,S.big?.25:.12);}
+  q.cd=S.rate;});}
+function drawSpirit(t,x,y,ph,a){const S=SPT[t];if(!S)return;const big=S.big?1.6:1,b=Math.sin(ph*3)*3,Y=y-16+b;ctx.globalAlpha=a==null?1:a;
+ ctx.fillStyle='rgba(0,0,0,.22)';ctx.beginPath();ctx.ellipse(x,y+2,8*big,3,0,0,7);ctx.fill();
+ ctx.globalCompositeOperation='lighter';ctx.globalAlpha=(a==null?1:a)*(.3+.12*Math.sin(ph*5));ctx.fillStyle=S.c;ctx.beginPath();ctx.arc(x,Y,15*big,0,7);ctx.fill();ctx.globalCompositeOperation='source-over';ctx.globalAlpha=a==null?1:a;
+ if(t==='earth'||t==='iron'){const w=16*big,h=14*big;px(x-w/2,Y-h/2,w,h,S.c);px(x-w/2,Y-h/2,w,3,S.c2);px(x-w/2-4*big,Y-2,4*big,8*big,S.c);px(x+w/2,Y-2,4*big,8*big,S.c);if(t==='iron'){px(x-w/2+2,Y-h/2+5,2,2,'#37474f');px(x+w/2-4,Y-h/2+5,2,2,'#37474f');px(x-1,Y-h/2-4,3,4,'#ffd740');}else{px(x-w/2+3,Y+2,3,3,'#6d4c41');px(x+2,Y+4,4,2,'#6d4c41');}}
+ else{ctx.fillStyle=S.c;ctx.beginPath();ctx.arc(x,Y,8,0,7);ctx.fill();ctx.fillStyle=S.c2;ctx.beginPath();ctx.arc(x-2,Y-3,3,0,7);ctx.fill();
+  if(t==='grass'){px(x-1,Y-14,2,6,'#2e7d32');px(x-5,Y-15,5,3,'#43a047');px(x+1,Y-13,5,3,'#66bb6a');}
+  else if(t==='water'){ctx.fillStyle=S.c;ctx.beginPath();ctx.moveTo(x-5,Y-5);ctx.lineTo(x,Y-15);ctx.lineTo(x+5,Y-5);ctx.fill();}
+  else if(t==='fire'){const f=Math.sin(ph*20)*2;px(x-5,Y-12+f,4,6,'#ff7043');px(x-1,Y-15-f,3,8,'#ffab00');px(x+3,Y-11+f,3,5,'#ff7043');}
+  else if(t==='elec'){ctx.strokeStyle='#fff59d';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x+8,Y-10);ctx.lineTo(x+4,Y-5);ctx.lineTo(x+9,Y-4);ctx.lineTo(x+5,Y+2);ctx.stroke();px(x-9,Y-9,2,2,'#fff');}
+  else if(t==='wind'){ctx.strokeStyle='#e0f7fa';ctx.lineWidth=1.5;for(let k=0;k<2;k++){ctx.beginPath();ctx.arc(x,Y,11+k*4,ph*4+k,ph*4+k+2.2);ctx.stroke();}}}
+ px(x-4,Y-1,2,3,'#263238');px(x+2,Y-1,2,3,'#263238');px(x-1,Y+3,2,1,'#263238');ctx.globalAlpha=1;}
 function usePot(k){if(P.dead)return;if(map&&map.pvp){toast('결투 중에는 물약을 쓸 수 없어요');return;}if(P.pots[k]<=0){log('물약이 없어요');return;}if(k==='hp'&&P.hp>=P.st.hp)return;if(k==='mp'&&P.mp>=P.st.mp)return;if(POTCD[k]>0){if(gameT-(POTCD.msg||0)>.8){POTCD.msg=gameT;toast(`⏳ ${k==='hp'?'체력':'마나'} 물약은 ${Math.ceil(POTCD[k])}초 뒤에 쓸 수 있어요`);}return;}POTCD[k]=10;P.pots[k]--;if(k==='hp'){const v=Math.round(P.st.hp*.35);P.hp=Math.min(P.st.hp,P.hp+v);addText(P.x,P.y-24,'+'+v,'#7dff7d',12);}else{const v=Math.round(P.st.mp*.35);P.mp=Math.min(P.st.mp,P.mp+v);addText(P.x,P.y-24,'+'+v,'#7dbfff',12);}sfx('coin');}
 
 // ================= 공격 =================
@@ -1091,7 +1142,8 @@ function basicAttack(){
  if(P.eq.weapon&&P.eq.weapon.id==='dalkong'&&!NET.admin&&NET.dkLeft===0){P.acd=.6;if(gameT-(P.dkMsg||0)>2){P.dkMsg=gameT;toast('🐶 오늘은 달콩빔을 다 썼어요 (내일 다시 10번)');}return;}
  if(P.eq.weapon&&P.eq.weapon.id==='dalkong'){let tu=null,td=650,dd=d;if(NET.live)for(const[uid,o]of NET.others){const q=Math.hypot(o.x-P.x,o.y-P.y);if(q<td){td=q;tu=uid;}}if(tu){const o=NET.others.get(tu);dd=norm(o.x-P.x,o.y-14-P.y);P.fx=dd.x;P.fy=dd.y;}shoot({vx:dd.x*620,vy:dd.y*620,dkT:tu,dmg:1,pierce:99,life:.9,r:12,color:'#ff80ab',kind:'dalkong',glow:1,tier:2,dk:1,hitP:new Set()});sfx('lvl');return;}
  if(P.eq.weapon&&P.eq.weapon.id==='catsword'){shoot({vx:d.x*520,vy:d.y*520,dmg:dmgOf(1),pierce:99,life:.9,r:12,color:'#ffb3d9',kind:'cat',glow:1,tier:2});sfx('meow');return;}
- if(P.cls==='mage')shoot({vx:d.x*420,vy:d.y*420,dmg:dmgOf(1.05),life:.7,r:6,color:j==='dark'?'#7b3fd1':j==='white'?'#fff3a8':'#a98bff',kind:'orb'});
+ if(P.cls==='spirit')shoot({vx:d.x*400,vy:d.y*400,dmg:dmgOf(1),life:.75,r:6,color:'#9ccc65',kind:'orb'});
+ else if(P.cls==='mage')shoot({vx:d.x*420,vy:d.y*420,dmg:dmgOf(1.05),life:.7,r:6,color:j==='dark'?'#7b3fd1':j==='white'?'#fff3a8':'#a98bff',kind:'orb'});
  else if(P.cls==='novice'){slash(Math.atan2(d.y,d.x),58,dmgOf(1));}
  else if(P.cls==='msword'){slash(Math.atan2(d.y,d.x),70,dmgOf(1.2));if(j==='msorder')shoot({vx:d.x*420,vy:d.y*420,dmg:dmgOf(.6),pierce:2,life:.4,r:12,color:'#b388ff',kind:'wave'});}
  else if(P.cls==='sword'){slash(Math.atan2(d.y,d.x),j==='expert'?86:66,dmgOf(1.15));if(j==='peak')shoot({vx:d.x*400,vy:d.y*400,dmg:dmgOf(.6),pierce:2,life:.4,r:12,color:'#dfe6ee',kind:'wave'});}
@@ -1225,6 +1277,16 @@ function cast(id,pt){if(CUT.t>0)return;if(map&&map.pvp&&(gameT<(P.pvStart||0)||P
   case 'peak1':P.rage=8;P.guard=8;toast('🧘 무아지경!');break;
   case 'sniper0':{const t=a.t||nearest(pt||P,pt?90:450);if(!t){refund();log('조준할 적이 없어요');return;}vfx({k:'bolt',pts:[{x:P.x,y:P.y-10},{x:t.x,y:t.y-8}],life:.2,max:.2,color:'#ffffff'});hurtEnemy(t,dmgOf(7,lv),{crit:1});shake=.2;break;}
   case 'sniper1':{const dm=dmgOf(3.2,lv);for(let n=0;n<3;n++)timers.push({t:n*.18,f:()=>{if(!P.dead)fan(1,0,{sp:1200,dmg:dm,pierce:99,life:.45,r:6,color:'#ffd75e',kind:'bullet',glow:1,big:1});}});break;}
+  case 'spirit0':summonSpirit('grass',lv);break;
+  case 'spirit1':summonSpirit('water',lv);break;
+  case 'spirit2':summonSpirit('fire',lv);break;
+  case 'spirit3':summonSpirit('elec',lv);break;
+  case 'spirit4':summonSpirit('earth',lv);break;
+  case 'spirit5':if(!spirits.length){refund();log('먼저 정령을 소환하세요');return;}P.spBoost=10;for(const q of spirits)puff(q.x,q.y,'#fff59d');toast('✨ 10초간 정령들이 두 배로 빨라졌다!');break;
+  case 'spirit6':{if(!spirits.length){refund();log('먼저 정령을 소환하세요');return;}const dm=dmgOf(2.2,lv);for(const q of spirits)explode(q.x,q.y,85,dm,SPT[q.t].c,{});shake=.3;break;}
+  case 'spiritking0':summonSpirit('iron',lv);break;
+  case 'spiritking1':summonSpirit('wind',lv);break;
+  case 'special3':{const dm=dmgOf(1.4,lv);explode(P.x,P.y-6,95,dm,'#ff80ab',{});const h=Math.round(P.st.hp*.15);P.hp=Math.min(P.st.hp,P.hp+h);addText(P.x,P.y-34,'+'+h,'#7dff7d',12);P.spin=.8;for(let i=0;i<36;i++){const a=i/36*Math.PI*2;parts.push({x:P.x,y:P.y-14,vx:Math.cos(a)*rnd(80,160),vy:Math.sin(a)*rnd(80,160)-40,g:120,life:rnd(.6,1.1),color:['#ff80ab','#ffffff','#f8bbd0','#ffe066'][i%4],s:3});}break;}
   case 'assault0':{const dm=dmgOf(1.1,lv);P.dash={t:.2,x:d.x,y:d.y,hit:new Set(),dmg:dmgOf(1.5,lv)};timers.push({t:.22,f:()=>{if(!P.dead){fan(7,.7,{sp:700,dmg:dm,life:.3,r:4,color:'#ffe066',kind:'bullet'});shake=.15;}}});break;}
   case 'assault1':{const tx=a.px,ty=a.py,dm=dmgOf(2,lv);vfx({k:'warn',x:tx,y:ty,r:110,life:1.6,max:1.6,color:'#ff9f43'});for(let n=0;n<8;n++)timers.push({t:.3+n*.16,f:()=>explode(tx+rnd(-70,70),ty+rnd(-70,70),60,dm,'#ff9f43',{})});break;}
  }
@@ -1234,7 +1296,7 @@ function placeTrap(type,lv){traps.push({type,x:P.x,y:P.y,r:16,dmg:dmgOf(type==='
 
 // ================= 업데이트 =================
 function kindHint(){if(P.cls==='novice')return '초보자는 물리 공격을 써요. 전직관 카인에게 직업을 배우세요';if(P.cls==='msword')return '마검사는 물리·마법을 반반 찍어야 강해져요 (한쪽만 찍으면 거의 안 올라요)';if(P.job==='magicbow')return '마법궁수는 물리·마법을 반반 찍어야 강해져요';
- if(P.cls==='mage')return '마법사의 공격은 모두 마법 공격력을 써요';return CLASSES[P.cls].name+'의 공격은 모두 물리 공격력을 써요 (공용 스킬만 마법)';}
+ if(P.cls==='mage')return '마법사의 공격은 모두 마법 공격력을 써요';if(P.cls==='spirit')return '정령술사와 정령의 공격은 모두 마법 공격력을 써요';return CLASSES[P.cls].name+'의 공격은 모두 물리 공격력을 써요 (공용 스킬만 마법)';}
 function addPt(k){if(P.ap<=0)return;P.ap--;P.pts[k]++;calc();sfx('coin');}
 function statPick(){dialog('✨ 능력치 선택',[`어떤 능력을 올릴까요? (남은 포인트 ${P.ap})\n\n🛡 방어 +2 · ⚔ 물리 공격력 +3 · 🔮 마법 공격력 +3\n💡 ${kindHint()}`],[{t:'🛡 방어',c:'gold',f:()=>addPt('def')},{t:'⚔ 물리 공격',c:'gold',f:()=>addPt('patk')},{t:'🔮 마법 공격',c:'gold',f:()=>addPt('matk')},{t:'나중에',f:()=>{P.apAsk=false;log('메뉴 → 상태에서 언제든 찍을 수 있어요');}}]);}
 function spawnTick(dt){if(!isHost()||!map.spawns.length)return;if(!map.spawnT||map.spawnT.length!==map.spawns.length)map.spawnT=map.spawns.map(()=>5);
@@ -1259,7 +1321,7 @@ function update(dt){
   if(P.ride==='fixie'&&vehMul()>1){const want=Math.atan2(my,mx);if(P.hd==null||!P.hdT||gameT-P.hdT>.4)P.hd=want;let da=((want-P.hd+Math.PI*3)%(Math.PI*2))-Math.PI;const turn=2.6*dt;{const step=clamp(da,-turn,turn);P.hd+=step;P.lean=(P.lean||0)*.85+(step/dt)*.06;}P.hdT=gameT;const slow=Math.abs(da)>1.2?.55:1;moveEnt(P,Math.cos(P.hd)*sp*slow,Math.sin(P.hd)*sp*slow);P.fx=Math.cos(P.hd);P.fy=Math.sin(P.hd);}
   else{moveEnt(P,mx/n*sp,my/n*sp);P.fx=mx/ml;P.fy=my/ml;}P.walk+=dt*10;}
  // 공격
- jailTick();rideTick();
+ jailTick();rideTick();spiritTick(dt);flowerTick(dt);if(P.spin>0){P.spin-=dt;P.fx=Math.sin(gameT*30)>0?1:-1;}
  P.acd-=dt;if((atkHeld||keys[' ']||keys['j']||mouse.down)&&P.acd<=0)basicAttack();
  for(const k in P.cds)if(P.cds[k]>0)P.cds[k]=Math.max(0,P.cds[k]-dt);
  if(P.holy>0){P.holy-=dt;P.inv=Math.max(P.inv,.1);P.hp=Math.min(P.st.hp,P.hp+P.st.hp*.08*dt);}
@@ -1330,9 +1392,9 @@ function pickTarget(e){let best=null,bd=1e9;const sx=map.safeX!=null?map.safeX*T
 function hitTarget(T,atk){if(T.me)hurtPlayer(atk);else netEv({k:'dmg',to:T.uid,a:Math.round(atk)});}
 // 결투장: 상대 플레이어를 몬스터처럼 맞힐 수 있게 그림자 대상을 만든다
 const PVB={name:'상대',lv:1,r:12,exp:0,gold:[0,0],aggro:0};
-function pvSync(dt){if(!map.pvp)return;const seen=new Set();for(const[uid,o]of NET.others){seen.add(uid);let e=enemies.find(q=>q.pv&&q.uid===uid);if(!e){e={pv:1,uid,id:'pv'+uid,type:'slime',b:PVB,x:o.x,y:o.y,r:12,hp:1e9,max:1e9,def:0,atk:0,spd:0,slow:0,root:0,burn:0,hitT:0,anim:0,wander:{x:0,y:0,t:0}};enemies.push(e);}e.x=o.x;e.y=o.y;}
+function pvSync(dt){if(!map.pvp)return;const seen=new Set();const mate=u=>P.pvSides&&P.pvSides[u]===P.pvSide;for(const[uid,o]of NET.others){if(mate(uid)||(P.pvOut&&P.pvOut.has(uid)))continue;seen.add(uid);let e=enemies.find(q=>q.pv&&q.uid===uid);if(!e){e={pv:1,uid,id:'pv'+uid,type:'slime',b:PVB,x:o.x,y:o.y,r:12,hp:1e9,max:1e9,def:0,atk:0,spd:0,slow:0,root:0,burn:0,hitT:0,anim:0,wander:{x:0,y:0,t:0}};enemies.push(e);}e.x=o.x;e.y=o.y;}
  enemies=enemies.filter(e=>!e.pv||seen.has(e.uid));
- if(!P.pvOver&&gameT>(P.pvStart||0)+2){if(!NET.others.size){P.pvGone=(P.pvGone||0)+dt;if(P.pvGone>4)pvWin('상대가 결투장을 떠났어요');}else P.pvGone=0;}}
+ if(!P.pvOver&&gameT>(P.pvStart||0)+2){if(!seen.size){P.pvGone=(P.pvGone||0)+dt;if(P.pvGone>4)pvWin('상대가 결투장을 떠났어요');}else P.pvGone=0;}}
 function pvHurt(v){if(!map.pvp||P.dead||P.pvOver||gameT<(P.pvStart||0))return;if(P.inv>0||P.dash||P.holy>0)return;
  if(P.guard>0)v=Math.max(1,Math.round(v*.35));if(P.shield>0){const ab=Math.min(P.shield,v);P.shield-=ab;v-=ab;if(v<=0)return;}
  P.hp-=v;P.inv=.15;addText(P.x,P.y-24,'-'+v,'#ff6b6b',12);sfx('hurt');shake=.12;if(P.hp<=0)pvLose();}
@@ -1513,6 +1575,8 @@ function draw(){
  // 엔티티 정렬
  const ents=[...enemies.filter(e=>!e.pv).map(e=>({y:e.y,f:()=>drawEnemy(e)})),...map.npcs.filter(n=>!n.invisible).map(n=>({y:n.y,f:()=>drawNpc(n)}))];
  if(!P.dead)ents.push({y:P.y,f:()=>drawPlayer()});
+ for(const q of spirits)ents.push({y:q.y+1,f:()=>drawSpirit(q.t,q.x,q.y,q.ph,q.life<3?(Math.sin(gameT*20)>0?.4:1):1)});
+ for(const o of NET.others.values())if(o.spc)for(const c of o.spc)ents.push({y:c[2]+1,f:()=>drawSpirit(SPI[c[0]],c[1],c[2],gameT+c[0])});
  if(map.key==='abyss')ents.push({y:13*TS,f:()=>{const x=(map.w-1)*TS,y0=13*TS;ctx.globalCompositeOperation='lighter';const g4=ctx.createRadialGradient(x,y0+2*TS,4,x,y0+2*TS,90);g4.addColorStop(0,'rgba(128,222,234,'+(.35+.2*Math.sin(gameT*3))+')');g4.addColorStop(1,'rgba(128,222,234,0)');ctx.fillStyle=g4;ctx.fillRect(x-90,y0-30,120,4*TS+60);
   for(let i=0;i<10;i++){const ph=gameT*2+i*1.9,a=Math.max(0,Math.sin(ph*1.7));const sx=x-60+((i*37)%60),sy=y0+((i*53+Math.floor(ph/3.7)*29)%(4*TS));ctx.globalAlpha=a;ctx.fillStyle='#ffffff';ctx.fillRect(sx-1,sy-5,2,10);ctx.fillRect(sx-5,sy-1,10,2);ctx.fillStyle='#b2ebf2';ctx.fillRect(sx-2,sy-2,4,4);}ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';}});
  if(map.key==='grotto'&&!P.flags.conch)ents.push({y:5*TS,f:()=>{const x=7.5*TS,y=5*TS-14+Math.sin(gameT*3)*3;ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.4+.2*Math.sin(gameT*5);ctx.fillStyle='#80deea';ctx.beginPath();ctx.arc(x,y,22,0,7);ctx.fill();ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';px(x-8,y-6,16,12,'#ffccbc');px(x-6,y-9,8,4,'#ffab91');px(x+6,y-2,5,6,'#ffccbc');px(x-4,y-3,2,2,'#bf360c');px(x,y,2,2,'#bf360c');label('🐚 ???',x,y-24,'#b3e5fc');}});
@@ -1616,9 +1680,9 @@ function drawHuman(x,y,o){
 }
 function drawChar(o){
  const r=RACES[o.race]||RACES.human,c=CLASSES[o.cls]||CLASSES.mage,J=JOBS[o.job];
- const ht={mage:'wiz',sword:'helm',archer:'hood',ranger:'cow',msword:'hood',novice:'cap'}[o.cls];
- const wp={mage:'staff',sword:'sword',archer:'bow',ranger:'gun',msword:'sword',novice:'stick'}[o.cls];
- drawHuman(o.x,o.y,{skin:r.skin,hair:r.hair,outfit:J?J.color:c.color,hat:J?J.hat:{mage:'#3a2a8a',sword:'#999',archer:'#1f5e3a',ranger:'#6b4423',msword:'#1d1440',novice:'#a1887f'}[o.cls],wcol:o.cls==='msword'?(['#b388ff','#d1b3ff','#ffd1ff'][((ITEMS[o.wp]||{}).tier||1)-1]||'#b388ff'):null,wt:['catsword','baton','dalkong'].includes(o.wp)?1:Math.min(5,(ITEMS[o.wp]||{}).tier||1),armor:ITEMS[o.ar]&&ITEMS[o.ar].slot==='armor'?o.ar:null,hatType:ht,left:o.fx<0,up:o.fy<-.7,walk:o.walk,ear:r.ear,beard:r.beard,horn:r.horn,weapon:o.wp==='catsword'?'cat':o.wp==='baton'?'baton':o.wp==='dalkong'?'dkwand':wp,atk:o.atk});
+ const ht={mage:'wiz',sword:'helm',archer:'hood',ranger:'cow',msword:'hood',novice:'cap',spirit:'hood'}[o.cls];
+ const wp={mage:'staff',sword:'sword',archer:'bow',ranger:'gun',msword:'sword',novice:'stick',spirit:'staff'}[o.cls];
+ drawHuman(o.x,o.y,{skin:r.skin,hair:r.hair,outfit:J?J.color:c.color,hat:J?J.hat:{mage:'#3a2a8a',sword:'#999',archer:'#1f5e3a',ranger:'#6b4423',msword:'#1d1440',novice:'#a1887f',spirit:'#1b5e20'}[o.cls],wcol:o.cls==='msword'?(['#b388ff','#d1b3ff','#ffd1ff'][((ITEMS[o.wp]||{}).tier||1)-1]||'#b388ff'):null,wt:['catsword','baton','dalkong'].includes(o.wp)?1:Math.min(5,(ITEMS[o.wp]||{}).tier||1),armor:ITEMS[o.ar]&&ITEMS[o.ar].slot==='armor'?o.ar:null,hatType:ht,left:o.fx<0,up:o.fy<-.7,walk:o.walk,ear:r.ear,beard:r.beard,horn:r.horn,weapon:o.wp==='catsword'?'cat':o.wp==='baton'?'baton':o.wp==='dalkong'?'dkwand':wp,atk:o.atk});
 }
 function drawPlayer(){
  if(P.inv>0&&!(P.holy>0)&&(gameT*20|0)%2)return;
@@ -1785,6 +1849,7 @@ function hud(){
   const hq=P.hq;if(hq&&P.cls==='novice'){if(hq.s==='active')q+=`<div class="h">🕯 히든 · 슬라임 ${hq.c}/100</div>`;else if(hq.s==='clear')q+=`<div class="ok">✅ 히든 · 수상한 자에게 보고하기</div>`;}
   $('bGuide').textContent=guideActive(true)?(P.flags.guideOff?'🧭 길안내 끔':'🧭 길안내'):'🧭';
  if(PT.id)for(const a of PT.st){if(a[0]===NET.uid)continue;q+=`<div style="border-left-color:#e1bee7;color:#f3e5f5;min-width:150px">👥 ${esc(String(a[1]))} Lv${+a[2]||1} · ${a[3]?mapName(a[3]):'끊김'}<div style="height:5px;background:#300;margin-top:2px"><div style="height:5px;width:${clamp(+a[6]||0,0,100)}%;background:#ff5252"></div></div></div>`;}
+ if(spirits.length)q+=`<div style="color:#9ccc65">🧚 ${spirits.map(x=>SPT[x.t].n.replace(' 정령','')+' '+Math.ceil(x.life)+'초').join(' · ')}${P.spBoost>0?' · ✨축복':''}</div>`;
  {const F=foodOn();if(F)q+=`<div style="color:#ffd740">${CONS[P.food.id][3]} ${CONS[P.food.id][0]} · ${Math.ceil((P.food.until-Date.now())/1000)}초</div>`;else if(P.food&&P.food.id){P.food=null;calc();toast('🍽 음식 효과가 끝났어요');}}
  const el=$('qtrack');if(el._q!==q){el._q=q;el.innerHTML=q;}}
  const oc=NET.others.size,mk='📍 '+map.name+(NET.live?' · 👥 '+(oc+1)+' (전체 '+Math.max(NET.total||0,oc+1)+')':'');if($('mapname').textContent!==mk)$('mapname').textContent=mk;
@@ -1809,6 +1874,7 @@ function closeDlg(){dlgState=null;$('dlg').classList.add('hidden');if($('menu').
 function interact(){
  if(paused||P.dead)return;if(P.rideOn){if(NET.sock)NET.sock.emit('ride:off');P.rideOn=null;toast('내렸어요');return;}const n=nearNpc();if(!n){const nd=nearDriver();if(nd&&NET.sock&&gameT-(P.rideAsk||0)>1){P.rideAsk=gameT;NET.sock.emit('ride',{to:nd});}return;}
  if(n.type==='sign'){signTalk(n);return;}
+ if(n.type==='spiritnpc'){spiritTalk(n);return;}
  if(n.type==='cook'){dialog(n.name,['어서 와! 나는 요리사 쿡이야.','몬스터 재료를 가져오면 맛있는 음식이랑 물약을 만들어 주지. 비싼 재료일수록 효과도 끝내준다고!'],[{t:'🍳 요리하기',c:'gold',f:()=>openMenu('cook')},{t:'나가기'}]);return;}
  if(n.type==='fountain'){P.hp=P.st.hp;P.mp=P.st.mp;toast('💧 체력과 마나가 회복되었다');sfx('lvl');save(true);return;}
  if(n.type==='elder')elderTalk();
@@ -1831,7 +1897,7 @@ function interact(){
  if(n.type==='board')openMenu('daily');
  if(n.type==='fisher2')fishTalk(n);
  if(n.type==='duel'){if(!NET.live){dialog(n.name,['결투는 계정으로 로그인한 모험가끼리만 할 수 있다네.']);return;}
-  dialog(n.name,['결투를 원하나? 싸울 상대도 15초 안에 나에게 말을 걸어야 하네.','결투장에서는 모든 공격력이 10분의 1이고, 물약과 인벤토리를 쓸 수 없다네.\n자연 회복은 되고, 마나는 50% 더 빨리 찬다네.'],[{t:'⚔ 결투 신청',c:'gold',f:()=>{if(NET.sock&&NET.sock.connected)NET.sock.emit('duel:req');}},{t:'나중에'}]);}
+  dialog(n.name,['결투를 원하나?','⚔ 1:1 — 싸울 상대도 15초 안에 나에게 말을 걸어야 하네.\n👑 1:다수 — 한 명이 「혼자」로 열면, 15초 동안 「여럿 쪽 참가」를 누른 사람(최대 4명)이 한 팀이 되어 싸운다네. 팀원끼리는 공격이 안 맞아.','결투장에서는 모든 공격력이 10분의 1이고, 물약과 인벤토리를 쓸 수 없다네.\n자연 회복은 되고, 마나는 50% 더 빨리 찬다네.'],[{t:'⚔ 1:1 결투',c:'gold',f:()=>{if(NET.sock&&NET.sock.connected)NET.sock.emit('duel:req');}},{t:'👑 1:다수 (내가 혼자)',c:'gold',f:()=>{if(NET.sock&&NET.sock.connected)NET.sock.emit('duel:solo');}},{t:'👥 1:다수 (여럿 쪽 참가)',c:'gold',f:()=>{if(NET.sock&&NET.sock.connected)NET.sock.emit('duel:team');}},{t:'나중에'}]);}
  if(n.type==='rank')rankTalk(n);
  if(n.type==='nick')dialog(n.name,['이름이 마음에 안 드시나요? 100G만 내시면 멋진 새 이름으로 바꿔 드려요!'],[{t:'✏ 이름 바꾸기 (100G)',c:'gold',f:()=>openMenu('nick')},{t:'괜찮아요'}]);
  if(n.type==='gamble')dialog(n.name,['헤헤, 인생은 한 방이지! 운을 시험해 볼 텐가?','동전 던지기, 랜덤 장비 상자, 장비 강화… 뭐든 걸어보라고!'],[{t:'🎲 도박장 입장',c:'gold',f:()=>openMenu('gamble')},{t:'나가기'}]);
@@ -1862,7 +1928,7 @@ function resetClass(){if(!(P.pots.jobticket>0)||P.cls==='novice')return;P.pots.j
  let back=0;for(const id in P.skl){if(/^u\d+$/.test(id)||/^special\d+$/.test(id))continue;back+=P.skl[id]-1;delete P.skl[id];}
  P.sp+=back;P.slots=P.slots.map(id=>id&&P.skl[id]?id:null);
  const w=P.eq.weapon;if(w&&w.id!=='w_novice1')P.bag.push(w);P.eq.weapon={id:'w_novice1',plus:0};
- const was=CLASSES[P.cls].name;P.cls='novice';P.job='';P.cds={};calc();P.hp=P.st.hp;P.mp=P.st.mp;autoLearn(true);
+ spirits=[];const was=CLASSES[P.cls].name;P.cls='novice';P.job='';P.cds={};calc();P.hp=P.st.hp;P.mp=P.st.mp;autoLearn(true);
  toast(`🎫 ${was} 직업을 내려놓았다! 카인에게 가서 다시 고르세요`);sfx('lvl');flashA=.35;for(let i=0;i<50;i++)parts.push({x:P.x,y:P.y,vx:rnd(-180,180),vy:rnd(-220,20),life:rnd(.5,1.2),color:'#ffd740',s:3});
  log(`🎫 초보자로 돌아왔어요. 스킬 포인트 ${back}개를 돌려받았어요 · 전직관 카인에게 가서 직업을 다시 고르세요`);GUIDE.t=0;save(true);}
 const DAILY=[['💰 500 골드',{g:500}],['❤ 체력 물약 ×3 · 💧 마나 물약 ×3',{c:{hp:3,mp:3}}],['💰 1,000 골드',{g:1000}],['💨 신속 물약 ×2',{c:{haste:2}}],['📜 귀환서 ×2 · 💰 2,000 골드',{g:2000,c:{scroll:2}}],['💰 3,000 골드 · ❤ 체력 물약 ×5',{g:3000,c:{hp:5}}],['🎫 직업 변경권',{c:{jobticket:1}}]];
@@ -1872,6 +1938,19 @@ function attendCheck(){if(!P||P.dead||!NET.playing)return;if(!P.daily)P.daily={n
 function claimAttend(){if(!P.daily||P.daily.last===kstDay())return;const day=P.daily.n%7,R=DAILY[day][1];
  if(R.g)P.gold+=R.g;for(const k in R.c||{})P.pots[k]=(P.pots[k]||0)+R.c[k];P.daily.n++;P.daily.last=kstDay();
  toast(`📅 ${day+1}일째 출석 보상: ${DAILY[day][0]}`);log(`📅 출석 ${day+1}일째 보상: ${DAILY[day][0]}${day===6?' — 다음 날부터 1일째로 다시 시작해요':''}`);sfx('win');save(true);}
+function flowerTick(dt){if(!map||!map.t||P.dead)return;const tx=Math.floor(P.x/TS),ty=Math.floor(P.y/TS),on=map.t[ty]&&map.t[ty][tx]==='f';
+ if(on&&P.moving){P.fd=(P.fd||0)+dt;if(Math.random()<.25)parts.push({x:P.x+rnd(-8,8),y:P.y-2,vx:rnd(-20,20),vy:-rnd(20,50),life:.6,color:['#ff80ab','#ffffff','#ffe066'][ri(0,2)],s:2});
+  if(!P.flags.fdance&&Math.floor(P.fd)!==Math.floor(P.fd-dt)&&P.fd>=3&&P.fd<10)addText(P.x,P.y-50,'🌸 '+Math.floor(P.fd)+'/10','#ff80ab',10);
+  if(P.fd>=10&&!P.flags.fdance){P.flags.fdance=1;learnSpecial('special3');timers.push({t:1.2,f:()=>toast('🏅 칭호 「꽃 위에서 춤을」 획득!')});}}
+ else if(!on)P.fd=Math.max(0,(P.fd||0)-dt*2);}
+function becomeSpirit(){if(P.cls!=='novice')return;P.cls='spirit';P.job='';
+ const old=P.eq.weapon;if(old&&old.id==='w_novice1')P.eq.weapon={id:'w_spirit1',plus:old.plus};else{if(old)P.bag.push(old);P.eq.weapon={id:'w_spirit1',plus:0};}
+ P.cds={};calc();P.hp=P.st.hp;P.mp=P.st.mp;autoLearn();if(!P.slots.some(Boolean)&&P.skl.spirit0)P.slots[0]='spirit0';
+ toast('🧚 정령술사로 전직!');sfx('lvl');flashA=.3;for(let i=0;i<50;i++)parts.push({x:P.x,y:P.y,vx:rnd(-170,170),vy:rnd(-220,20),life:rnd(.5,1.1),color:['#66bb6a','#29b6f6','#ff7043','#fdd835','#8d6e63'][i%5],s:3});log('📖 「풀 정령 소환」을 배웠어요 · 레벨이 오르면 물·불·전기·땅 정령도 부를 수 있어요');save(true);}
+function spiritTalk(n){
+ if(P.cls==='spirit')dialog(n.name,['정령들이 너를 마음에 들어 하는구나.','Lv20이 되면 마을 「전직의 전당」에서 「정령의 왕」이 될 수 있단다. 철 정령과 바람 정령이 너를 따를 거야.']);
+ else if(P.cls!=='novice')dialog(n.name,['…넌 이미 다른 길을 걷고 있구나.','🎫 직업 변경권으로 직업을 내려놓으면, 그때 다시 찾아오렴.']);
+ else dialog(n.name,['바람이 너를 여기까지 데려왔구나. 나는 정령술사 엘라.','정령술사는 풀·물·불·전기·땅의 정령을 불러 함께 싸운단다.\n2차 전직 「정령의 왕」이 되면 철과 바람의 정령까지 부를 수 있지.','정령술사의 길을 걸어 볼래? (한번 고르면 히든 직업의 길은 닫힌단다)'],[{t:'🧚 정령술사가 된다',c:'gold',f:()=>dialog(n.name,['정말 정령술사가 될 거니?'],[{t:'그래!',c:'gold',f:becomeSpirit},{t:'다시 생각할래'}])},{t:'나중에'}]);}
 function firstJob(k){if(P.cls!=='novice'||!['mage','sword','archer','ranger'].includes(k))return;P.cls=k;P.job='';
  const old=P.eq.weapon;if(old&&old.id==='w_novice1')P.eq.weapon={id:'w_'+k+'1',plus:old.plus};else{if(old)P.bag.push(old);P.eq.weapon={id:'w_'+k+'1',plus:0};}
  P.cds={};calc();P.hp=P.st.hp;P.mp=P.st.mp;autoLearn();if(!P.slots.some(Boolean)&&P.skl[k+'0'])P.slots[0]=k+'0';
@@ -2411,28 +2490,30 @@ function netConnect(){if(!NET.token||NET.sock)return;
    else if(d.k==='gr'){if(map.key!=='village')return;const g=map.npcs.find(n=>n.granny);if(!g||g.chase>gameT)return;if(g.hx==null){g.hx=g.x;g.hy=g.y;}if(d.s){g.say=String(d.s).slice(0,40);g.angry=gameT+2;}if(!d.a){g.rx=clamp(+d.x||0,0,map.w*TS);g.ry=clamp(+d.y||0,0,map.h*TS);g.rT=nowS()+.6;}}
    else if(d.k==='dmg'){if(d.to===NET.uid&&!safeHere())hurtPlayer(Math.max(0,Math.min(1e5,+d.a||0)));}
    else if(d.k==='pvh'){pvHurt(Math.max(0,Math.min(1e5,Math.round(+d.d||0))));}
-   else if(d.k==='pvend'){if(map.pvp&&!P.pvOver)pvWin();}
+   else if(d.k==='pvend'){if(!map.pvp||P.pvOver)return;if(!P.pvSides){pvWin();return;}P.pvOut=P.pvOut||new Set();P.pvOut.add(d.from);const opp=Object.keys(P.pvSides).filter(u=>P.pvSides[u]!==P.pvSide);if(opp.every(u=>P.pvOut.has(u)||!NET.others.has(u)))pvWin('상대 편을 모두 쓰러뜨렸어요');else if(P.pvSides[d.from]!==P.pvSide)toast('⚔ 상대 한 명 탈락!');else toast('💀 우리 편 한 명이 쓰러졌어요…');}
    else if(d.k==='bf'){const q=d.o;if(!q||isHost()||fx.length>300)return;if(q.k==='dodge'){showDodge();return;}const N=(v,lo,hi)=>{v=+v;return v===v?Math.min(hi,Math.max(lo,v)):lo;};if(['line','warn','lava','cone'].includes(q.k))fx.push({k:q.k,x:N(q.x,0,map.w*TS),y:N(q.y,0,map.h*TS),r:N(q.r,0,400),ang:N(q.ang,-7,7),len:N(q.len,0,1200),life:N(q.life,.05,3),max:N(q.max,.05,3),color:/^#[0-9a-f]{6}$/i.test(q.color)?q.color:'#ff3d3d'});}
    else if(d.k==='ep'){if(projs.length<400)projs.push({wob:!!d.w,eh:!!d.h,x:+d.x,y:+d.y,vx:+d.vx,vy:+d.vy,r:Math.min(20,+d.r||7),life:Math.min(4,+d.life||1),owner:'e',dmg:Math.max(0,+d.dmg||0),color:/^#[0-9a-f]{6}$/i.test(d.color)?d.color:'#c56cf0',kind:'orb',hit:new Set()});}});
   k.on('n',n=>{NET.total=+n||0;});
   tradeNet(k);vcNet(k);partyNet(k);
   k.on('duel:wait',()=>{toast('⚔ 상대를 기다리는 중… (15초)');log('⚔ 결투 신청! 상대도 15초 안에 결투 심판에게 말을 걸어야 해요');});
   k.on('duel:ask',d=>{if(!d||!P||P.dead)return;const nm=String(d.op||'?').slice(0,12);$('menu').classList.add('hidden');dialog('결투 심판 바론',[`너희 둘이 싸울 거야?\n\n상대: ${nm}`],[{t:'⚔ 싸운다',c:'gold',f:()=>{k.emit('duel:ans',{id:d.id,yes:1});toast('상대의 대답을 기다리는 중…');}},{t:'안 싸운다',f:()=>k.emit('duel:ans',{id:d.id,yes:0})}]);});
+  k.on('duel:lobby',d=>{if(!d)return;if(d.role==='solo'){toast('👑 1:다수 결투를 열었어요! 15초 뒤 시작');log('👑 1:다수 결투 — 15초 동안 상대 팀을 모아요');}else toast(`👥 여럿 쪽 참가! (${+d.n||1}명) ${+d.left||0}초 뒤 시작`);});
   k.on('duel:cancel',()=>{if(dlgState&&dlgState.who==='결투 심판 바론')closeDlg();toast('결투가 취소됐어요');});
   k.on('duel:go',d=>{if(!d||!/^arena[a-z]{5}$/.test(d.arena)||!P||P.dead)return;closeDlg();$('menu').classList.add('hidden');paused=false;P.pvOver=0;P.pvGone=0;calc();P.hp=P.st.hp;P.mp=P.st.mp;
-   enterMap(d.arena,(d.side?21.5:4.5)*TS,9.5*TS);P.pvStart=gameT+3;for(let i=3;i>=1;i--)timers.push({t:3-i,f:()=>toast('⚔ '+i)});timers.push({t:3,f:()=>{toast('⚔ 결투 시작!');sfx('boom');}});});
+   P.pvSides=d.sides&&typeof d.sides==='object'?d.sides:null;P.pvSide=d.side?1:0;P.pvOut=new Set();if(P.pvSides){const opp=Object.keys(P.pvSides).filter(u=>P.pvSides[u]!==P.pvSide).length,mine=Object.keys(P.pvSides).filter(u=>P.pvSides[u]===P.pvSide).length;log(`👑 1:다수 결투 — 우리 편 ${mine}명 vs 상대 ${opp}명`);}
+   enterMap(d.arena,(d.side?21.5:4.5)*TS,(9.5+[0,-3,3,-6][Math.max(0,Math.min(3,+d.idx||0))])*TS);P.pvStart=gameT+3;for(let i=3;i>=1;i--)timers.push({t:3-i,f:()=>toast('⚔ '+i)});timers.push({t:3,f:()=>{toast('⚔ 결투 시작!');sfx('boom');}});});
   k.on('c',d=>{if(!d||typeof d.t!=='string')return;const t=d.t.slice(0,60),o=NET.others.get(d.u);if(o){o.say=t;o.sayT=nowS()+5;}log('<b style="color:#9dffb0">'+esc(String(d.n||'?').slice(0,12))+'</b>: '+esc(t));});
   k.on('kicked',()=>netStop('다른 기기에서 이 계정으로 접속했어요.'));
   k.on('ps',list=>{if(!Array.isArray(list))return;const seen=new Set();for(const a of list){if(!a||a[0]===NET.uid)continue;seen.add(a[0]);let o=NET.others.get(a[0]);if(!o){o={x:a[6],y:a[7],walk:0,fy:0};NET.others.set(a[0],o);}
-    o.name=String(a[1]);o.race=a[2];o.cls=a[3];o.job=a[4];o.lv=a[5];o.tx=a[6];o.ty=a[7];o.fx=a[8];o.atk=!!a[9];o.w=!!a[10];o.wp=a[11];o.ar=a[12];o.tt=a[13];o.hp=a[14];o.v=a[15]||'';o.rd=!!a[16];if(o.v==='fixie'&&typeof a[17]==='number'){if(o.thd==null)o.hd=a[17];o.thd=a[17];}if(Math.hypot(o.tx-o.x,o.ty-o.y)>200){o.x=o.tx;o.y=o.ty;}}
+    o.name=String(a[1]);o.race=a[2];o.cls=a[3];o.job=a[4];o.lv=a[5];o.tx=a[6];o.ty=a[7];o.fx=a[8];o.atk=!!a[9];o.w=!!a[10];o.wp=a[11];o.ar=a[12];o.tt=a[13];o.hp=a[14];o.v=a[15]||'';o.rd=!!a[16];{const L=Array.isArray(a[18])?a[18].slice(0,5):[];o.spt=L;if(!o.spc||o.spc.length!==L.length)o.spc=L.map(c=>c.slice());}if(o.v==='fixie'&&typeof a[17]==='number'){if(o.thd==null)o.hd=a[17];o.thd=a[17];}if(Math.hypot(o.tx-o.x,o.ty-o.y)>200){o.x=o.tx;o.y=o.ty;}}
    for(const id of NET.others.keys())if(!seen.has(id))NET.others.delete(id);});};
  if(window.io)go();else{const sc=document.createElement('script');sc.src=NET.base+'/socket.io/socket.io.js';sc.onload=go;document.head.appendChild(sc);}}
 let netLastMove=0;
 setInterval(()=>{const k=NET.sock;if(!k||!k.connected||!P||!map||!NET.playing)return;const mv=getMove();
- k.volatile.emit('s',{m:map.key,n:P.name,r:P.race,c:P.cls,j:P.job||'',l:P.lv,x:P.x,y:P.y,f:P.fx<0?-1:1,a:P.atkAnim>0?1:0,w:mv.l>0&&!paused?1:0,wp:P.eq.weapon?P.eq.weapon.id:'',ar:P.eq.armor?P.eq.armor.id:'',t:P.title||'',hp:Math.round(clamp(P.hp/P.st.hp*100,0,100)),v:P.rideOn||(map&&map.pvp)?'':P.ride||'',hd:P.ride==='fixie'&&P.hd!=null?Math.round(P.hd*100)/100:0});
+ k.volatile.emit('s',{m:map.key,n:P.name,r:P.race,c:P.cls,j:P.job||'',l:P.lv,x:P.x,y:P.y,f:P.fx<0?-1:1,a:P.atkAnim>0?1:0,w:mv.l>0&&!paused?1:0,wp:P.eq.weapon?P.eq.weapon.id:'',ar:P.eq.armor?P.eq.armor.id:'',t:P.title||'',hp:Math.round(clamp(P.hp/P.st.hp*100,0,100)),v:P.rideOn||(map&&map.pvp)?'':P.ride||'',hd:P.ride==='fixie'&&P.hd!=null?Math.round(P.hd*100)/100:0,sp:spirits.map(x=>[SPI.indexOf(x.t),Math.round(x.x),Math.round(x.y)])});
  if(VQ.length){const v=VQ.splice(0,30);VQ.length=0;k.emit('ev',{k:'sk',v});}
  if(NET.host&&NET.hostMap===map.key)k.emit('es',enemies.filter(e=>!e.mirror&&!e.dead&&!e.pv).map(e=>[e.id,e.type,Math.round(e.x),Math.round(e.y),Math.round(e.hp),e.max,(e.strong?1:0)|(e.summon?2:0)|(e.slow>0?4:0)|(e.root>0?8:0)|(e.burn>0?16:0)|(e.aggroed?32:0)|(e.tel?64:0)|(e.fly>0?128:0)|(e.intro>0?256:0),Math.round(e.atk)]));},100);
-function netTick(dt){plainWrap();for(const o of NET.others.values()){const k=Math.min(1,dt*12);if(o.thd!=null&&o.hd!=null){const da=((o.thd-o.hd+Math.PI*3)%(Math.PI*2))-Math.PI;const st=da*Math.min(1,dt*10);o.hd+=st;o.lean=(o.lean||0)*.85+(st/Math.max(dt,.001))*.06;}o.x+=(o.tx-o.x)*k;o.y+=(o.ty-o.y)*k;if(o.w)o.walk+=dt*10;}}
+function netTick(dt){plainWrap();for(const o of NET.others.values()){const k=Math.min(1,dt*12);if(o.spc&&o.spt)o.spc.forEach((c,i)=>{const t=o.spt[i];if(!t)return;c[0]=t[0];c[1]+=(t[1]-c[1])*k;c[2]+=(t[2]-c[2])*k;});if(o.thd!=null&&o.hd!=null){const da=((o.thd-o.hd+Math.PI*3)%(Math.PI*2))-Math.PI;const st=da*Math.min(1,dt*10);o.hd+=st;o.lean=(o.lean||0)*.85+(st/Math.max(dt,.001))*.06;}o.x+=(o.tx-o.x)*k;o.y+=(o.ty-o.y)*k;if(o.w)o.walk+=dt*10;}}
 async function netInit(){
  renderTitle();
  for(let n=0;n<3&&!NET.on;n++){try{const r=await fetch(NET.base+'/api/rpg/ping',{cache:'no-store'});const j=await r.json();NET.on=!!(j&&j.rpg);}catch(e){NET.on=false;}if(!NET.on&&!SERVER)break;}
