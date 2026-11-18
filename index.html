@@ -696,8 +696,14 @@ function makeBank(){const w=14,h=10,t=grid(w,h,'H');rect(t,0,0,w,2,'G');rect(t,1
   labels:[{x:7*TS,y:2*TS+4,t:'🏦 도박 은행'}],spawns:[],start:{x:7*TS,y:7.4*TS}};}
 const DAY=86400000,DEP_MAX=10000000;
 const loanMax=()=>Math.max(100000,P.lv*50000);
-function bankSettle(){if(!P)return;const B=P.bank||(P.bank={dep:0,loan:0,t:Date.now()});const n=Math.floor((Date.now()-B.t)/DAY);if(n<=0)return 0;
- const d0=B.dep,l0=B.loan;if(B.dep>0)B.dep=Math.floor(B.dep*Math.pow(1.05,n));if(B.loan>0)B.loan=Math.ceil(B.loan*Math.pow(1.06,n));B.t+=n*DAY;
+function bankSettle(){if(!P)return;const B=P.bank||(P.bank={dep:0,loan:0,t:Date.now()});
+ if(!(B.t>0)||B.t>Date.now()+60000)B.t=Date.now(); // t가 없거나 이상하면(0·NaN·미래) 지금으로 → 이자 폭주 방지
+ if(P.labor){B.t=Date.now();return 0;} // 강제 노동 중에는 이자가 더 붙지 않는다 (광산에서 갚는 중)
+ const n=Math.floor((Date.now()-B.t)/DAY);if(n<=0)return 0;
+ const d0=B.dep,l0=B.loan;
+ if(B.dep>0)B.dep=Math.min(DEP_MAX,Math.floor(B.dep*Math.pow(1.05,n)));
+ if(B.loan>0){const cap=Math.max(B.loan,(B.prin||B.loan)*2);B.loan=Math.min(cap,Math.ceil(B.loan*Math.pow(1.06,n)));} // 빌린 원금의 2배를 넘게 갚지는 않게
+ B.t+=n*DAY;
  if(d0||l0)log(`🏦 은행 ${n}일치 이자: 예금 +${(B.dep-d0).toLocaleString()}G${B.loan?` · 대출 이자 +${(B.loan-l0).toLocaleString()}G`:''}`);return n;}
 function bankHtml(){bankSettle();const B=P.bank,left=DAY-((Date.now()-B.t)%DAY),hh=Math.floor(left/3600000),mm=Math.floor(left%3600000/60000);
  return `<div>💰 지갑 <b>${P.gold.toLocaleString()}</b> G</div>
@@ -713,8 +719,8 @@ function bankBind(Bd){const i=$('bkAmt');if(i)i.onkeydown=e=>e.stopPropagation()
   if(v<=0){toast('금액을 적어 주세요');return;}
   if(k==='dep'||k==='depAll'){v=Math.min(v,P.gold,DEP_MAX-B.dep);if(v<=0){toast(B.dep>=DEP_MAX?'예금은 '+DEP_MAX.toLocaleString()+'G까지예요':'골드가 없어요');return;}P.gold-=v;B.dep+=v;toast(`💵 ${v.toLocaleString()}G 맡겼어요`);}
   else if(k==='wd'||k==='wdAll'){v=Math.min(v,B.dep);if(v<=0){toast('예금이 없어요');return;}B.dep-=v;P.gold+=v;toast(`💵 ${v.toLocaleString()}G 찾았어요`);}
-  else if(k==='loan'){v=Math.min(v,loanMax()-B.loan);if(v<=0){toast('대출 한도가 꽉 찼어요');return;}if(!B.loan)B.lt=Date.now();B.loan+=v;P.gold+=v;toast(`💳 ${v.toLocaleString()}G 빌렸어요 (하루 6% 이자)`);}
-  else{v=Math.min(v,B.loan,P.gold);if(v<=0){toast(B.loan?'골드가 없어요':'갚을 대출이 없어요');return;}B.loan-=v;P.gold-=v;if(!B.loan)delete B.lt;toast(`💳 ${v.toLocaleString()}G 갚았어요`);}
+  else if(k==='loan'){v=Math.min(v,loanMax()-B.loan);if(v<=0){toast('대출 한도가 꽉 찼어요');return;}if(!B.loan)B.lt=Date.now();B.prin=(B.prin||0)+v;B.loan+=v;P.gold+=v;toast(`💳 ${v.toLocaleString()}G 빌렸어요 (하루 6% 이자)`);}
+  else{v=Math.min(v,B.loan,P.gold);if(v<=0){toast(B.loan?'골드가 없어요':'갚을 대출이 없어요');return;}const before=B.loan;B.loan-=v;P.gold-=v;B.prin=B.loan>0?Math.round((B.prin||before)*B.loan/before):0;if(!B.loan)delete B.lt;toast(`💳 ${v.toLocaleString()}G 갚았어요`);}
   sfx('coin');save(true);renderMenu();});}
 function makeMine(){const w=44,h=30,t=grid(w,h,'M');
  rect(t,2,4,40,22,'m');rect(t,19,0,6,4,'m');rect(t,19,26,6,4,'m');
@@ -766,7 +772,7 @@ function mineGive(o,oid){const ore=ORES.find(q=>q[0]===oid)||ORES[ORES.length-1]
  const full=!!P.labor,got=Math.floor(ore[4]*MINE_K*(full?1:MINE_ORD));P.mined=(P.mined||0)+1;P.mineEarn=(P.mineEarn||0)+got;
  rockBreakFx(o,ore[0]==='stone'?'#948b84':ore[5]);
  let msg=`${ore[2]} ${ore[1]} +${got.toLocaleString()}G`;
- if(full&&P.bank&&P.bank.loan>0){const pay=Math.min(P.bank.loan,got);P.bank.loan-=pay;P.gold+=got-pay;msg=`${ore[2]} ${ore[1]} → 빚 -${pay.toLocaleString()}G`;}else P.gold+=got;
+ if(full&&P.bank&&P.bank.loan>0){const B2=P.bank,bf=B2.loan,pay=Math.min(B2.loan,got);B2.loan-=pay;B2.prin=B2.loan>0?Math.round((B2.prin||bf)*B2.loan/bf):0;P.gold+=got-pay;msg=`${ore[2]} ${ore[1]} → 빚 -${pay.toLocaleString()}G`;}else P.gold+=got;
  addText(o.x,o.y-34,msg,ore[0]==='stone'?'#e0e0e0':ore[0]==='coal'?'#bdbdbd':ore[5],ore[4]>=20000?15:12);
  if(ore[0]==='diamond'){P.flags.diamond=1;flashA=.4;sfx('lvl');toast('💎💎 다이아몬드를 캤다!!! +'+got.toLocaleString()+'G');log('💎 다이아몬드를 캤어요! +'+got.toLocaleString()+'G');save(true);}
  else if(ore[4]>=20000){sfx('coin');log(`${ore[2]} ${ore[1]}을(를) 캤어요 +${got.toLocaleString()}G`);}
@@ -776,7 +782,7 @@ function mineWipe(){if(!P||P.flags.mineWipe1)return;P.flags.mineWipe1=1;let v=Ma
  const g=Math.min(P.gold,v);P.gold-=g;v-=g;let d=0;if(P.bank&&v>0){d=Math.min(P.bank.dep,v);P.bank.dep-=d;v-=d;}save(true);
  setTimeout(()=>dialog('⛏ 탄광 수입 회수',[`탄광 가격이 바뀌어서 지금까지 탄광에서 번 돈 ${tot.toLocaleString()}G를 회수했어요.`,`지갑에서 ${g.toLocaleString()}G${d?`, 은행 예금에서 ${d.toLocaleString()}G`:''}를 가져갔어요.`]),1200);}
 const LOAN_DUE=7*DAY;
-function laborSeize(){const B=P.bank;bankSettle();let L=B.loan;const d=Math.min(B.dep,L);B.dep-=d;L-=d;const g=Math.min(P.gold,L);P.gold-=g;L-=g;B.loan=L;
+function laborSeize(){const B=P.bank;bankSettle();const bf=B.loan;let L=B.loan;const d=Math.min(B.dep,L);B.dep-=d;L-=d;const g=Math.min(P.gold,L);P.gold-=g;L-=g;B.loan=L;B.prin=L>0?Math.round((B.prin||bf)*L/bf):0;
  if(L<=0){delete B.lt;dialog('🏦 빚 독촉',[`대출을 일주일 동안 갚지 않아 예금과 지갑에서 ${(d+g).toLocaleString()}G를 가져갔습니다.`,'빚은 모두 정리되었어요.'],[{t:'확인'}]);save(true);return;}
  P.labor=1;P.flags.labored=1;P.rideOn=null;$('menu').classList.add('hidden');enterMap('mine',22*TS,20*TS);P.portalLock=1;
  dialog('⛓ 빚 독촉',[`대출을 일주일 동안 갚지 않아 가진 돈 ${(d+g).toLocaleString()}G를 모두 가져갔습니다.`,`그래도 ${L.toLocaleString()}G가 모자랍니다. 빚을 다 갚을 때까지 광산에서 일해야 해요!`,'광산에서 캔 돈은 전부 빚을 갚는 데 쓰여요.'],[{t:'⛏ 일하러 가기'}]);save(true);}
@@ -2945,6 +2951,7 @@ function startGame(isNew){
  if(NET.token&&NET.grants&&NET.grants.length)applyGrants();
  enterMap('village',30*TS,25*TS); // 새로고침하면 항상 마을에서 시작
  if(P.dead||!(P.hp>0)){P.dead=false;calc();P.hp=P.st.hp;P.mp=P.st.mp;} // 죽은 채로 저장됐으면 마을에서 살려서 시작
+ if(!P.flags.bankFix1){P.flags.bankFix1=1;const B=P.bank;if(B&&(B.loan>0||P.labor)){B.loan=0;B.prin=0;delete B.lt;P.labor=0;$('laborBox')&&$('laborBox').classList.add('hidden');setTimeout(()=>dialog('🏦 은행 오류 복구',['대출 이자 계산에 문제가 있어서, 지금 남아 있던 빚을 모두 정리했어요.','강제 노동 중이었다면 풀려났어요. 불편을 드려 미안해요!']),1800);}}
  bankSettle();mineWipe();setTimeout(attendCheck,2500);
  if(inJail())enterMap('police',11.5*TS,4*TS);
  if(blocked(P.x,P.y,8)){P.x=map.start.x;P.y=map.start.y;}
