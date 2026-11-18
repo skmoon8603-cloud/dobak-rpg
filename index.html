@@ -1019,6 +1019,10 @@ function newPlayer(name,race,cls){
   eq:{weapon:{id:'w_'+cls+'1',plus:0},armor:null,acc:null},bag:[],pots:{hp:3,mp:2},
   q:{i:0,s:'none',c:0},flags:{},kills:0};
 }
+// 무기 위력: 내 레벨에 맞는 등급 무기를 끼면 ×1 (지금과 같은 난이도), 더 좋은 무기면 세지고 낮은 등급이면 약해진다
+const TIERP={1:1,2:1.3,3:1.7,4:2.2,5:3};
+function tierRef(lv){const T=[[1,1],[10,1],[20,1.3],[35,1.7],[55,2.2],[85,3]];if(lv>=85)return 3;for(let i=1;i<T.length;i++)if(lv<=T[i][0]){const a=T[i-1],b=T[i];return a[1]+(b[1]-a[1])*(lv-a[0])/(b[0]-a[0]);}return 1;}
+function wFacOf(id,lv){const it=ITEMS[id];const t=it&&it.slot==='weapon'?it.tier||1:1;return Math.max(.5,Math.min(1.6,Math.pow(TIERP[t]/tierRef(lv),.6)));}
 function calc(){
  const r=RACES[P.race],c=CLASSES[P.cls],L=P.lv-1;
  const s={hp:r.hp+c.hp+L*12,mp:r.mp+c.mp+L*6,atk:r.atk+c.atk+L*2,def:r.def+c.def+L,spd:r.spd+c.spd,hpr:r.hpr+L*.1,mpr:r.mpr+L*.08,luck:0,gold:0};
@@ -1028,7 +1032,7 @@ function calc(){
  s.hp=Math.round(s.hp);s.mp=Math.round(s.mp);s.atk=Math.round(s.atk);s.def=Math.round(s.def);
  s.hpr*=.5;s.mpr*=.5; // 회복 속도 절반 (2배 느리게)
  const pt=P.pts||{def:0,patk:0,matk:0};s.def+=pt.def;s.patk=s.atk+pt.patk;s.matk=s.atk+pt.matk;s.hatk=s.atk+2*Math.min(pt.patk,pt.matk)+Math.round(Math.abs(pt.patk-pt.matk)/3); // 반반 직업: 물리·마법을 고르게 찍어야 강하다
- P.st=s;P.hp=Math.min(P.hp,s.hp);P.mp=Math.min(P.mp,s.mp);
+ P.st=s;P.wf=wFacOf(P.eq.weapon&&P.eq.weapon.id,P.lv);P.hp=Math.min(P.hp,s.hp);P.mp=Math.min(P.mp,s.mp);
 }
 const CAP=120; // 레벨 제한 (관리자 제외)
 const atCap=()=>P.lv>=CAP&&!P.flags.admin;
@@ -1166,7 +1170,7 @@ let curKind='p'; // 지금 쓰는 공격이 물리(p)인지 마법(m)인지
 const isHybrid=()=>P.cls==='msword'||P.job==='magicbow';
 const kindOf=id=>{const c=id.replace(/\d+$/,'');if(id==='special1')return 'p';if(c==='special')return 'm';if(c==='u')return 'm';if(isHybrid())return 'h';return ['mage','dark','white','spirit','spiritking'].includes(c)?'m':'p';};
 const basicKind=()=>isHybrid()?'h':P.cls==='mage'||P.cls==='spirit'?'m':'p';
-function dmgOf(mult,skLv){return (curKind==='m'?P.st.matk:curKind==='h'?P.st.hatk:P.st.patk)*mult*(1+.2*((skLv||1)-1))*rnd(.9,1.1)*(P.rage>0?1.5:1)*(P.dbl>0?2:1)*(P.burger>0?1.1:1)*(1+.08*(P.eq.weapon&&P.eq.weapon.plus||0));} // 무기 강화 1단계마다 모든 피해 +8%
+function dmgOf(mult,skLv){return (curKind==='m'?P.st.matk:curKind==='h'?P.st.hatk:P.st.patk)*(P.wf||1)*mult*(1+.2*((skLv||1)-1))*rnd(.9,1.1)*(P.rage>0?1.5:1)*(P.dbl>0?2:1)*(P.burger>0?1.1:1)*(1+.08*(P.eq.weapon&&P.eq.weapon.plus||0));} // 무기 강화 1단계마다 모든 피해 +8%
 function aim(range){
  if(mouse.down&&gameT-mouse.t<3){const wx=mouse.x/SC+cam.x,wy=mouse.y/SC+cam.y;return{d:norm(wx-P.x,wy-(P.y-6)),t:null,px:wx,py:wy};}
  let best=null,bd=range;for(const e of enemies){const d=dist(e,P);if(d<bd){bd=d;best=e;}}
@@ -2339,14 +2343,15 @@ const fmtA=v=>v>=1e8?'∞':v;
 function basicHitMult(wid){const j=P.job,c=P.cls;if(wid==='catsword')return 1;if(c==='mage')return 1.05;if(c==='msword')return 1.2+(j==='msorder'?.6:0);if(c==='sword')return 1.15+(j==='peak'?.6:0);if(c==='archer')return j==='magicbow'?1.2:1.1;if(c==='ranger')return j==='assault'||j==='sniper'?1.3:.8;return 1;}
 // DPS = 이 무기로 1분 동안 기본 공격만 했을 때 넣는 피해 ÷ 60 (치명타 확률·배율, 공격 속도, 직업 보너스, 강화 포함)
 function wDps(it,plus){if(!P||!P.st||it.slot!=='weapon'||(it.cls&&it.cls!==P.cls))return 0;const id=Object.keys(ITEMS).find(k=>ITEMS[k]===it);if(!id||id==='dalkong'||id==='baton')return 0;
- const keep=P.eq.weapon,hp=P.hp,mp=P.mp;P.eq.weapon={id,plus:plus||0};calc();const k=basicKind(),s=P.st,stat=k==='m'?s.matk:k==='h'?s.hatk:s.patk,luck=s.luck||0;P.eq.weapon=keep;calc();P.hp=hp;P.mp=mp;
+ const keep=P.eq.weapon,hp=P.hp,mp=P.mp;P.eq.weapon={id,plus:plus||0};calc();const k=basicKind(),s=P.st,stat=(k==='m'?s.matk:k==='h'?s.hatk:s.patk)*(P.wf||1),luck=s.luck||0;P.eq.weapon=keep;calc();P.hp=hp;P.mp=mp;
  const j=P.job,cd=CLASSES[P.cls].cd*(j==='tradbow'?.75:j==='sniper'?1.6:1);
  const cc=Math.min(1,.1+luck/100+(j==='tradbow'?.15:0)),cm=j==='sniper'?2.4:1.6;
  const hit=stat*basicHitMult(id)*(1+.08*(plus||0))*(1+cc*(cm-1));
  const n=Math.floor(60/cd);return Math.max(0,Math.round(Math.min(1e12,hit*n/60)));}
 function itemDesc(it,plus){const m=1+.15*(plus||0);const d=wDps(it,plus);const cur=P&&P.eq&&P.eq.weapon&&ITEMS[P.eq.weapon.id];const cd=d&&cur&&cur!==it?wDps(cur,P.eq.weapon.plus||0):0;const df=cd?d-cd:0;
  const dt=d?` · <span style="color:#ff8a65">⚔ DPS ${d.toLocaleString()}</span>${df?` <span style="color:${df>0?'#7dff7d':'#ff8a80'}">(지금 무기보다 ${df>0?'+':''}${df.toLocaleString()} · ${df>0?'+':''}${Math.round(df/cd*1000)/10}%)</span>`:''}`:'';
- return Object.keys(STATNAME).filter(k=>it[k]).map(k=>STATNAME[k]+' +'+(k==='spd'?it[k]:fmtA(Math.round(it[k]*m*10)/10))).join(' · ')+dt;}
+ const wid=it.slot==='weapon'&&P?Object.keys(ITEMS).find(q=>ITEMS[q]===it):null;const wf=wid?wFacOf(wid,P.lv):0;
+ return Object.keys(STATNAME).filter(k=>it[k]).map(k=>STATNAME[k]+' +'+(k==='spd'?it[k]:fmtA(Math.round(it[k]*m*10)/10))).join(' · ')+(wf?` · <span style="color:${wf>1.001?'#7dff7d':wf<.999?'#ff8a80':'#ddd'}">무기 위력 ×${wf.toFixed(2)}</span>`:'')+dt;}
 function itemName(e){const it=ITEMS[e.id];return `<span class="r${it.tier}">${it.name}${e.plus?' +'+e.plus:''}</span>`;}
 function renderMenu(){
  const inTown=safeHere();
