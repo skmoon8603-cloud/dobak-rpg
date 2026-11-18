@@ -486,7 +486,8 @@ const DROPS={dragon:[['dscale',5,10,1],['dtooth',1,2,1],['dheart',1,1,.3]],fires
 // 대장장이 제작법: [만들 장비, {재료:개수}, 골드]
 const RECIPES=[['a_hide',{hide:8,bone2:4},200],['r_slime',{slime:30},150],['a_bone',{bone2:20,hide:5},500],['r_heart',{heart:3,flesh:10},800],
  ['r_lich',{bone:6},1500],['r_horn',{horn:4,scale:6},1500],['w_{cls}5',{dscale:50,dtooth:13,dheart:3},0],['a_dragon',{dscale:100,dheart:5},0],['a_scale',{scale:35,hide:20,horn:3,ltooth:2},4000],['w_{cls}4',{ltooth:12,scale:45,horn:8,bone:4},9000]];
-const EARN=.5; // 버는 돈 배율 (모든 골드 수입 절반)
+const EARN=1; // 일반 수입 배율 (원래대로)
+const MINE_K=.5,MINE_ORD=.25; // 탄광 가격은 절반, 빚 없는 일반인은 거기서 또 4분의 1
 const earnG=v=>Math.floor(v*EARN+Math.random()); // 소수는 확률로 올림
 const MATP={dscale:300,dtooth:1500,dheart:6000,bone:50,slime:2,hide:6,bone2:4,heart:60,flesh:3,scale:25,horn:80,ltooth:150,fish:12,bigfish:60,goldfish:400}; // 재료 판매가
 for(const k in MATP)MATP[k]=Math.max(1,Math.round(MATP[k]*EARN));
@@ -727,9 +728,9 @@ function makeMine(){const w=44,h=30,t=grid(w,h,'M');
  rect(t,13,25,6,1,'N');rect(t,25,25,6,1,'N');                        // 아래쪽 울타리
  for(let y=0;y<h;y++)if(t[y][21]==='m'){t[y][21]=t[y][22]='E';}
  const npcs=[
-  {x:13.5*TS,y:10.6*TS,name:'광부 관리인',type:'talk',color:'#263238',hat:'#fbc02d',hatType:'miner',lines:['어서 와, 여기는 아오지 탄광이다.','왼쪽 「제 1갱도」로 들어가면 넓은 채광장이 있다.','바위 옆에서 곡괭이(공격 버튼)를 휘두르면 1초에 한 번, 바위 하나씩 캘 수 있어. 반짝이는 색을 보면 뭐가 들었는지 알 수 있지.','캔 광석은 바로 돈으로 바꿔 주지. 다만 빚 없는 일반인은 절반만 받는다!']},
+  {x:13.5*TS,y:10.6*TS,name:'광부 관리인',type:'talk',color:'#263238',hat:'#fbc02d',hatType:'miner',lines:['어서 와, 여기는 아오지 탄광이다.','왼쪽 「제 1갱도」로 들어가면 넓은 채광장이 있다.','바위 옆에서 곡괭이(공격 버튼)를 휘두르면 1초에 한 번, 바위 하나씩 캘 수 있어. 바위가 빽빽해서 속에 뭐가 들었는지는 깨 봐야 알아.','캔 광석은 바로 돈으로 바꿔 주지. 다만 빚 없는 일반인은 빚쟁이의 4분의 1만 받는다!']},
   {x:31.5*TS,y:11.6*TS,name:'작업반장',type:'foreman',color:'#1a237e',hat:'#263238',hatType:'cap'},
-  {x:37.5*TS,y:21.5*TS,name:'안내소',type:'talk',color:'#263238',hat:'#fbc02d',hatType:'miner',lines:()=>[ORES.map(o=>`${o[2]} ${o[1]} ${o[3]}% · ${Math.round(o[4]*EARN).toLocaleString()}G`).join('\n'),'빚 없는 일반인은 위 가격의 절반을 받아요.']},
+  {x:37.5*TS,y:21.5*TS,name:'안내소',type:'talk',color:'#263238',hat:'#fbc02d',hatType:'miner',lines:()=>['바위 속에 뭐가 들었는지는 깨 봐야 알아요!\n'+ORES.map(o=>`${o[2]} ${o[1]} ${o[3]}% · ${Math.round(o[4]*MINE_K*MINE_ORD).toLocaleString()}G`).join('\n'),'위는 빚 없는 일반인 가격이에요. 빚 때문에 끌려온 사람은 4배(빚 갚는 데 들어가요)를 받아요.']},
   {x:22*TS,y:3.9*TS,type:'prop',w:150,h:34,bg:'#5d4030',edge:'#3e2a1e',lines:[['아오지 탄광',18,'#f5deb3']]},
   {x:12.5*TS,y:8.2*TS,type:'prop',w:72,h:70,stand:14,bg:'#2b2118',edge:'#5d4030',lines:[['오늘도',12,'#e8dcc0'],['무사히',12,'#e8dcc0'],['돌아오자',12,'#e8dcc0'],['- 아오지 -',9,'#cbb994']]},
   {x:35.5*TS,y:4.6*TS,type:'prop',w:84,h:24,bg:'#5d4030',edge:'#3e2a1e',lines:[['석탄 창고',13,'#f5deb3']]},
@@ -744,9 +745,8 @@ function makeShaft(){const w=64,h=44,t=grid(w,h,'M');const R=mulberry(1336);
  for(let y=1;y<h-1;y++)for(let x=1;x<w-1;x++){const dx=(x-34)/29.5,dy=(y-22)/19.5,n=Math.sin(x*.7)*.07+Math.cos(y*.9)*.07+R()*.06;if(dx*dx+dy*dy<1-n)t[y][x]='m';}
  rect(t,1,20,9,4,'m');
  for(let i=0;i<16;i++){const cx=12+Math.floor(R()*46),cy=5+Math.floor(R()*33),sz=1+Math.floor(R()*2);rect(t,cx,cy,sz+1,sz,'M');}
- const npcs=[];let tries=0;
- while(npcs.length<48&&tries<4000){tries++;const tx=2+Math.floor(R()*60),ty=2+Math.floor(R()*40);if(tx<10)continue;let ok=true;for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++)if(!t[ty+dy]||t[ty+dy][tx+dx]!=='m')ok=false;if(!ok)continue;
-  const x=(tx+.5)*TS,y=(ty+.8)*TS;if(npcs.some(r=>Math.hypot(r.x-x,r.y-y)<72))continue;npcs.push({x,y,type:'rock',o:rollOre()[0]});}
+ const npcs=[];const fl=(x,y)=>{const tx=Math.floor(x/TS),ty=Math.floor(y/TS);return t[ty]&&t[ty][tx]==='m';};
+ for(let y=1.6*TS;y<h*TS;y+=34)for(let x=(Math.round(y/34)%2?11:11.6)*TS;x<w*TS;x+=40){const X=x+(R()-.5)*12,Y=y+(R()-.5)*8;if(!fl(X,Y)||!fl(X-14,Y-12)||!fl(X+14,Y-12)||!fl(X,Y+4))continue;npcs.push({x:X,y:Y,type:'rock',o:rollOre()[0]});}
  npcs.push({x:6*TS,y:20*TS,type:'prop',w:118,h:24,bg:'#5d4030',edge:'#3e2a1e',lines:[['⛏ 제 1갱도 · 채광장',10,'#f5deb3']]});
  return{name:'⛏ 제 1갱도',key:'shaft1',w,h,t,safe:1,mine:1,portals:[{x:1.2*TS,y:22*TS,to:'mine',tx:5*TS,ty:19*TS,door:1}],npcs,labels:[{x:3*TS,y:24.6*TS,t:'← 탄광 입구'}],spawns:[],start:{x:5*TS,y:22*TS}};}
 const ORES=[['diamond','다이아몬드','💎',.1,1000000,'#b9f6ff'],['sapphire','사파이어','🔷',2,30000,'#448aff'],['ruby','루비','🔴',3,20000,'#ff1744'],['gold','금','🟡',5,10000,'#ffd740'],['silver','은','⚪',10,3000,'#eceff1'],['coal','석탄','⚫',30,1000,'#212121'],['stone','돌','🪨',50,500,'#9e9e9e']];
@@ -757,8 +757,8 @@ function mineSwing(){P.atkAnim=.25;
  P.acd=1;let o=null,bd=50;for(const r of map.npcs)if(r.type==='rock'&&!(r.gone>gameT)){const d=Math.hypot(r.x-P.x,r.y-10-(P.y-6));if(d<bd){bd=d;o=r;}}
  if(!o){P.acd=.3;if(gameT-(P.mineMsg||0)>2){P.mineMsg=gameT;toast('⛏ 바위 바로 옆에서 곡괭이를 휘둘러요');}return;}
  P.fx=Math.sign(o.x-P.x)||P.fx;sfx('hit');shake=.08;
- const ore=ORES.find(q=>q[0]===o.o)||ORES[ORES.length-1];o.gone=gameT+25;o.o=rollOre()[0];
- const full=!!P.labor,got=Math.floor(ore[4]*(full?1:.5)*EARN);P.mined=(P.mined||0)+1;P.mineEarn=(P.mineEarn||0)+got;
+ const ore=ORES.find(q=>q[0]===o.o)||ORES[ORES.length-1];o.gone=gameT+30;o.o=rollOre()[0];
+ const full=!!P.labor,got=Math.floor(ore[4]*MINE_K*(full?1:MINE_ORD));P.mined=(P.mined||0)+1;P.mineEarn=(P.mineEarn||0)+got;
  for(let i=0;i<16;i++)parts.push({x:o.x+rnd(-12,12),y:o.y-12,vx:rnd(-110,110),vy:rnd(-170,-30),g:450,life:rnd(.3,.7),color:i%3?'#7d756f':ore[0]==='stone'?'#948b84':ore[5],s:i%4?3:4});
  let msg=`${ore[2]} ${ore[1]} +${got.toLocaleString()}G`;
  if(full&&P.bank&&P.bank.loan>0){const pay=Math.min(P.bank.loan,got);P.bank.loan-=pay;P.gold+=got-pay;msg=`${ore[2]} ${ore[1]} → 빚 -${pay.toLocaleString()}G`;}else P.gold+=got;
@@ -766,12 +766,15 @@ function mineSwing(){P.atkAnim=.25;
  if(ore[0]==='diamond'){P.flags.diamond=1;flashA=.4;sfx('lvl');toast('💎💎 다이아몬드를 캤다!!! +'+got.toLocaleString()+'G');log('💎 다이아몬드를 캤어요! +'+got.toLocaleString()+'G');save(true);}
  else if(ore[4]>=20000){sfx('coin');log(`${ore[2]} ${ore[1]}을(를) 캤어요 +${got.toLocaleString()}G`);}
  if(P.mined%20===0)save(true);}
+function mineWipe(){if(!P||P.flags.mineWipe1)return;P.flags.mineWipe1=1;let v=Math.max(0,Math.floor(P.mineEarn||0));P.mineEarn=0;if(v<=0)return;const tot=v;
+ const g=Math.min(P.gold,v);P.gold-=g;v-=g;let d=0;if(P.bank&&v>0){d=Math.min(P.bank.dep,v);P.bank.dep-=d;v-=d;}save(true);
+ setTimeout(()=>dialog('⛏ 탄광 수입 회수',[`탄광 가격이 바뀌어서 지금까지 탄광에서 번 돈 ${tot.toLocaleString()}G를 회수했어요.`,`지갑에서 ${g.toLocaleString()}G${d?`, 은행 예금에서 ${d.toLocaleString()}G`:''}를 가져갔어요.`]),1200);}
 const LOAN_DUE=7*DAY;
 function laborSeize(){const B=P.bank;bankSettle();let L=B.loan;const d=Math.min(B.dep,L);B.dep-=d;L-=d;const g=Math.min(P.gold,L);P.gold-=g;L-=g;B.loan=L;
  if(L<=0){delete B.lt;dialog('🏦 빚 독촉',[`대출을 일주일 동안 갚지 않아 예금과 지갑에서 ${(d+g).toLocaleString()}G를 가져갔습니다.`,'빚은 모두 정리되었어요.'],[{t:'확인'}]);save(true);return;}
  P.labor=1;P.flags.labored=1;P.rideOn=null;$('menu').classList.add('hidden');enterMap('mine',22*TS,20*TS);P.portalLock=1;
  dialog('⛓ 빚 독촉',[`대출을 일주일 동안 갚지 않아 가진 돈 ${(d+g).toLocaleString()}G를 모두 가져갔습니다.`,`그래도 ${L.toLocaleString()}G가 모자랍니다. 빚을 다 갚을 때까지 광산에서 일해야 해요!`,'광산에서 캔 돈은 전부 빚을 갚는 데 쓰여요.'],[{t:'⛏ 일하러 가기'}]);save(true);}
-function laborTick(){if(!P||!map||!P.bank)return;const B=P.bank,box=$('laborBox');
+function laborTick(){if(!P||!map||!P.bank)return;if(!P.flags.mineWipe1)mineWipe();const B=P.bank,box=$('laborBox');
  if(B.loan>0){if(!B.lt)B.lt=Date.now();if(!P.labor&&Date.now()-B.lt>=LOAN_DUE&&!P.dead)laborSeize();}else if(B.lt)delete B.lt;
  if(P.labor){if(B.loan<=0){P.labor=0;delete B.lt;box.classList.add('hidden');sfx('lvl');dialog('🔓 자유다!',['빚을 모두 갚았어요! 이제 광산을 나갈 수 있어요.','다음부터는 빚을 제때 갚읍시다…'],[{t:'확인'}]);save(true);return;}
   if(!inJail()&&!map.mine&&!P.dead){enterMap('mine',22*TS,20*TS);P.portalLock=1;}
@@ -1881,7 +1884,7 @@ function draw(){
  for(const z of zones){ctx.save();ctx.translate(z.x,z.y);ctx.rotate(gameT*(z.pull||z.pv?-2.5:1.2));ctx.globalAlpha=.75;ctx.strokeStyle=z.color;ctx.lineWidth=2;ctx.setLineDash([10,8]);ctx.beginPath();ctx.arc(0,0,z.r*.8,0,7);ctx.stroke();ctx.setLineDash([]);ctx.beginPath();for(let i=0;i<4;i++)ctx.lineTo(Math.cos(i*2.094)*z.r*.8,Math.sin(i*2.094)*z.r*.8);ctx.stroke();ctx.restore();ctx.globalAlpha=.22+.08*Math.sin(gameT*12);ctx.fillStyle=z.color;ctx.beginPath();ctx.arc(z.x,z.y,z.r,0,7);ctx.fill();ctx.globalAlpha=.7;ctx.strokeStyle=z.color;ctx.lineWidth=2;ctx.beginPath();ctx.arc(z.x,z.y,z.pull?z.r*(1-(gameT*1.5%1)):z.r,0,7);ctx.stroke();ctx.globalAlpha=1;}
  for(const tu of turrets){px(tu.x-8,tu.y-6,16,6,'#555');px(tu.x-6,tu.y-16,12,10,'#8a8f99');px(tu.x+((tu.fx||1)<0?-14:4),tu.y-13,10,3,'#333');px(tu.x-2,tu.y-13,4,4,'#9be7ff');}
  // 엔티티 정렬
- const ents=[...enemies.filter(e=>!e.pv).map(e=>({y:e.y,f:()=>drawEnemy(e)})),...map.npcs.filter(n=>!n.invisible).map(n=>({y:n.y,f:()=>drawNpc(n)}))];
+ const ents=[...enemies.filter(e=>!e.pv).map(e=>({y:e.y,f:()=>drawEnemy(e)})),...map.npcs.filter(n=>!n.invisible&&(n.type!=='rock'||(n.x>cam.x-40&&n.x<cam.x+W/SC+40&&n.y>cam.y-20&&n.y<cam.y+H/SC+60))).map(n=>({y:n.y,f:()=>drawNpc(n)}))];
  if(!P.dead)ents.push({y:P.y,f:()=>drawPlayer()});
  for(const q of spirits)ents.push({y:q.y+1,f:()=>drawSpirit(q.t,q.x,q.y,q.ph,q.life<3?(Math.sin(gameT*20)>0?.4:1):1)});
  for(const o of NET.others.values())if(o.spc)for(const c of o.spc)ents.push({y:c[2]+1,f:()=>drawSpirit(SPI[c[0]],c[1],c[2],gameT+c[0])});
@@ -2053,12 +2056,7 @@ function drawProp(n){const x=n.x,y=n.y,W=n.w,H=n.h,st=n.stand||0,top=y-st-H;cons
  ctx.globalAlpha=1;}
 function drawRock(n){const x=n.x,y=n.y;ctx.fillStyle='rgba(0,0,0,.3)';ctx.beginPath();ctx.ellipse(x,y,17,5,0,0,7);ctx.fill();
  if(n.gone>gameT){for(const[a,b,c]of[[-9,-4,'#5a524d'],[2,-3,'#6d6560'],[-3,-7,'#4a4440'],[7,-6,'#5a524d']])px(x+a,y+b,6,4,c);return;}
- const O=ORES.find(q=>q[0]===n.o)||ORES[ORES.length-1];
- px(x-15,y-20,30,20,'#6d6560');px(x-11,y-25,22,6,'#7d756f');px(x-15,y-4,30,4,'#4a4440');px(x-9,y-23,7,3,'#948b84');px(x+9,y-17,4,10,'#5a524d');
- const sp=[[-9,-15],[3,-19],[7,-10],[-4,-8],[-1,-14]];
- if(n.o==='coal'){for(const[a,b]of sp)px(x+a,y+b,5,4,'#151515');}
- else if(n.o!=='stone'){for(const[a,b]of sp){px(x+a,y+b,4,4,O[5]);px(x+a,y+b,1,1,'#fff');}
-  if((n.o==='diamond'||n.o==='sapphire'||n.o==='ruby')&&((gameT*3+x)|0)%3===0){const[a,b]=sp[((gameT*2+y)|0)%5];px(x+a-2,y+b+1,8,2,'#fff');px(x+a+1,y+b-2,2,8,'#fff');}}}
+ const k=((x*7+y*13)|0)%3;px(x-16,y-20,32,20,['#6d6560','#675f5a','#726a64'][k]);px(x-12,y-25,24,6,'#7d756f');px(x-16,y-4,32,4,'#4a4440');px(x-10,y-23,7,3,'#948b84');px(x+9,y-17,4,10,'#5a524d');px(x-6,y-12,5,2,'#5a524d');}
 function drawNpc(n){
  if(n.type==='rock'){drawRock(n);return;}
  if(n.type==='prop'){drawProp(n);return;}
@@ -2878,7 +2876,7 @@ function startGame(isNew){
  if(NET.token&&NET.grants&&NET.grants.length)applyGrants();
  enterMap('village',30*TS,25*TS); // 새로고침하면 항상 마을에서 시작
  if(P.dead||!(P.hp>0)){P.dead=false;calc();P.hp=P.st.hp;P.mp=P.st.mp;} // 죽은 채로 저장됐으면 마을에서 살려서 시작
- bankSettle();setTimeout(attendCheck,2500);
+ bankSettle();mineWipe();setTimeout(attendCheck,2500);
  if(inJail())enterMap('police',11.5*TS,4*TS);
  if(blocked(P.x,P.y,8)){P.x=map.start.x;P.y=map.start.y;}
  paused=false;NET.playing=true;netConnect();if(isNew)save(true);
