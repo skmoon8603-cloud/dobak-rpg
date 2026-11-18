@@ -1205,7 +1205,7 @@ function bdAdd(e,v){if(BD.id!==e.id)bdReset(e.id);BD.m.set(bdMe(),(BD.m.get(bdMe
 function bdSend(force){if(!BD.id)return;const v=Math.round(BD.m.get(bdMe())||0);if(v!==BD.last&&(force||gameT-BD.sent>.7)){BD.sent=gameT;BD.last=v;netEv({k:'bd',id:BD.id,v});}}
 function bdTick(){bdSend(false);const el=$('bossRank');if(!el)return;let h='';
  const boss=enemies.find(e=>e.b&&e.b.boss&&!e.b.evt&&!e.dead);
- if(boss&&BD.id===boss.id&&BD.m.size){const tot=[...BD.m.values()].reduce((a,c)=>a+c,0)||1;const L=[...BD.m.entries()].sort((a,b)=>b[1]-a[1]);
+ if(boss&&BD.id===boss.id&&[...BD.m.keys()].some(u=>!(NET.admin&&u===bdMe()))){const tot=[...BD.m.values()].reduce((a,c)=>a+c,0)||1;const L=[...BD.m.entries()].filter(q=>!(NET.admin&&q[0]===bdMe())).sort((a,b)=>b[1]-a[1]);
   const nm=u=>u===bdMe()?'나':(NET.others.get(u)||{}).name||'?';const row=([u,v],i)=>`<span class="${u===bdMe()?'me':''}">${i+1}. ${esc(String(nm(u)))} ${Math.round(v/tot*100)}%</span>`;
   h='👑 기여도 (골드는 기여도대로 나눠요)<br>'+L.slice(0,4).map(row).join(' · ');const mi=L.findIndex(q=>q[0]===bdMe());if(mi>=4)h+=' · '+row(L[mi],mi);}
  if(h!==BD.html){BD.html=h;el.innerHTML=h;}}
@@ -1338,14 +1338,14 @@ function drawVehicleFront(x,y,id,f){const W=(a,b,r)=>{ctx.fillStyle='#212121';ct
  if(id==='bonggu'){px(x-30,y-34,60,26,'#eceff1');px(x-30,y-26,60,4,'#1565c0');px(x-30,y-52,3,20,'#eceff1');px(x+27,y-52,3,20,'#eceff1');px(x-1,y-52,2,20,'#eceff1');px(x-30,y-36,60,3,'#cfd8dc');ctx.globalAlpha=.12;px(x-27,y-50,54,14,'#b3e5fc');ctx.globalAlpha=1;px(x+f*30-(f<0?0:3),y-18,3,5,'#ffeb3b');px(x-f*30-(f>0?3:0),y-18,3,5,'#e53935');W(x-18,y-6,7);W(x+18,y-6,7);}
  else if(id==='lambo'){px(x-32,y-18,64,12,'#ffd600');px(x-32,y-9,64,2,'#f9a825');px(x+f*8-(f<0?14:0),y-30,14,12,'rgba(38,50,56,.55)');px(x+f*30-(f<0?0:4),y-14,4,3,'#fff59d');px(x-f*36-(f>0?6:-2),y-26,10,3,'#212121');px(x-f*32-(f>0?4:0),y-24,4,8,'#212121');W(x-19,y-6,7);W(x+19,y-6,7);}}
 // 탈것 위의 사람 그리기 (킥보드·픽시는 페달을 밟고, 차는 안에 앉는다)
-function drawRider(c,x,y,v,moving,walk){const V=VEH[v];const f=c.fx<0?-1:1;
- if(V.car){if(v==='lambo')px(x-32,y-18,64,12,'#ffd600');}
+function drawRider(c,x,y,v,moving,walk,pas){const V=VEH[v];const f=c.fx<0?-1:1; // pas: 다른 사람 차에 탄 손님 (차는 운전자가 그린다)
+ if(V.car&&!pas){if(v==='lambo')px(x-32,y-18,64,12,'#ffd600');}
  const leg=V.ped&&moving?walk:0;
  if(v==='fixie'&&c.hd!=null){const sx0=Math.cos(c.hd),sx=Math.sign(sx0||1)*Math.max(.28,Math.abs(sx0)),lean=clamp(c.lean||0,-.35,.35);
   ctx.save();ctx.translate(x,y);ctx.rotate(lean*(sx>0?1:-1));ctx.scale(sx,1);ctx.translate(-x,-y);
   drawVehicle(x,y,'fixie',1,walk,moving);drawChar(Object.assign({},c,{x,y:y-V.up,walk:leg,fx:1}));ctx.restore();return;}
  drawChar(Object.assign({},c,{x,y:y-V.up,walk:leg}));
- if(V.car)drawVehicleFront(x,y,v,f);}
+ if(V.car&&!pas)drawVehicleFront(x,y,v,f);}
 function rideTick(){if(!P||!P.rideOn)return;const o=NET.others.get(P.rideOn.uid);if(!o){if(!P.rideOn.lost)P.rideOn.lost=Date.now();else if(Date.now()-P.rideOn.lost>3000){P.rideOn=null;toast('운전자가 사라져서 내렸어요');}return;}P.rideOn.lost=0;
  const f=o.fx<0?-1:1;P.x=o.x-f*seatOff(o.v,P.rideOn.seat);P.y=o.y-1;P.fx=f;P.fy=0;P.rideV=o.v;}
 function nearDriver(){if(!NET.live||P.rideOn)return null;for(const[uid,o]of NET.others){const V=VEH[o.v];if(V&&V.seats&&!o.rd&&Math.hypot(o.x-P.x,o.y-P.y)<70)return uid;}return null;}
@@ -2003,7 +2003,7 @@ function drawPlayer(){
  if(P.inv>0&&!(P.holy>0)&&(gameT*20|0)%2)return;
  const myV=!P.rideOn&&!(map&&map.pvp)&&VEH[P.ride]?P.ride:'';if(myV&&myV!=='fixie')drawVehicle(P.x,P.y,myV,P.fx<0?-1:1,P.walk,P.moving);const pv=P.rideOn&&VEH[P.rideV]?P.rideV:'';
  const meC={wl:P.eq&&P.eq.weapon?P.eq.weapon.plus||0:0,hd:myV==='fixie'?(P.hd!=null?P.hd:(P.fx<0?Math.PI:0)):null,lean:P.lean||0,x:P.x,y:P.y,race:P.race,cls:P.cls,job:P.job,fx:P.fx,fy:P.fy,walk:P.walk,atk:P.atkAnim>0,wp:P.eq&&P.eq.weapon?P.eq.weapon.id:'',ar:P.eq&&P.eq.armor?P.eq.armor.id:''};
- if(myV||pv)drawRider(meC,P.x,P.y,myV||pv,!!myV&&P.moving,P.walk);else
+ if(myV||pv)drawRider(meC,P.x,P.y,myV||pv,!!myV&&P.moving,P.walk,!myV);else
  drawChar({wl:P.eq&&P.eq.weapon?P.eq.weapon.plus||0:0,x:P.x,y:P.y,race:P.race,cls:P.cls,job:P.job,fx:P.fx,fy:P.fy,walk:P.walk,atk:P.atkAnim>0,wp:P.eq&&P.eq.weapon?P.eq.weapon.id:'',ar:P.eq&&P.eq.armor?P.eq.armor.id:''});
  const lup=(myV||pv)==='bonggu'?18:(myV||pv)?VEH[myV||pv].up:0;
  if(P.name)label(P.name+' Lv'+P.lv,P.x,P.y-46-lup,'#ffe9a8');
@@ -2011,7 +2011,7 @@ function drawPlayer(){
  if(P.say&&P.sayT>nowS())bubble(P.say,P.x,P.y-(tt?76:62));
 }
 function drawOther(o){if(VEH[o.v]&&o.v!=='fixie')drawVehicle(o.x,o.y,o.v,o.fx<0?-1:1,o.walk,o.w);if(o.v==='fixie'&&o.hd==null)o.hd=o.fx<0?Math.PI:0;let rv=VEH[o.v]?o.v:'';if(!rv&&o.rd){for(const q of NET.others.values())if(VEH[q.v]&&Math.abs(q.x-o.x)<40&&Math.abs(q.y-o.y)<4){rv=q.v;break;}if(!rv&&P.ride&&!P.rideOn&&Math.abs(P.x-o.x)<40&&Math.abs(P.y-o.y)<4)rv=P.ride;}
- ctx.globalAlpha=.9;if(rv)drawRider(o,o.x,o.y,rv,!!o.w&&!o.rd,o.walk);else if(o.rd){drawChar(Object.assign({},o,{y:o.y-9,walk:0}));}else drawChar(o);ctx.globalAlpha=1;const pid=[...NET.others.entries()].find(e=>e[1]===o);if(pid&&inParty(pid[0])&&!map.pvp){px(o.x-16,o.y-72,32,4,'#300');px(o.x-16,o.y-72,32*clamp(o.php!=null?o.php:(o.hp||100),0,100)/100,4,'#ff5252');label('👥',o.x-(o.name.length*4+16),o.y-46,'#e1bee7');}if(o.vc){ctx.font='11px sans-serif';ctx.textAlign='center';ctx.fillText('🎙',o.x+(o.name.length*4+14),o.y-42);}if(map.pvp&&o.hp!=null){px(o.x-16,o.y-72,32,5,'#300');px(o.x-16,o.y-72,32*o.hp/100,5,'#ff5252');}const lup=rv==='bonggu'?18:rv?VEH[rv].up:o.rd?9:0;label(o.name+' Lv'+o.lv,o.x,o.y-46-lup,'#9dffb0');const tt=TITLES[o.tt];if(tt)label(tt[0],o.x,o.y-59-lup,tt[1]);if(o.say&&o.sayT>nowS())bubble(o.say,o.x,o.y-(tt?76:62));}
+ ctx.globalAlpha=.9;if(rv)drawRider(o,o.x,o.y,rv,!!o.w&&!o.rd,o.walk,!!o.rd&&!VEH[o.v]);else if(o.rd){drawChar(Object.assign({},o,{y:o.y-9,walk:0}));}else drawChar(o);ctx.globalAlpha=1;const pid=[...NET.others.entries()].find(e=>e[1]===o);if(pid&&inParty(pid[0])&&!map.pvp){px(o.x-16,o.y-72,32,4,'#300');px(o.x-16,o.y-72,32*clamp(o.php!=null?o.php:(o.hp||100),0,100)/100,4,'#ff5252');label('👥',o.x-(o.name.length*4+16),o.y-46,'#e1bee7');}if(o.vc){ctx.font='11px sans-serif';ctx.textAlign='center';ctx.fillText('🎙',o.x+(o.name.length*4+14),o.y-42);}if(map.pvp&&o.hp!=null){px(o.x-16,o.y-72,32,5,'#300');px(o.x-16,o.y-72,32*o.hp/100,5,'#ff5252');}const lup=rv==='bonggu'?18:rv?VEH[rv].up:o.rd?9:0;label(o.name+' Lv'+o.lv,o.x,o.y-46-lup,'#9dffb0');const tt=TITLES[o.tt];if(tt)label(tt[0],o.x,o.y-59-lup,tt[1]);if(o.say&&o.sayT>nowS())bubble(o.say,o.x,o.y-(tt?76:62));}
 const SIGNS={};
 function signText(k){const v=SIGNS[k];return v&&v.t?v.t:'';}
 function behindProp(x,y,w,h){const near=q=>q&&Math.abs(q.x-x)<w&&q.y<y&&q.y>y-h;if(P&&near(P))return true;for(const o of NET.others.values())if(near(o))return true;return false;}
@@ -2337,10 +2337,16 @@ function bagStacks(){const m=new Map();P.bag.forEach((e,i)=>{const k=e.id+':'+(e
 function bagCanAdd(id,plus){return P.bag.some(e=>e.id===id&&(e.plus||0)===(plus||0))||bagStacks().length<24;}
 const fmtA=v=>v>=1e8?'∞':v;
 function basicHitMult(wid){const j=P.job,c=P.cls;if(wid==='catsword')return 1;if(c==='mage')return 1.05;if(c==='msword')return 1.2+(j==='msorder'?.6:0);if(c==='sword')return 1.15+(j==='peak'?.6:0);if(c==='archer')return j==='magicbow'?1.2:1.1;if(c==='ranger')return j==='assault'||j==='sniper'?1.3:.8;return 1;}
+// DPS = 이 무기로 1분 동안 기본 공격만 했을 때 넣는 피해 ÷ 60 (치명타 확률·배율, 공격 속도, 직업 보너스, 강화 포함)
 function wDps(it,plus){if(!P||!P.st||it.slot!=='weapon'||(it.cls&&it.cls!==P.cls))return 0;const id=Object.keys(ITEMS).find(k=>ITEMS[k]===it);if(!id||id==='dalkong'||id==='baton')return 0;
- const keep=P.eq.weapon,hp=P.hp,mp=P.mp;P.eq.weapon={id,plus:plus||0};calc();const k=basicKind(),s=P.st,stat=k==='m'?s.matk:k==='h'?s.hatk:s.patk;P.eq.weapon=keep;calc();P.hp=hp;P.mp=mp;
- const j=P.job,cd=CLASSES[P.cls].cd*(j==='tradbow'?.75:j==='sniper'?1.6:1);return Math.max(0,Math.round(Math.min(1e9,stat*basicHitMult(id)*(1+.08*(plus||0))/cd)));}
-function itemDesc(it,plus){const m=1+.15*(plus||0);const d=wDps(it,plus);return Object.keys(STATNAME).filter(k=>it[k]).map(k=>STATNAME[k]+' +'+(k==='spd'?it[k]:fmtA(Math.round(it[k]*m*10)/10))).join(' · ')+(d?` · <span style="color:#ff8a65">⚔ DPS 약 ${fmtA(d)}</span>`:'');}
+ const keep=P.eq.weapon,hp=P.hp,mp=P.mp;P.eq.weapon={id,plus:plus||0};calc();const k=basicKind(),s=P.st,stat=k==='m'?s.matk:k==='h'?s.hatk:s.patk,luck=s.luck||0;P.eq.weapon=keep;calc();P.hp=hp;P.mp=mp;
+ const j=P.job,cd=CLASSES[P.cls].cd*(j==='tradbow'?.75:j==='sniper'?1.6:1);
+ const cc=Math.min(1,.1+luck/100+(j==='tradbow'?.15:0)),cm=j==='sniper'?2.4:1.6;
+ const hit=stat*basicHitMult(id)*(1+.08*(plus||0))*(1+cc*(cm-1));
+ const n=Math.floor(60/cd);return Math.max(0,Math.round(Math.min(1e12,hit*n/60)));}
+function itemDesc(it,plus){const m=1+.15*(plus||0);const d=wDps(it,plus);const cur=P&&P.eq&&P.eq.weapon&&ITEMS[P.eq.weapon.id];const cd=d&&cur&&cur!==it?wDps(cur,P.eq.weapon.plus||0):0;const df=cd?d-cd:0;
+ const dt=d?` · <span style="color:#ff8a65">⚔ DPS ${d.toLocaleString()}</span>${df?` <span style="color:${df>0?'#7dff7d':'#ff8a80'}">(지금 무기보다 ${df>0?'+':''}${df.toLocaleString()} · ${df>0?'+':''}${Math.round(df/cd*1000)/10}%)</span>`:''}`:'';
+ return Object.keys(STATNAME).filter(k=>it[k]).map(k=>STATNAME[k]+' +'+(k==='spd'?it[k]:fmtA(Math.round(it[k]*m*10)/10))).join(' · ')+dt;}
 function itemName(e){const it=ITEMS[e.id];return `<span class="r${it.tier}">${it.name}${e.plus?' +'+e.plus:''}</span>`;}
 function renderMenu(){
  const inTown=safeHere();
