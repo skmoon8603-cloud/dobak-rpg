@@ -1414,7 +1414,7 @@ function evtTick(dt){const box=$('evtBox');if(!EVT.on){box.classList.add('hidden
 function evtMsg(d){if(!d)return;
  if(d.on){const was=EVT.on;EVT.on=true;EVT.stage=Math.max(0,Math.min(6,+d.stage||0));EVT.clearSent=-1;
   if(d.intro||!was){EVT.spawned=-1;EVT.last=[];}
-  if(d.intro){if(map&&map.key==='village'){CUT.t=CUT.max=4.6;CUT.name='Lv150 거대 슬라임';CUT.sub='⏰ 23시 서버 이벤트 · 모두 함께 잡아요!';shake=1;setTimeout(()=>{shake=.9;flashA=.3;sfx('boom');},2600);}else toast('🟢 23시 서버 이벤트! 평화의 마을에 거대 슬라임이 나타났어요');}
+  if(d.intro){if(map&&map.key==='village'){CUT.t=CUT.max=4.6;CUT.name='Lv150 거대 슬라임';CUT.sub='⏰ 서버 이벤트 (15분마다) · 모두 함께 잡아요!';shake=1;setTimeout(()=>{shake=.9;flashA=.3;sfx('boom');},2600);}else toast('🟢 23시 서버 이벤트! 평화의 마을에 거대 슬라임이 나타났어요');}
   else if(d.split&&map&&map.key==='village'){CUT.t=CUT.max=2.6;CUT.name='💥 분열!';CUT.sub=`${GSN[EVT.stage]} ${2**EVT.stage}마리가 나타났다!`;flashA=.4;shake=.6;sfx('boom');}}
  else{EVT.on=false;enemies=enemies.filter(e=>!(e.b&&e.b.evt));if(d.end&&map&&map.key==='village'){CUT.t=CUT.max=3.2;CUT.name=d.full?'🎉 거대 슬라임 토벌 완료!':'⌛ 이벤트 종료';CUT.sub=d.full?'기여도에 따라 보상을 나눠요':'잡은 만큼만 보상을 나눠요';}}}
 function evtReward(r){if(!r||!P)return;const g=Math.max(0,Math.round((+r.gold||0)*EARN)),gel=Math.max(0,Math.round(+r.gel||0)),lvs=Math.max(0,Math.min(9,+r.lv||0));let xp=0;{const f=Math.floor(lvs);for(let i=0;i<f;i++)xp+=need(P.lv+i);xp+=Math.round((lvs-f)*need(P.lv+f));}P.flags.slimeEvt=1;if(+r.rank===1&&+r.n>=2)P.flags.slimeMvp=1;
