@@ -581,8 +581,8 @@ function grid(w,h,c){return Array.from({length:h},()=>Array(w).fill(c));}
 function rect(t,x0,y0,w,h,c){for(let y=y0;y<y0+h;y++)for(let x=x0;x<x0+w;x++)if(t[y]&&t[y][x]!==undefined)t[y][x]=c;}
 function border(t,c){const h=t.length,w=t[0].length;for(let x=0;x<w;x++){t[0][x]=c;t[h-1][x]=c;}for(let y=0;y<h;y++){t[y][0]=c;t[y][w-1]=c;}}
 function makeVillage(){
- const w=60,h=44,t=grid(w,h,'.');const R=mulberry(7);
- for(let y=0;y<h;y++)for(let x=0;x<w;x++){const v=R();if(v<.07)t[y][x]='f';else if(v<.083)t[y][x]='#';else if(v<.086)t[y][x]='r';}
+ const w=60,h=50,t=grid(w,h,'.');const R=mulberry(7);
+ for(let y=0;y<44;y++)for(let x=0;x<w;x++){const v=R();if(v<.07)t[y][x]='f';else if(v<.083)t[y][x]='#';else if(v<.086)t[y][x]='r';}
  for(let y=24;y<=31;y++)for(let x=11;x<=22;x++)t[y][x]=R()<.6?'f':'.';
  for(let y=0;y<h;y++)for(let x=0;x<w;x++){const dx=(x-47)/4.4,dy=(y-26)/2.5;if(dx*dx+dy*dy<1)t[y][x]='~';}
  border(t,'#');rect(t,0,0,w,2,'#');
@@ -597,6 +597,9 @@ function makeVillage(){
  house(6,29,10,'G');house(20,29,6,'R');house(36,29,6,'B');house(46,29,6,'R');
  rect(t,56,35,1,7,',');
  house(8,38,6,'K');rect(t,11,42,5,1,',');rect(t,15,35,1,8,',');house(20,38,6,'B');house(38,38,6,'R');house(48,38,6,'U');
+ // 아래쪽에 새로 넓힌 곳: 큰길을 내려와 은행을 한 바퀴 도는 길
+ rect(t,29,42,2,2,',');rect(t,23,43,15,1,',');rect(t,23,43,1,6,',');rect(t,37,43,1,6,',');rect(t,23,48,15,1,',');
+ house(25,44,11,'G');t[48][24]=t[48][36]='L';
  const npcs=[
   {x:10.5*TS,y:10.6*TS,name:'촌장',type:'elder',color:'#7b5ea7',hat:'#d4af37'},
   {x:22.5*TS,y:10.6*TS,name:'현자 아르카',type:'book',color:'#4a2a8a',hat:'#2a1560',hatType:'wiz'},
@@ -620,9 +623,9 @@ function makeVillage(){
   {x:23.5*TS,y:33.6*TS,name:'주민',type:'talk',color:'#6d4c41',hat:'#444',hatType:'',lines:()=>P.flags.boss?['모르간이 사라져서 살맛 나네요!','그런데… 누가 모르간을 부활시키고 다시 죽인대요. 대체 누가 그런 짓을 하는 걸까요?']:['모르간이 깨어난 뒤로 밤마다 무서워서 잠을 못 자요…']}];
  npcs.forEach(n=>{const tx=Math.floor(n.x/TS),ty=Math.floor((n.y-4)/TS);if(['#','r'].includes(t[ty][tx]))t[ty][tx]='.';});
  return{name:'평화의 마을',key:'village',w,h,t,safe:1,
-  portals:[{look:'gate',x:59*TS+8,y:22*TS,to:'field',tx:2*TS,ty:16*TS+16,label:'들판'},{x:11.5*TS,y:41.9*TS,to:'house',tx:5.5*TS,ty:6.2*TS,door:1},{x:51.5*TS,y:19.9*TS,to:'police',tx:7*TS,ty:7.4*TS,door:1},{x:23.5*TS,y:41.9*TS,to:'plain',tx:1500*TS,ty:1500*TS,door:1},{x:11.5*TS,y:32.9*TS,to:'casino',tx:8*TS,ty:8*TS,door:1}],
+  portals:[{look:'gate',x:59*TS+8,y:22*TS,to:'field',tx:2*TS,ty:16*TS+16,label:'들판'},{x:11.5*TS,y:41.9*TS,to:'house',tx:5.5*TS,ty:6.2*TS,door:1},{x:51.5*TS,y:19.9*TS,to:'police',tx:7*TS,ty:7.4*TS,door:1},{x:23.5*TS,y:41.9*TS,to:'plain',tx:1500*TS,ty:1500*TS,door:1},{x:11.5*TS,y:32.9*TS,to:'casino',tx:8*TS,ty:8*TS,door:1},{x:30.5*TS,y:47.9*TS,to:'bank',tx:7*TS,ty:7.4*TS,door:1}],
   npcs,
-  labels:[{x:10*TS,y:6*TS-4,t:'촌장의 집'},{x:22*TS,y:6*TS-4,t:'📚 마법 도서관'},{x:38*TS,y:6*TS-4,t:'🛒 상점'},{x:49*TS,y:6*TS-4,t:'⚒ 대장간'},{x:11.5*TS,y:16*TS-4,t:'🛏 여관'},{x:11*TS,y:29*TS-4,t:'🎲 도박장'},{x:45*TS,y:16*TS-4,t:'⚜ 전직의 전당'},{x:51.5*TS,y:16*TS-4,t:'🚓 파출소'},{x:39*TS,y:29*TS-4,t:'🍳 요리점'},{x:23*TS,y:38*TS-4,t:'🌾 바람이 새어 나오는 집'}],
+  labels:[{x:10*TS,y:6*TS-4,t:'촌장의 집'},{x:22*TS,y:6*TS-4,t:'📚 마법 도서관'},{x:38*TS,y:6*TS-4,t:'🛒 상점'},{x:49*TS,y:6*TS-4,t:'⚒ 대장간'},{x:11.5*TS,y:16*TS-4,t:'🛏 여관'},{x:11*TS,y:29*TS-4,t:'🎲 도박장'},{x:45*TS,y:16*TS-4,t:'⚜ 전직의 전당'},{x:51.5*TS,y:16*TS-4,t:'🚓 파출소'},{x:39*TS,y:29*TS-4,t:'🍳 요리점'},{x:30.5*TS,y:44*TS-4,t:'🏦 은행'},{x:23*TS,y:38*TS-4,t:'🌾 바람이 새어 나오는 집'}],
   spawns:[],start:{x:30*TS,y:25*TS}};
 }
 function makeField(){
@@ -666,6 +669,32 @@ function drawPlain(){const vw=W/SC,vh=H/SC,x0=Math.floor(cam.x/TS)-1,y0=Math.flo
   else if(k<9){ctx.fillStyle='#d9c27a';for(let i=0;i<4;i++){const gx=X+6+i*6,sw=Math.sin(gameT*2+tx+i)*1.5;ctx.fillRect(gx+sw,Y+8,2,14);ctx.fillRect(gx+sw-1,Y+6,4,4);}}}
  for(let ty=y0;ty<y1;ty++)for(let tx=x0;tx<x1;tx++){const h=hsh(tx*7+3,ty*5+1);if(h%211===0){const X=tx*TS+16,Y=ty*TS+30;ctx.fillStyle='rgba(0,0,0,.2)';ctx.beginPath();ctx.ellipse(X,Y,18,6,0,0,7);ctx.fill();px(X-3,Y-22,6,22,'#6d4c41');ctx.fillStyle='#2e7d32';ctx.beginPath();ctx.arc(X,Y-34,17,0,7);ctx.fill();ctx.fillStyle='#43a047';ctx.beginPath();ctx.arc(X-5,Y-38,10,0,7);ctx.fill();}else if(h%173===0){px(tx*TS+8,ty*TS+18,14,9,'#9e9e9e');px(tx*TS+10,ty*TS+16,10,4,'#bdbdbd');}}
  const t2=gameT*12;for(let i=0;i<3;i++){const cx=(Math.floor(cam.x/900)+i)*900+((t2+i*317)%900),cy=cam.y+80+i*170;ctx.fillStyle='rgba(0,0,0,.06)';ctx.beginPath();ctx.ellipse(cx,cy+vh*.4,120,40,0,0,7);ctx.fill();}}
+function makeBank(){const w=14,h=10,t=grid(w,h,'H');rect(t,0,0,w,2,'G');rect(t,1,2,w-2,h-3,'o');
+ return{name:'🏦 은행',key:'bank',w,h,t,safe:1,portals:[{x:7*TS,y:8.7*TS,to:'village',tx:30.5*TS,ty:48.6*TS,label:'나가기'}],
+  npcs:[{x:7*TS,y:4.4*TS,name:'은행원 머니',type:'bank',color:'#263238',hat:'#ffd740',hatType:'cap'},{x:3*TS,y:4.4*TS,name:'경비원',type:'talk',color:'#37474f',hat:'#999',hatType:'helm',lines:['은행에서는 정숙해 주세요.','맡긴 돈은 하루에 5%씩, 빌린 돈은 하루에 6%씩 불어납니다.']}],
+  labels:[{x:7*TS,y:2*TS+4,t:'🏦 도박 은행'}],spawns:[],start:{x:7*TS,y:7.4*TS}};}
+const DAY=86400000,DEP_MAX=10000000;
+const loanMax=()=>Math.max(100000,P.lv*50000);
+function bankSettle(){if(!P)return;const B=P.bank||(P.bank={dep:0,loan:0,t:Date.now()});const n=Math.floor((Date.now()-B.t)/DAY);if(n<=0)return 0;
+ const d0=B.dep,l0=B.loan;if(B.dep>0)B.dep=Math.floor(B.dep*Math.pow(1.05,n));if(B.loan>0)B.loan=Math.ceil(B.loan*Math.pow(1.06,n));B.t+=n*DAY;
+ if(d0||l0)log(`🏦 은행 ${n}일치 이자: 예금 +${(B.dep-d0).toLocaleString()}G${B.loan?` · 대출 이자 +${(B.loan-l0).toLocaleString()}G`:''}`);return n;}
+function bankHtml(){bankSettle();const B=P.bank,left=DAY-((Date.now()-B.t)%DAY),hh=Math.floor(left/3600000),mm=Math.floor(left%3600000/60000);
+ return `<div>💰 지갑 <b>${P.gold.toLocaleString()}</b> G</div>
+ <div class="row" style="display:block"><b style="color:#7dff7d">💵 예금 ${B.dep.toLocaleString()} G</b><small>하루에 5%씩 이자가 붙어요 (예금은 ${DEP_MAX.toLocaleString()}G까지)</small></div>
+ <div class="row" style="display:block"><b style="color:${B.loan?'#ff8a80':'#ccc'}">💳 대출 ${B.loan.toLocaleString()} G</b><small>하루에 6%씩 이자가 불어나요 · 빌릴 수 있는 한도 ${loanMax().toLocaleString()}G (레벨 × 5만)</small></div>
+ <div style="font-size:12px;color:#b7a6d9">⏰ 다음 이자까지 ${hh}시간 ${mm}분</div>
+ <div style="display:flex;gap:4px;align-items:center;margin:8px 0">금액 <input id="bkAmt" type="number" min="1" step="100" value="1000" style="width:120px;padding:6px"> G</div>
+ <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><button class="btn gold" data-bk="dep">💵 맡기기</button><button class="btn" data-bk="wd">💵 찾기</button><button class="btn red" data-bk="loan">💳 빌리기</button><button class="btn gold" data-bk="pay">💳 갚기</button>
+ <button class="btn" data-bk="depAll">지갑 전부 맡기기</button><button class="btn" data-bk="wdAll">예금 전부 찾기</button><button class="btn" data-bk="payAll" style="grid-column:span 2">대출 전부 갚기</button></div>`;}
+function bankBind(Bd){const i=$('bkAmt');if(i)i.onkeydown=e=>e.stopPropagation();
+ Bd.querySelectorAll('[data-bk]').forEach(b=>b.onclick=()=>{bankSettle();const B=P.bank,k=b.dataset.bk;let v=Math.floor(+($('bkAmt').value)||0);
+  if(k==='depAll')v=P.gold;if(k==='wdAll')v=B.dep;if(k==='payAll')v=Math.min(B.loan,P.gold);
+  if(v<=0){toast('금액을 적어 주세요');return;}
+  if(k==='dep'||k==='depAll'){v=Math.min(v,P.gold,DEP_MAX-B.dep);if(v<=0){toast(B.dep>=DEP_MAX?'예금은 '+DEP_MAX.toLocaleString()+'G까지예요':'골드가 없어요');return;}P.gold-=v;B.dep+=v;toast(`💵 ${v.toLocaleString()}G 맡겼어요`);}
+  else if(k==='wd'||k==='wdAll'){v=Math.min(v,B.dep);if(v<=0){toast('예금이 없어요');return;}B.dep-=v;P.gold+=v;toast(`💵 ${v.toLocaleString()}G 찾았어요`);}
+  else if(k==='loan'){v=Math.min(v,loanMax()-B.loan);if(v<=0){toast('대출 한도가 꽉 찼어요');return;}B.loan+=v;P.gold+=v;toast(`💳 ${v.toLocaleString()}G 빌렸어요 (하루 6% 이자)`);}
+  else{v=Math.min(v,B.loan,P.gold);if(v<=0){toast(B.loan?'골드가 없어요':'갚을 대출이 없어요');return;}B.loan-=v;P.gold-=v;toast(`💳 ${v.toLocaleString()}G 갚았어요`);}
+  sfx('coin');save(true);renderMenu();});}
 function makeCasino(){const w=16,h=11,t=grid(w,h,'H');rect(t,0,0,w,2,'G');rect(t,1,2,w-2,h-3,'o');
  return{name:'🎰 카지노',key:'casino',w,h,t,safe:1,casino:1,portals:[{x:8*TS,y:9.7*TS,to:'village',tx:12.5*TS,ty:34.3*TS,label:'나가기'}],
   npcs:[{x:3*TS,y:3.6*TS,name:'슬롯머신',type:'slot'},{x:5*TS,y:3.6*TS,name:'슬롯머신',type:'slot'},{x:7*TS,y:3.6*TS,name:'슬롯머신',type:'slot'},{x:11.5*TS,y:5.6*TS,name:'빙글판',type:'roul'},{x:13.6*TS,y:4.2*TS,name:'딜러 조커',type:'talk',color:'#212121',hat:'#b71c1c',hatType:'cap',lines:['어서 오세요, 손님! 원하는 만큼 걸어 보시죠.','빙글판은 검은색·흰색이면 2배, 숫자를 맞히면 36배 잭팟!']}],
@@ -846,6 +875,7 @@ function prerender(m){
  // 수호자의 동상 (3×3칸)
  if(m.volc){const R3=mulberry(77+m.w);for(let i=0;i<m.w*m.h/14;i++){const xx=R3()*c.width,yy=R3()*c.height,tx=Math.floor(xx/TS),ty=Math.floor(yy/TS);if(m.t[ty]&&m.t[ty][tx]==='.'){g.fillStyle=R3()<.5?'#ff6d0055':'#2a171755';g.fillRect(xx,yy,R3()<.3?4:2,2);}}}
  if(m.key==='volcano'){for(const tx of[22,27]){const X=tx*TS,Y=2*TS;P(X+6,Y+14,20,16,'#5d4a52');P(X+8,Y+10,16,6,'#77636b');}}
+ if(m.key==='bank'){P(2*TS,5*TS,10*TS,10,'#5d4037');P(2*TS,5*TS,10*TS,3,'#8d6e63');P(TS,2*TS,(m.w-2)*TS,6,'#ffd740');for(let i=0;i<4;i++)P(3*TS+i*2*TS,3*TS,18,14,'#fff59d');P(6*TS,7*TS,2*TS,2*TS,'#1b5e20');}
  if(m.key==='casino'){P(TS,2*TS,(m.w-2)*TS,(m.h-3)*TS,'#6a1b1b');P(TS+6,2*TS+6,(m.w-2)*TS-12,(m.h-3)*TS-12,'#8e2424');for(let i=0;i<m.w-2;i++)P(TS+i*TS+14,2*TS+4,4,4,'#ffd740');P(7*TS,8*TS,2*TS,2*TS,'#4a1010');}
  if(m.key==='grotto'){const X=7*TS,Y=4*TS;P(X-8,Y+18,48,14,'#4a5a78');P(X-4,Y+14,40,6,'#62749a');}
  if(m.key==='sea'){const X=16*TS,Y=10*TS,S=3;const B=(x,y,w,h,c)=>P(X+x*S,Y+y*S,w*S,h*S,c);
@@ -920,7 +950,7 @@ function sealRoom(){const[rx,ry,rw,rh]=map.bossRoom,m=map;m.seal=[];const put=(x
  m.sealed=true;toast('⛓ 모르간의 결계가 길을 막았다!');sfx('boom');shake=.3;}
 function unseal(m){if(!m||!m.sealed)return;m.seal.forEach(([x,y,c])=>m.t[y][x]=c);m.sealed=false;m.seal=[];}
 function inRoom(x,y,pad){const[rx,ry,rw,rh]=map.bossRoom;return x>(rx+pad)*TS&&x<(rx+rw-pad)*TS&&y>(ry+pad)*TS&&y<(ry+rh-pad)*TS;}
-function getMap(k){if(!MAPS[k]){MAPS[k]=k==='casino'?makeCasino():k==='plain'?makePlain():k==='police'?makePolice():k==='volcano'?makeVolcano():k==='lair'?makeLair():k==='grotto'?makeGrotto():k.startsWith('arena')?makeArena(k):k==='sea'?makeSea():k==='abyss'?makeAbyss():k==='house'?makeHouse():k==='village'?makeVillage():k==='field'?makeField():k==='ruins'?makeRuins():makeDungeon();if(!MAPS[k].inf)prerender(MAPS[k]);}return MAPS[k];}
+function getMap(k){if(!MAPS[k]){MAPS[k]=k==='bank'?makeBank():k==='casino'?makeCasino():k==='plain'?makePlain():k==='police'?makePolice():k==='volcano'?makeVolcano():k==='lair'?makeLair():k==='grotto'?makeGrotto():k.startsWith('arena')?makeArena(k):k==='sea'?makeSea():k==='abyss'?makeAbyss():k==='house'?makeHouse():k==='village'?makeVillage():k==='field'?makeField():k==='ruins'?makeRuins():makeDungeon();if(!MAPS[k].inf)prerender(MAPS[k]);}return MAPS[k];}
 function spawnBoss(){if(!map.boss)return;const isDragon=map.boss.type==='dragon';const mk=map.key,wait=10-(Date.now()-(map.bossDeadAt||0))/1000;
  const go=()=>{if(map&&map.key===mk&&isHost()&&!enemies.some(e=>e.b.boss)){const b=spawnEnemy(map.boss.type,map.boss.x,map.boss.y);if(isDragon){b.intro=4;b.face=1;dragonIntro();}}};
  if(wait>0){enemies=enemies.filter(e=>!e.b.boss||e.mirror);timers.push({t:wait,f:go});}else go();}
@@ -2031,6 +2061,7 @@ function interact(){
  if(paused||P.dead)return;if(P.rideOn){if(NET.sock)NET.sock.emit('ride:off');P.rideOn=null;toast('내렸어요');return;}const n=nearNpc();if(!n){const nd=nearDriver();if(nd&&NET.sock&&gameT-(P.rideAsk||0)>1){P.rideAsk=gameT;NET.sock.emit('ride',{to:nd});}return;}
  if(n.type==='sign'){signTalk(n);return;}
  if(n.type==='spiritnpc'){spiritTalk(n);return;}
+ if(n.type==='bank'){dialog(n.name,['어서 오세요, 도박 은행입니다!','돈을 맡기시면 하루에 5% 이자를 드리고, 빌리시면 하루에 6% 이자를 받습니다.'],[{t:'🏦 은행 업무',c:'gold',f:()=>openMenu('bank')},{t:'나가기'}]);return;}
  if(n.type==='slot'){openMenu('slot');return;}
  if(n.type==='roul'){openMenu('roul');return;}
  if(n.type==='cook'){dialog(n.name,['어서 와! 나는 요리사 쿡이야.','몬스터 재료를 가져오면 맛있는 음식이랑 물약을 만들어 주지. 비싼 재료일수록 효과도 끝내준다고!'],[{t:'🍳 요리하기',c:'gold',f:()=>openMenu('cook')},{t:'나가기'}]);return;}
@@ -2168,8 +2199,9 @@ function renderMenu(){
  if(menuTab==='sign')tabs.splice(0,9,['sign','📋 마을 표지판']);
  if(menuTab==='cook')tabs.splice(0,9,['cook','🍳 요리']);
  if(menuTab==='smith')tabs.splice(0,9,['smith','🔨 강화']);
+ if(menuTab==='bank')tabs.splice(0,9,['bank','🏦 은행']);
  if(menuTab==='slot'||menuTab==='roul')tabs.splice(0,9,['slot','🎰 슬롯머신'],['roul','🎡 빙글판']);
- $('mTitle').textContent={smith:'대장장이 볼프의 모루',slot:'🎰 카지노',roul:'🎰 카지노',cook:'요리사 쿡의 요리점',sign:'📋 '+(signKey==='sea'?'해저마을':'평화의 마을')+' 표지판',shop:'상점',sell:'상점',gamble:'도박장',book:'아르카의 마법 도서관',equip:'인벤토리',nick:'작명가 렌',title:'칭호',map:'지도',craft:'대장장이 볼프의 대장간',daily:'의뢰 게시판',fish:'낚시',trade:'거래',party:'파티'}[menuTab]||'메뉴';
+ $('mTitle').textContent={bank:'🏦 도박 은행',smith:'대장장이 볼프의 모루',slot:'🎰 카지노',roul:'🎰 카지노',cook:'요리사 쿡의 요리점',sign:'📋 '+(signKey==='sea'?'해저마을':'평화의 마을')+' 표지판',shop:'상점',sell:'상점',gamble:'도박장',book:'아르카의 마법 도서관',equip:'인벤토리',nick:'작명가 렌',title:'칭호',map:'지도',craft:'대장장이 볼프의 대장간',daily:'의뢰 게시판',fish:'낚시',trade:'거래',party:'파티'}[menuTab]||'메뉴';
  $('mTabs').innerHTML=tabs.map(t=>`<button class="${t[0]===menuTab?'on':''}" data-t="${t[0]}">${t[1]}</button>`).join('');
  $('mTabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{menuTab=b.dataset.t;renderMenu();});
  const B=$('mBody');calc();const s=P.st;let h='';
@@ -2196,6 +2228,7 @@ function renderMenu(){
   h+='<div style="color:#b7a6d9;font-size:11px;margin-top:10px">새 스킬은 레벨업(Lv4·7·9·11)과 마을의 마법 도서관에서 얻어요</div>';
  }else if(menuTab==='map'){
   h=`<div style="font-size:12px;margin-bottom:6px">📍 ${map.name} · <span style="color:#ffe066">● 나</span> · <span style="color:#ea80fc">● 파티원</span> · <span style="color:#7dff7d">● 다른 사람</span> · <span style="color:#4fc3f7">■ NPC</span> · <span style="color:#ff5252">■ 몬스터</span> · <span style="color:#c9b3ff">◆ 포탈</span> · 빨간 구역 = 나보다 강한 사냥터</div><canvas id="mapCv" style="position:static;width:100%;border:2px solid #4d3880;border-radius:8px;background:#0d0818;image-rendering:pixelated"></canvas><div id="mapList" style="font-size:12px;margin-top:8px;line-height:1.7"></div>${mapGuideHtml()}`;
+ }else if(menuTab==='bank'){h=bankHtml();
  }else if(menuTab==='smith'){h=smithHtml();
  }else if(menuTab==='slot'){h=slotHtml();
  }else if(menuTab==='roul'){h=roulHtml();
@@ -2279,7 +2312,7 @@ function renderMenu(){
  if(menuTab==='sign')signBind(B);
  if(menuTab==='cook')cookBind(B);
  if(menuTab==='smith'){B.querySelectorAll('[data-smith]').forEach(b=>b.onclick=()=>smithDo(b.dataset.smith));const cv=$('anvilCv');const e=P.eq.weapon||P.eq.armor;if(cv)drawAnvil(cv.getContext('2d'),{t:0,ham:-1.1,sp:[],it:e?ITEMS[e.id]:null});}
- if(menuTab==='slot')slotBind(B);if(menuTab==='roul')roulBind(B);
+ if(menuTab==='slot')slotBind(B);if(menuTab==='roul')roulBind(B);if(menuTab==='bank')bankBind(B);
  const ag=$('annGo');if(ag)ag.onclick=()=>{const v=($('annIn').value||'').trim();if(!v)return;if(NET.sock)NET.sock.emit('ann',v.slice(0,60));$('annIn').value='';toast('📢 공지를 보냈어요');};
  if(menuTab==='trade')tradeBind(B);
  if(menuTab==='party')partyBind(B);
@@ -2472,7 +2505,7 @@ function vcNet(k){k.on('vc',async d=>{if(!d||!d.from||d.from===NET.uid)return;co
    else if(d.t==='ice'&&d.c)await q.pc.addIceCandidate(d.c);}catch(e){}vcBtn();});}
 // ================= 지도 =================
 const mapName=k=>String(k).startsWith('arena')?'결투장':MAPN[k]||k;
-const MAPN={casino:'카지노',plain:'끝없는 평야',police:'파출소',volcano:'불타는 화산',lair:'화염 드래곤의 둥지',grotto:'비밀의 해저 동굴',sea:'해저마을',abyss:'레비아탄의 둥지',village:'평화의 마을',field:'바람의 들판',dungeon:'모르간의 던전',ruins:'저주받은 폐허',house:'수상한 집'};
+const MAPN={bank:'은행',casino:'카지노',plain:'끝없는 평야',police:'파출소',volcano:'불타는 화산',lair:'화염 드래곤의 둥지',grotto:'비밀의 해저 동굴',sea:'해저마을',abyss:'레비아탄의 둥지',village:'평화의 마을',field:'바람의 들판',dungeon:'모르간의 던전',ruins:'저주받은 폐허',house:'수상한 집'};
 let whoList=null,whoT=0;
 function mapGuideHtml(){const lines=[];for(const pt of map.portals){if(pt.need&&!P.flags[pt.need])continue;if(pt.door||!pt.to)continue;const m2=getMap(pt.to);const mobs=[...new Set(m2.spawns.map(z=>ENEMIES[z.type].name+' Lv'+ENEMIES[z.type].lv))];lines.push(`◆ <b>${pt.label||mapName(pt.to)}</b> → ${m2.name}${mobs.length?' · '+mobs.join(', '):''}${m2.boss?' · 👑 '+ENEMIES[m2.boss.type].name+' Lv'+ENEMIES[m2.boss.type].lv:''}`);}
  if(map.key==='field')lines.push('🌊 <b>호수</b> → 해저마을 (Lv24 이상) · 청새치 Lv28, 꽃게 Lv35, 레비아탄 Lv42');
@@ -2637,7 +2670,7 @@ function startGame(isNew){
  if(NET.token&&NET.grants&&NET.grants.length)applyGrants();
  enterMap('village',30*TS,25*TS); // 새로고침하면 항상 마을에서 시작
  if(P.dead||!(P.hp>0)){P.dead=false;calc();P.hp=P.st.hp;P.mp=P.st.mp;} // 죽은 채로 저장됐으면 마을에서 살려서 시작
- setTimeout(attendCheck,2500);
+ bankSettle();setTimeout(attendCheck,2500);
  if(inJail())enterMap('police',11.5*TS,4*TS);
  if(blocked(P.x,P.y,8)){P.x=map.start.x;P.y=map.start.y;}
  paused=false;NET.playing=true;netConnect();if(isNew)save(true);
