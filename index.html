@@ -707,17 +707,17 @@ function bankBind(Bd){const i=$('bkAmt');if(i)i.onkeydown=e=>e.stopPropagation()
 function makeMine(){const w=44,h=30,t=grid(w,h,'M');
  rect(t,2,4,40,22,'m');rect(t,19,0,6,4,'m');rect(t,19,26,6,4,'m');
  rect(t,2,15,15,2,'M');rect(t,27,15,15,2,'M');                       // 위·아래를 나누는 바위 턱
- for(let y=17;y<=24;y++){t[y][2]='O';t[y][41]='O';}                  // 제1·제2갱도 광맥
+ for(let y=17;y<=24;y++){t[y][2]='M';t[y][41]='M';}
  rect(t,0,18,3,2,'m');rect(t,41,18,3,2,'m');
- for(let x=3;x<=12;x++)t[25][x]='O';for(let x=31;x<=40;x++)t[25][x]='O';
- rect(t,6,20,2,2,'O');rect(t,12,22,2,1,'O');rect(t,33,23,2,1,'O');rect(t,38,20,1,2,'O');
+ for(let x=3;x<=12;x++)t[25][x]='M';for(let x=31;x<=40;x++)t[25][x]='M';
+ rect(t,6,20,2,2,'M');rect(t,12,22,2,1,'M');rect(t,33,23,2,1,'M');rect(t,38,20,1,2,'M');
  rect(t,2,4,7,4,'Z');rect(t,30,4,11,3,'Z');rect(t,40,8,2,6,'Z');       // 선반, 석탄 창고, 세로 간판 벽
  rect(t,31,7,3,2,'A');rect(t,35,7,3,2,'A');                          // 석탄 상자 (캘 수 있음)
  rect(t,8,22,3,1,'Z');rect(t,35,22,5,1,'Z');                          // 광차, 안내소 책상
  rect(t,13,25,6,1,'N');rect(t,25,25,6,1,'N');                        // 아래쪽 울타리
  for(let y=0;y<h;y++)if(t[y][21]==='m'){t[y][21]=t[y][22]='E';}
  const npcs=[
-  {x:13.5*TS,y:10.6*TS,name:'광부 관리인',type:'talk',color:'#263238',hat:'#fbc02d',hatType:'miner',lines:['어서 와, 여기는 아오지 탄광이다.','반짝이는 바위(광맥) 옆에서 공격 버튼을 누르면 1초에 한 번 캘 수 있어.','캔 광석은 바로 돈으로 바꿔 주지. 다만 빚 없는 일반인은 절반만 받는다!']},
+  {x:13.5*TS,y:10.6*TS,name:'광부 관리인',type:'talk',color:'#263238',hat:'#fbc02d',hatType:'miner',lines:['어서 와, 여기는 아오지 탄광이다.','왼쪽 「제 1갱도」로 들어가면 넓은 채광장이 있다.','바위 옆에서 곡괭이(공격 버튼)를 휘두르면 1초에 한 번, 바위 하나씩 캘 수 있어. 반짝이는 색을 보면 뭐가 들었는지 알 수 있지.','캔 광석은 바로 돈으로 바꿔 주지. 다만 빚 없는 일반인은 절반만 받는다!']},
   {x:31.5*TS,y:11.6*TS,name:'작업반장',type:'foreman',color:'#1a237e',hat:'#263238',hatType:'cap'},
   {x:37.5*TS,y:21.5*TS,name:'안내소',type:'talk',color:'#263238',hat:'#fbc02d',hatType:'miner',lines:['💎 다이아몬드 0.1% · 1,000,000G','🔷 사파이어 2% · 30,000G   🔴 루비 3% · 20,000G','🟡 금 5% · 10,000G   ⚪ 은 10% · 3,000G','⚫ 석탄 30% · 1,000G   🪨 돌 50% · 500G','빚 없는 일반인은 위 가격의 절반을 받아요.']},
   {x:22*TS,y:3.9*TS,type:'prop',w:150,h:34,bg:'#5d4030',edge:'#3e2a1e',lines:[['아오지 탄광',18,'#f5deb3']]},
@@ -725,22 +725,35 @@ function makeMine(){const w=44,h=30,t=grid(w,h,'M');
   {x:35.5*TS,y:4.6*TS,type:'prop',w:84,h:24,bg:'#5d4030',edge:'#3e2a1e',lines:[['석탄 창고',13,'#f5deb3']]},
   {x:40.9*TS,y:14.4*TS,type:'prop',w:40,h:178,bg:'#2b2118',edge:'#5d4030',lines:[['안',13,'#e8dcc0'],['전',13,'#e8dcc0'],['한',13,'#e8dcc0'],['작',13,'#e8dcc0'],['업',13,'#e8dcc0'],['',6,'#000'],['건',13,'#e8dcc0'],['강',13,'#e8dcc0'],['한',13,'#e8dcc0'],['내',13,'#e8dcc0'],['일',13,'#e8dcc0']]},
   {x:7.2*TS,y:17*TS,type:'prop',w:186,h:96,bg:'#3a2c22',edge:'#5d4030',nodice:1,al:'left',bar:['도박예방 상담전화',9,'1336'],lines:[['도박은',17,'#f3e9d2'],['하지 맙시다',17,'#f3e9d2']]},
-  {x:1.9*TS,y:18*TS,type:'prop',w:80,h:22,bg:'#5d4030',edge:'#3e2a1e',lines:[['↑ 제 1갱도 ↑',11,'#f5deb3']]},
+  {x:3.4*TS,y:17.9*TS,type:'prop',w:118,h:22,bg:'#5d4030',edge:'#3e2a1e',lines:[['← 제 1갱도 (채광장)',10,'#f5deb3']]},
   {x:31.5*TS,y:17*TS,type:'prop',w:70,h:96,bg:'#ece3cf',edge:'#5d4030',helmet:1,lines:[['무사고',13,'#3e2723'],['100일',13,'#3e2723']]},
-  {x:41.6*TS,y:18*TS,type:'prop',w:84,h:24,bg:'#5d4030',edge:'#3e2a1e',lines:[['제 2갱도 →',12,'#f5deb3']]}];
- return{name:'⛏ 아오지 탄광',key:'mine',w,h,t,safe:1,mine:1,portals:[{x:22*TS,y:29.5*TS,to:'village',tx:3*TS,ty:22*TS,label:'평화의 마을'}],
+  {x:40.6*TS,y:17.9*TS,type:'prop',w:110,h:24,bg:'#5d4030',edge:'#3e2a1e',lines:[['제 2갱도 (공사 중)',10,'#f5deb3']]}];
+ return{name:'⛏ 아오지 탄광',key:'mine',w,h,t,safe:1,mine:1,portals:[{x:22*TS,y:29.5*TS,to:'village',tx:3*TS,ty:22*TS,label:'평화의 마을'},{x:.7*TS,y:19*TS,to:'shaft1',tx:5*TS,ty:22*TS,door:1}],
   npcs,labels:[],spawns:[],start:{x:22*TS,y:26.6*TS}};}
+function makeShaft(){const w=64,h=44,t=grid(w,h,'M');const R=mulberry(1336);
+ for(let y=1;y<h-1;y++)for(let x=1;x<w-1;x++){const dx=(x-34)/29.5,dy=(y-22)/19.5,n=Math.sin(x*.7)*.07+Math.cos(y*.9)*.07+R()*.06;if(dx*dx+dy*dy<1-n)t[y][x]='m';}
+ rect(t,1,20,9,4,'m');
+ for(let i=0;i<16;i++){const cx=12+Math.floor(R()*46),cy=5+Math.floor(R()*33),sz=1+Math.floor(R()*2);rect(t,cx,cy,sz+1,sz,'M');}
+ const npcs=[];let tries=0;
+ while(npcs.length<48&&tries<4000){tries++;const tx=2+Math.floor(R()*60),ty=2+Math.floor(R()*40);if(tx<10)continue;let ok=true;for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++)if(!t[ty+dy]||t[ty+dy][tx+dx]!=='m')ok=false;if(!ok)continue;
+  const x=(tx+.5)*TS,y=(ty+.8)*TS;if(npcs.some(r=>Math.hypot(r.x-x,r.y-y)<72))continue;npcs.push({x,y,type:'rock',o:rollOre()[0]});}
+ npcs.push({x:6*TS,y:20*TS,type:'prop',w:118,h:24,bg:'#5d4030',edge:'#3e2a1e',lines:[['⛏ 제 1갱도 · 채광장',10,'#f5deb3']]});
+ return{name:'⛏ 제 1갱도',key:'shaft1',w,h,t,safe:1,mine:1,portals:[{x:1.2*TS,y:22*TS,to:'mine',tx:5*TS,ty:19*TS,door:1}],npcs,labels:[{x:3*TS,y:24.6*TS,t:'← 탄광 입구'}],spawns:[],start:{x:5*TS,y:22*TS}};}
 const ORES=[['diamond','다이아몬드','💎',.1,1000000,'#b9f6ff'],['sapphire','사파이어','🔷',2,30000,'#448aff'],['ruby','루비','🔴',3,20000,'#ff1744'],['gold','금','🟡',5,10000,'#ffd740'],['silver','은','⚪',10,3000,'#eceff1'],['coal','석탄','⚫',30,1000,'#212121'],['stone','돌','🪨',50,500,'#9e9e9e']];
-const ORE_T=new Set(['O','A']);
+const EARN=1;
 function nearOre(){const cx=P.x,cy=P.y-6;let best=null,bd=50;for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++){const tx=Math.floor(cx/TS)+dx,ty=Math.floor(cy/TS)+dy;if(!map.t[ty]||!ORE_T.has(map.t[ty][tx]))continue;const ox=(tx+.5)*TS,oy=(ty+.5)*TS,d=Math.hypot(ox-cx,oy-cy);if(d<bd){bd=d;best={x:ox,y:oy,c:map.t[ty][tx]};}}return best;}
 function rollOre(coal){let r=Math.random()*100.1;for(const o of ORES){if(r<o[3])return o;r-=o[3];}return ORES[ORES.length-1];}
-function mineSwing(){P.acd=1;const o=nearOre();if(!o){if(gameT-(P.mineMsg||0)>2){P.mineMsg=gameT;toast('⛏ 반짝이는 바위(광맥) 바로 옆에서 공격 버튼을 누르면 캘 수 있어요');}P.acd=.3;return;}
- P.fx=Math.sign(o.x-P.x)||P.fx;P.atkAnim=.25;sfx('hit');shake=.06;
- const ore=rollOre();const full=!!P.labor,got=Math.floor(ore[4]*(full?1:.5));P.mined=(P.mined||0)+1;P.mineEarn=(P.mineEarn||0)+got;
- for(let i=0;i<10;i++)parts.push({x:o.x+rnd(-8,8),y:o.y,vx:rnd(-90,90),vy:rnd(-140,-30),g:400,life:rnd(.3,.6),color:i%2?ore[5]:'#6d5a4a',s:3});
+function mineSwing(){P.atkAnim=.25;
+ if(map.key!=='shaft1'){P.acd=.4;if(gameT-(P.mineMsg||0)>2){P.mineMsg=gameT;toast('⛏ 왼쪽 「제 1갱도」로 들어가면 바위를 캘 수 있어요');}return;}
+ P.acd=1;let o=null,bd=50;for(const r of map.npcs)if(r.type==='rock'&&!(r.gone>gameT)){const d=Math.hypot(r.x-P.x,r.y-10-(P.y-6));if(d<bd){bd=d;o=r;}}
+ if(!o){P.acd=.3;if(gameT-(P.mineMsg||0)>2){P.mineMsg=gameT;toast('⛏ 바위 바로 옆에서 곡괭이를 휘둘러요');}return;}
+ P.fx=Math.sign(o.x-P.x)||P.fx;sfx('hit');shake=.08;
+ const ore=ORES.find(q=>q[0]===o.o)||ORES[ORES.length-1];o.gone=gameT+25;o.o=rollOre()[0];
+ const full=!!P.labor,got=Math.floor(ore[4]*(full?1:.5)*EARN);P.mined=(P.mined||0)+1;P.mineEarn=(P.mineEarn||0)+got;
+ for(let i=0;i<16;i++)parts.push({x:o.x+rnd(-12,12),y:o.y-12,vx:rnd(-110,110),vy:rnd(-170,-30),g:450,life:rnd(.3,.7),color:i%3?'#7d756f':ore[0]==='stone'?'#948b84':ore[5],s:i%4?3:4});
  let msg=`${ore[2]} ${ore[1]} +${got.toLocaleString()}G`;
  if(full&&P.bank&&P.bank.loan>0){const pay=Math.min(P.bank.loan,got);P.bank.loan-=pay;P.gold+=got-pay;msg=`${ore[2]} ${ore[1]} → 빚 -${pay.toLocaleString()}G`;}else P.gold+=got;
- addText(o.x,o.y-26,msg,ore[0]==='stone'?'#e0e0e0':ore[5],ore[4]>=20000?15:12);
+ addText(o.x,o.y-34,msg,ore[0]==='stone'?'#e0e0e0':ore[0]==='coal'?'#bdbdbd':ore[5],ore[4]>=20000?15:12);
  if(ore[0]==='diamond'){P.flags.diamond=1;flashA=.4;sfx('lvl');toast('💎💎 다이아몬드를 캤다!!! +'+got.toLocaleString()+'G');log('💎 다이아몬드를 캤어요! +'+got.toLocaleString()+'G');save(true);}
  else if(ore[4]>=20000){sfx('coin');log(`${ore[2]} ${ore[1]}을(를) 캤어요 +${got.toLocaleString()}G`);}
  if(P.mined%20===0)save(true);}
@@ -752,7 +765,7 @@ function laborSeize(){const B=P.bank;bankSettle();let L=B.loan;const d=Math.min(
 function laborTick(){if(!P||!map||!P.bank)return;const B=P.bank,box=$('laborBox');
  if(B.loan>0){if(!B.lt)B.lt=Date.now();if(!P.labor&&Date.now()-B.lt>=LOAN_DUE&&!P.dead)laborSeize();}else if(B.lt)delete B.lt;
  if(P.labor){if(B.loan<=0){P.labor=0;delete B.lt;box.classList.add('hidden');sfx('lvl');dialog('🔓 자유다!',['빚을 모두 갚았어요! 이제 광산을 나갈 수 있어요.','다음부터는 빚을 제때 갚읍시다…'],[{t:'확인'}]);save(true);return;}
-  if(!inJail()&&map.key!=='mine'&&!P.dead){enterMap('mine',22*TS,20*TS);P.portalLock=1;}
+  if(!inJail()&&!map.mine&&!P.dead){enterMap('mine',22*TS,20*TS);P.portalLock=1;}
   box.classList.remove('hidden');const t2='⛓ 강제 노동 중 · 남은 빚 '+B.loan.toLocaleString()+'G';if(box.textContent!==t2)box.textContent=t2;}
  else if(!box.classList.contains('hidden'))box.classList.add('hidden');}
 function foremanTalk(n){const B=P.bank||{loan:0};
@@ -968,6 +981,9 @@ function prerender(m){
  if(m.key==='volcano'){for(const tx of[22,27]){const X=tx*TS,Y=2*TS;P(X+6,Y+14,20,16,'#5d4a52');P(X+8,Y+10,16,6,'#77636b');}}
  if(m.key==='bank'){P(2*TS,5*TS,10*TS,10,'#5d4037');P(2*TS,5*TS,10*TS,3,'#8d6e63');P(TS,2*TS,(m.w-2)*TS,6,'#ffd740');for(let i=0;i<4;i++)P(3*TS+i*2*TS,3*TS,18,14,'#fff59d');P(6*TS,7*TS,2*TS,2*TS,'#1b5e20');}
  if(m.key==='mine')mineDeco(g,m);
+ if(m.key==='shaft1'){const gr=g.createLinearGradient(0,0,4*TS,0);gr.addColorStop(0,'#000');gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.fillRect(0,20*TS,4*TS,4*TS);g.fillStyle='#6d4c35';g.fillRect(4*TS,19.7*TS,8,4.6*TS);g.fillRect(0,19.7*TS,4*TS+8,8);
+  for(const[lx,ly]of[[8,19.6],[20,8],[34,5],[50,9],[58,20],[50,35],[34,39],[20,35],[26,22],[44,22]]){if(!m.t[Math.floor(ly)]||m.t[Math.floor(ly)][Math.floor(lx)]!=='m')continue;const X=lx*TS,Y=ly*TS;const gl=g.createRadialGradient(X,Y,2,X,Y,90);gl.addColorStop(0,'rgba(255,190,90,.4)');gl.addColorStop(1,'rgba(255,190,90,0)');g.fillStyle=gl;g.fillRect(X-90,Y-90,180,180);g.fillStyle='#4e342e';g.fillRect(X-2,Y-8,4,30);g.fillStyle='#ffcc66';g.fillRect(X-5,Y-16,10,10);}
+  g.fillStyle='rgba(15,8,4,.22)';g.fillRect(0,0,m.w*TS,m.h*TS);}
  if(m.key==='casino'){P(TS,2*TS,(m.w-2)*TS,(m.h-3)*TS,'#6a1b1b');P(TS+6,2*TS+6,(m.w-2)*TS-12,(m.h-3)*TS-12,'#8e2424');for(let i=0;i<m.w-2;i++)P(TS+i*TS+14,2*TS+4,4,4,'#ffd740');P(7*TS,8*TS,2*TS,2*TS,'#4a1010');}
  if(m.key==='grotto'){const X=7*TS,Y=4*TS;P(X-8,Y+18,48,14,'#4a5a78');P(X-4,Y+14,40,6,'#62749a');}
  if(m.key==='sea'){const X=16*TS,Y=10*TS,S=3;const B=(x,y,w,h,c)=>P(X+x*S,Y+y*S,w*S,h*S,c);
@@ -1042,7 +1058,7 @@ function sealRoom(){const[rx,ry,rw,rh]=map.bossRoom,m=map;m.seal=[];const put=(x
  m.sealed=true;toast('⛓ 모르간의 결계가 길을 막았다!');sfx('boom');shake=.3;}
 function unseal(m){if(!m||!m.sealed)return;m.seal.forEach(([x,y,c])=>m.t[y][x]=c);m.sealed=false;m.seal=[];}
 function inRoom(x,y,pad){const[rx,ry,rw,rh]=map.bossRoom;return x>(rx+pad)*TS&&x<(rx+rw-pad)*TS&&y>(ry+pad)*TS&&y<(ry+rh-pad)*TS;}
-function getMap(k){if(!MAPS[k]){MAPS[k]=k==='mine'?makeMine():k==='bank'?makeBank():k==='casino'?makeCasino():k==='plain'?makePlain():k==='police'?makePolice():k==='volcano'?makeVolcano():k==='lair'?makeLair():k==='grotto'?makeGrotto():k.startsWith('arena')?makeArena(k):k==='sea'?makeSea():k==='abyss'?makeAbyss():k==='house'?makeHouse():k==='village'?makeVillage():k==='field'?makeField():k==='ruins'?makeRuins():makeDungeon();if(!MAPS[k].inf)prerender(MAPS[k]);}return MAPS[k];}
+function getMap(k){if(!MAPS[k]){MAPS[k]=k==='shaft1'?makeShaft():k==='mine'?makeMine():k==='bank'?makeBank():k==='casino'?makeCasino():k==='plain'?makePlain():k==='police'?makePolice():k==='volcano'?makeVolcano():k==='lair'?makeLair():k==='grotto'?makeGrotto():k.startsWith('arena')?makeArena(k):k==='sea'?makeSea():k==='abyss'?makeAbyss():k==='house'?makeHouse():k==='village'?makeVillage():k==='field'?makeField():k==='ruins'?makeRuins():makeDungeon();if(!MAPS[k].inf)prerender(MAPS[k]);}return MAPS[k];}
 function spawnBoss(){if(!map.boss)return;const isDragon=map.boss.type==='dragon';const mk=map.key,wait=10-(Date.now()-(map.bossDeadAt||0))/1000;
  const go=()=>{if(map&&map.key===mk&&isHost()&&!enemies.some(e=>e.b.boss)){const b=spawnEnemy(map.boss.type,map.boss.x,map.boss.y);if(isDragon){b.intro=4;b.face=1;dragonIntro();}}};
  if(wait>0){enemies=enemies.filter(e=>!e.b.boss||e.mirror);timers.push({t:wait,f:go});}else go();}
@@ -1581,7 +1597,7 @@ function update(dt){
   if(map.sealed){const[rx,ry,rw,rh]=map.bossRoom;P.x=clamp(P.x,rx*TS+9,(rx+rw)*TS-9);P.y=clamp(P.y,ry*TS+9,(ry+rh)*TS-9);}}
  // 포탈
  P.portalLock-=dt;
- if(P.portalLock<=0)for(const pt of map.portals)if((!pt.need||P.flags[pt.need])&&(pt.door?Math.abs(pt.x-P.x)<28&&Math.abs(pt.y-P.y)<26:Math.hypot(pt.x-P.x,pt.y-P.y)<(pt.look==='stairs'||pt.look==='stairsUp'?26:22))){if(lairLocked()||evtLocked()||(P.labor&&map.key==='mine')){if(gameT-(P.lockMsg||0)>2){P.lockMsg=gameT;toast(P.labor&&map.key==='mine'?'⛓ 빚을 다 갚기 전에는 광산을 나갈 수 없어요!':evtLocked()?'🟢 거대 슬라임 이벤트 중에는 마을을 나갈 수 없어요!':'🔥 불의 결계가 출구를 막고 있다! 드래곤을 쓰러뜨려야 나갈 수 있어');}const k3=norm(P.x-pt.x,P.y-pt.y);P.x=pt.x+k3.x*26;P.y=pt.y+k3.y*26;break;}enterMap(pt.to,pt.tx,pt.ty);return;}
+ if(P.portalLock<=0)for(const pt of map.portals)if((!pt.need||P.flags[pt.need])&&(pt.door?Math.abs(pt.x-P.x)<28&&Math.abs(pt.y-P.y)<26:Math.hypot(pt.x-P.x,pt.y-P.y)<(pt.look==='stairs'||pt.look==='stairsUp'?26:22))){if(lairLocked()||evtLocked()||(P.labor&&map.mine&&!getMap(pt.to).mine)){if(gameT-(P.lockMsg||0)>2){P.lockMsg=gameT;toast(P.labor&&map.mine?'⛓ 빚을 다 갚기 전에는 광산을 나갈 수 없어요!':evtLocked()?'🟢 거대 슬라임 이벤트 중에는 마을을 나갈 수 없어요!':'🔥 불의 결계가 출구를 막고 있다! 드래곤을 쓰러뜨려야 나갈 수 있어');}const k3=norm(P.x-pt.x,P.y-pt.y);P.x=pt.x+k3.x*26;P.y=pt.y+k3.y*26;break;}enterMap(pt.to,pt.tx,pt.ty);return;}
  }
  // 투사체
  for(let i=projs.length-1;i>=0;i--){const p=projs[i];SKTAG=p.owner==='p'?p.sk||null:null;if(p.home){const t=nearest(p,260);if(t){const sp=Math.hypot(p.vx,p.vy),n=norm(t.x-p.x,t.y-6-p.y),c=norm(p.vx/sp+n.x*dt*9,p.vy/sp+n.y*dt*9);p.vx=c.x*sp;p.vy=c.y*sp;}}p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt;let dead=p.life<=0;
@@ -1810,7 +1826,7 @@ function grannyTick(dt){if(!map||map.key!=='village')return;const g=map.npcs.fin
  }else if(g.rT>nowS()){const k=Math.min(1,dt*14);g.x+=(g.rx-g.x)*k;g.y+=(g.ry-g.y)*k;g.moving=true;if(Math.random()<.5)parts.push({x:g.x+rnd(-6,6),y:g.y,vx:rnd(-30,30),vy:rnd(-30,0),life:.3,color:'#d9c49a',s:3});
  }else{const dx=g.hx-g.x,dy=g.hy-g.y,d=Math.hypot(dx,dy);if(d>2){const sp=110*dt;g.x+=dx/d*Math.min(sp,d);g.y+=dy/d*Math.min(sp,d);g.moving=true;}else{g.moving=false;if(g.chase&&g.chase<=gameT){g.chase=0;g.mad=0;}}}
  g.walk=(g.walk||0)+(g.moving?dt*(g.chase>gameT||g.rT>nowS()?22:9):0);}
-function nearNpc(){if(!map)return null;for(const n of map.npcs){if(n.type==='prop')continue;const dy=n.type==='fountain'?-20:0;if(Math.hypot(n.x-P.x,n.y+dy-P.y)<(n.type==='fountain'?60:46))return n;}return null;}
+function nearNpc(){if(!map)return null;for(const n of map.npcs){if(n.type==='prop'||n.type==='rock')continue;const dy=n.type==='fountain'?-20:0;if(Math.hypot(n.x-P.x,n.y+dy-P.y)<(n.type==='fountain'?60:46))return n;}return null;}
 
 // ================= 그리기 =================
 function draw(){
@@ -1939,6 +1955,7 @@ function drawHuman(x,y,o){
  else if(o.weapon==='baton'){const sw=o.atk?5:0,X=wx+fl*sw;px(X-1,wy-15,3,18,'#212121');px(X,wy-15,1,18,'#424242');px(X-1,wy,3,5,'#616161');px(X+fl*2-(fl<0?3:0),wy-1,4,2,'#424242');}
  else if(o.weapon==='dkwand'){const sw=o.atk?5:0,X=wx+fl*sw;px(X-1,wy-12,2,16,'#f8bbd0');px(X-5,wy-18,4,4,'#ff4081');px(X+1,wy-18,4,4,'#ff4081');px(X-5,wy-15,10,3,'#ff4081');px(X-3,wy-12,6,2,'#ff4081');px(X-1,wy-10,2,1,'#ff4081');px(X-4,wy-17,2,1,'#fff');}
  else if(o.weapon==='staff'){const oc=['#a98bff','#6fe3ff','#ffd75e'][wt-1],z=4+wt*2;px(wx-1,wy-14-wt,2,20+wt,wt>2?'#d4af37':'#7a4a24');px(wx-z/2,wy-14-wt-z+2,z,z,oc);px(wx-1,wy-14-wt-z+4,2,2,'#fff');if(wt>1){px(wx-z/2-2,wy-14-wt-z/2,2,2,oc);px(wx+z/2,wy-14-wt-z/2,2,2,oc);}}
+ else if(o.weapon==='pick'){ctx.save();ctx.translate(wx,wy+3);ctx.rotate(fl*(o.atk?1.4:-.3));px(-1,-17,3,19,'#8d5a2b');px(0,-17,1,19,'#a87040');px(-9,-20,18,4,'#9e9e9e');px(-9,-20,18,1,'#e0e0e0');px(-11,-18,3,3,'#757575');px(8,-18,3,3,'#757575');ctx.restore();}
  else if(o.weapon==='stick'){const sw=o.atk?5:0;px(wx-1+fl*sw,wy-12,3,15,'#8d5a2b');px(wx+fl*sw,wy-12,1,15,'#a87040');}
  else if(o.weapon==='cat'){const sw=o.atk?6:0,X=wx+fl*sw;px(X-1,wy-19,4,18,'#ffb3d9');px(X,wy-19,1,18,'#fff');px(X-4,wy-2,10,7,'#fff0f6');px(X-4,wy-5,3,3,'#fff0f6');px(X+3,wy-5,3,3,'#fff0f6');px(X-2,wy,2,2,'#222');px(X+2,wy,2,2,'#222');px(X,wy+3,2,1,'#ff7aa8');}
  else if(o.weapon==='sword'){const sw=o.atk?6:0,L=11+wt*3,bc=o.wcol||['#dfe6ee','#f4fbff','#ffe9a8'][wt-1];px(wx-1+fl*sw,wy-L,wt>2?4:3,L,bc);if(wt>1)px(wx+fl*sw,wy-L,1,L,'#fff');px(wx-3+fl*sw,wy,7,2,'#d4af37');px(wx+fl*sw,wy+2,2,4,'#6b4423');}
@@ -1950,7 +1967,7 @@ function drawChar(o){
  const r=RACES[o.race]||RACES.human,c=CLASSES[o.cls]||CLASSES.mage,J=JOBS[o.job];
  const ht={mage:'wiz',sword:'helm',archer:'hood',ranger:'cow',msword:'hood',novice:'cap',spirit:'hood'}[o.cls];
  const wp={mage:'staff',sword:'sword',archer:'bow',ranger:'gun',msword:'sword',novice:'stick',spirit:'staff'}[o.cls];
- drawHuman(o.x,o.y,{skin:r.skin,hair:r.hair,outfit:J?J.color:c.color,hat:J?J.hat:{mage:'#3a2a8a',sword:'#999',archer:'#1f5e3a',ranger:'#6b4423',msword:'#1d1440',novice:'#a1887f',spirit:'#1b5e20'}[o.cls],wcol:o.cls==='msword'?(['#b388ff','#d1b3ff','#ffd1ff'][((ITEMS[o.wp]||{}).tier||1)-1]||'#b388ff'):null,wt:['catsword','baton','dalkong'].includes(o.wp)?1:Math.min(5,(ITEMS[o.wp]||{}).tier||1),armor:ITEMS[o.ar]&&ITEMS[o.ar].slot==='armor'?o.ar:null,hatType:map&&map.mine?'miner':ht,left:o.fx<0,up:o.fy<-.7,walk:o.walk,ear:r.ear,beard:r.beard,horn:r.horn,wl:o.wl||0,weapon:o.wp==='catsword'?'cat':o.wp==='baton'?'baton':o.wp==='dalkong'?'dkwand':wp,atk:o.atk});
+ drawHuman(o.x,o.y,{skin:r.skin,hair:r.hair,outfit:J?J.color:c.color,hat:J?J.hat:{mage:'#3a2a8a',sword:'#999',archer:'#1f5e3a',ranger:'#6b4423',msword:'#1d1440',novice:'#a1887f',spirit:'#1b5e20'}[o.cls],wcol:o.cls==='msword'?(['#b388ff','#d1b3ff','#ffd1ff'][((ITEMS[o.wp]||{}).tier||1)-1]||'#b388ff'):null,wt:['catsword','baton','dalkong'].includes(o.wp)?1:Math.min(5,(ITEMS[o.wp]||{}).tier||1),armor:ITEMS[o.ar]&&ITEMS[o.ar].slot==='armor'?o.ar:null,hatType:map&&map.mine?'miner':ht,left:o.fx<0,up:o.fy<-.7,walk:o.walk,ear:r.ear,beard:r.beard,horn:r.horn,wl:map&&map.mine?0:o.wl||0,weapon:map&&map.mine?'pick':o.wp==='catsword'?'cat':o.wp==='baton'?'baton':o.wp==='dalkong'?'dkwand':wp,atk:o.atk});
 }
 function drawPlayer(){
  if(P.inv>0&&!(P.holy>0)&&(gameT*20|0)%2)return;
@@ -2007,7 +2024,16 @@ function drawProp(n){const x=n.x,y=n.y,W=n.w,H=n.h,st=n.stand||0,top=y-st-H;cons
  if(n.bar){px(x-W/2+8,top+H-34,W-16,28,'#d4a017');px(x-W/2+8,top+H-34,W-16,2,'#ffe082');ctx.textAlign='center';ctx.fillStyle='#3e2723';ctx.font=`bold ${n.bar[1]}px Galmuri11, sans-serif`;ctx.fillText(n.bar[0],x,top+H-23);ctx.font='bold 12px Galmuri11, sans-serif';ctx.fillText(n.bar[2],x,top+H-10);}
  if(n.helmet){drawHuman(x-6,top+H-4,{skin:'#f1c27d',hair:'#333',outfit:'#263238',hat:'#fbc02d',hatType:'miner',walk:0});px(x+12,top+H-28,14,14,'#43a047');px(x+18,top+H-26,2,10,'#fff');px(x+14,top+H-22,10,2,'#fff');}
  ctx.globalAlpha=1;}
+function drawRock(n){const x=n.x,y=n.y;ctx.fillStyle='rgba(0,0,0,.3)';ctx.beginPath();ctx.ellipse(x,y,17,5,0,0,7);ctx.fill();
+ if(n.gone>gameT){for(const[a,b,c]of[[-9,-4,'#5a524d'],[2,-3,'#6d6560'],[-3,-7,'#4a4440'],[7,-6,'#5a524d']])px(x+a,y+b,6,4,c);return;}
+ const O=ORES.find(q=>q[0]===n.o)||ORES[ORES.length-1];
+ px(x-15,y-20,30,20,'#6d6560');px(x-11,y-25,22,6,'#7d756f');px(x-15,y-4,30,4,'#4a4440');px(x-9,y-23,7,3,'#948b84');px(x+9,y-17,4,10,'#5a524d');
+ const sp=[[-9,-15],[3,-19],[7,-10],[-4,-8],[-1,-14]];
+ if(n.o==='coal'){for(const[a,b]of sp)px(x+a,y+b,5,4,'#151515');}
+ else if(n.o!=='stone'){for(const[a,b]of sp){px(x+a,y+b,4,4,O[5]);px(x+a,y+b,1,1,'#fff');}
+  if((n.o==='diamond'||n.o==='sapphire'||n.o==='ruby')&&((gameT*3+x)|0)%3===0){const[a,b]=sp[((gameT*2+y)|0)%5];px(x+a-2,y+b+1,8,2,'#fff');px(x+a+1,y+b-2,2,8,'#fff');}}}
 function drawNpc(n){
+ if(n.type==='rock'){drawRock(n);return;}
  if(n.type==='prop'){drawProp(n);return;}
  if(n.type==='sign'){drawSign(n);return;}
  if(n.type==='slot'){const x=n.x,y=n.y,bl=(gameT*4|0)%2;ctx.fillStyle='rgba(0,0,0,.3)';ctx.beginPath();ctx.ellipse(x,y,18,5,0,0,7);ctx.fill();px(x-16,y-52,32,52,'#b71c1c');px(x-16,y-52,32,4,'#ffd740');px(x-13,y-42,26,12,'#fff');for(let i=0;i<3;i++)px(x-11+i*8,y-40,6,8,['#e53935','#fdd835','#43a047'][(i+(gameT*6|0))%3]);px(x-13,y-26,26,4,'#7f0000');px(x+16,y-40,3,14,'#9e9e9e');px(x+15,y-44,5,5,'#ff1744');for(let i=0;i<4;i++)px(x-14+i*8,y-50,4,3,(i+bl)%2?'#ffeb3b':'#ff9800');label('🎰',x,y-58,'#ffe066');return;}
@@ -2613,7 +2639,7 @@ function vcNet(k){k.on('vc',async d=>{if(!d||!d.from||d.from===NET.uid)return;co
    else if(d.t==='ice'&&d.c)await q.pc.addIceCandidate(d.c);}catch(e){}vcBtn();});}
 // ================= 지도 =================
 const mapName=k=>String(k).startsWith('arena')?'결투장':MAPN[k]||k;
-const MAPN={mine:'아오지 탄광',bank:'은행',casino:'카지노',plain:'끝없는 평야',police:'파출소',volcano:'불타는 화산',lair:'화염 드래곤의 둥지',grotto:'비밀의 해저 동굴',sea:'해저마을',abyss:'레비아탄의 둥지',village:'평화의 마을',field:'바람의 들판',dungeon:'모르간의 던전',ruins:'저주받은 폐허',house:'수상한 집'};
+const MAPN={shaft1:'제 1갱도',mine:'아오지 탄광',bank:'은행',casino:'카지노',plain:'끝없는 평야',police:'파출소',volcano:'불타는 화산',lair:'화염 드래곤의 둥지',grotto:'비밀의 해저 동굴',sea:'해저마을',abyss:'레비아탄의 둥지',village:'평화의 마을',field:'바람의 들판',dungeon:'모르간의 던전',ruins:'저주받은 폐허',house:'수상한 집'};
 let whoList=null,whoT=0;
 function mapGuideHtml(){const lines=[];for(const pt of map.portals){if(pt.need&&!P.flags[pt.need])continue;if(pt.door||!pt.to)continue;const m2=getMap(pt.to);const mobs=[...new Set(m2.spawns.map(z=>ENEMIES[z.type].name+' Lv'+ENEMIES[z.type].lv))];lines.push(`◆ <b>${pt.label||mapName(pt.to)}</b> → ${m2.name}${mobs.length?' · '+mobs.join(', '):''}${m2.boss?' · 👑 '+ENEMIES[m2.boss.type].name+' Lv'+ENEMIES[m2.boss.type].lv:''}`);}
  if(map.key==='field')lines.push('🌊 <b>호수</b> → 해저마을 (Lv24 이상) · 청새치 Lv28, 꽃게 Lv35, 레비아탄 Lv42');
@@ -2629,7 +2655,7 @@ function drawMap(){const c=$('mapCv');if(!c||menuTab!=='map'||$('menu').classLis
  for(const e of enemies)if(!e.b.boss&&!e.pv){g.fillStyle='#ff5252';g.fillRect(e.x*sc-1.5*K,e.y*sc-1.5*K,3*K,3*K);}
  if(map.boss)txt('👑 '+ENEMIES[map.boss.type].name+' Lv'+ENEMIES[map.boss.type].lv,map.boss.x*sc,map.boss.y*sc+24*K,'#ea80fc',11);
  for(const L of map.labels||[])txt(L.t,L.x*sc,L.y*sc+4*K,'#fff59d',10);
- for(const n of map.npcs){if(n.invisible||n.type==='spiritnpc'||n.type==='prop')continue;g.fillStyle='#4fc3f7';g.fillRect(n.x*sc-2.5*K,n.y*sc-2.5*K,5*K,5*K);txt(n.name,n.x*sc,n.y*sc+11*K,'#b3e5fc',8);}
+ for(const n of map.npcs){if(n.invisible||n.type==='spiritnpc'||n.type==='prop'||n.type==='rock')continue;g.fillStyle='#4fc3f7';g.fillRect(n.x*sc-2.5*K,n.y*sc-2.5*K,5*K,5*K);txt(n.name,n.x*sc,n.y*sc+11*K,'#b3e5fc',8);}
  if(guideActive()&&GUIDE.goal){g.strokeStyle='#ffe066';g.lineWidth=2*K;g.beginPath();g.arc(GUIDE.goal.x*sc,GUIDE.goal.y*sc,(6+Math.sin(performance.now()/150)*2)*K,0,7);g.stroke();}
  for(const e of enemies)if(e.b.boss)dot(e.x,e.y,'#e040fb',9,'👑');
  for(const[uid,o]of NET.others)dot(o.x,o.y,inParty(uid)?'#ea80fc':'#7dff7d',8,(inParty(uid)?'👥':'')+o.name);
