@@ -2605,6 +2605,7 @@ function adminGift(){P.flags.admin=1;const up=Math.max(0,999-P.lv);P.lv=Math.max
  if(!(P.eq.weapon&&P.eq.weapon.id==='catsword')){if(P.eq.weapon)P.bag.push(P.eq.weapon);P.eq.weapon={id:'catsword',plus:0};}
  calc();P.hp=P.st.hp;P.mp=P.st.mp;autoLearn(true);setTimeout(()=>{toast('👑 관리자 보상 지급!');log('👑 Lv999 · 999,999G · 🐱 고양이 소드');save(true);},800);}
 // 운영자가 계정에 준 보상(레벨 등)을 한 번만 적용
+const GRANT_KEYS=['id','lv','title','keep','setLv','lvAdd','sp','ap','spDown','apDown','goldMul','goldAdd','item','setCls','recalc'];
 function applyGrants(){const list=NET.grants;NET.grants=[];for(const g of list){const lv=Math.round(+g.lv||0);
   if(g.title&&TITLES[g.title]){if(!P.gt.includes(g.title)){P.gt.push(g.title);P.title=g.title;if(!P.titles.includes(g.title))P.titles.push(g.title);setTimeout(()=>{toast('🏅 칭호 수여: '+TITLES[g.title][0]);log('🏅 운영자가 칭호 「'+TITLES[g.title][0]+'」를 내렸어요');sfx('win');},1500);}continue;}
   if(g.item&&ITEMS[g.item]&&!(P.eq.weapon&&P.eq.weapon.id===g.item)&&!P.bag.some(x=>x.id===g.item)){P.bag.push({id:g.item,plus:0});setTimeout(()=>{toast('🎁 운영자 지급: '+ITEMS[g.item].name+' (인벤토리에서 장착)');},2000);}
@@ -2622,7 +2623,7 @@ function applyGrants(){const list=NET.grants;NET.grants=[];for(const g of list){
    calc();P.hp=Math.min(P.hp,P.st.hp);P.mp=Math.min(P.mp,P.st.mp);
    setTimeout(()=>{toast('⚖ 운영자가 캐릭터를 조정했어요');log('⚖ 운영자 조정: Lv'+P.lv+' · 남은 스킬/능력치 포인트 '+P.sp+'/'+P.ap+' · '+P.gold.toLocaleString()+'G');},900);}
   if(lv>P.lv&&lv<=999){const up=lv-P.lv;P.lv=lv;P.exp=0;P.sp+=up;P.ap=(P.ap||0)+3*up;calc();P.hp=P.st.hp;P.mp=P.st.mp;autoLearn(true);setTimeout(()=>{toast('🎁 운영자 선물: Lv'+lv+'!');log('🎁 레벨 '+lv+' · 스킬 포인트 +'+up+' · 능력치 포인트 +'+3*up);},900);}
-  netApi('/api/rpg/grantdone',{id:g.id}).catch(()=>{});}
+  if(Object.keys(g).every(k=>g[k]==null||GRANT_KEYS.includes(k)))netApi('/api/rpg/grantdone',{id:g.id}).catch(()=>{});} // 모르는 지급은 '받음' 처리를 안 해서, 업데이트된 화면에서 다시 받는다
  setTimeout(()=>{save(true);netFlush();},1200);}
 function startGame(isNew){
  $('title').classList.add('hidden');$('hud').classList.remove('hidden');$('ctrl').classList.remove('hidden');
