@@ -241,7 +241,8 @@ function sfx(type){try{if(!AC)AC=new (window.AudioContext||window.webkitAudioCon
 const SERVER=/github\.io$/.test(location.hostname)?'https://random-football-cflg.onrender.com':''; // 계정·실시간 서버 (RANDOM FOOTBALL)
 const EVT={on:false,stage:0,rank:[],acc:0,spawned:-1,clearSent:-1,emptyT:0,last:[]};
 const evtLocked=()=>EVT.on&&!!map&&map.key==='village';
-const safeHere=()=>!!map&&!evtLocked()&&(map['safe']===1||(map.safeX!=null&&P.x<map.safeX*TS)); // 마을(또는 맵의 마을 구역) 안인지
+const admDragon=()=>!!map&&map.key!=='lair'&&enemies.some(e=>e.type==='dragon'&&!e.dead&&e.hp>0);
+const safeHere=()=>!!map&&!evtLocked()&&!admDragon()&&(map['safe']===1||(map.safeX!=null&&P.x<map.safeX*TS)); // 마을(또는 맵의 마을 구역) 안인지
 const isHost=()=>!NET.live||NET.host;
 const VQ=[]; // 다른 사람에게 보낼 내 스킬 연출 (0.1초마다 묶어서 전송)
 function vis(o){if(NET.live&&NET.others.size&&VQ.length<60)VQ.push(o);}
@@ -746,26 +747,31 @@ function makeShaft(){const w=64,h=44,t=grid(w,h,'M');const R=mulberry(1336);
  rect(t,1,20,9,4,'m');
  for(let i=0;i<16;i++){const cx=12+Math.floor(R()*46),cy=5+Math.floor(R()*33),sz=1+Math.floor(R()*2);rect(t,cx,cy,sz+1,sz,'M');}
  const npcs=[];const fl=(x,y)=>{const tx=Math.floor(x/TS),ty=Math.floor(y/TS);return t[ty]&&t[ty][tx]==='m';};
- for(let y=1.6*TS;y<h*TS;y+=34)for(let x=(Math.round(y/34)%2?11:11.6)*TS;x<w*TS;x+=40){const X=x+(R()-.5)*12,Y=y+(R()-.5)*8;if(!fl(X,Y)||!fl(X-14,Y-12)||!fl(X+14,Y-12)||!fl(X,Y+4))continue;npcs.push({x:X,y:Y,type:'rock',o:rollOre()[0]});}
+ for(let y=1.6*TS;y<h*TS;y+=34)for(let x=(Math.round(y/34)%2?11:11.6)*TS;x<w*TS;x+=40){const X=x+(R()-.5)*12,Y=y+(R()-.5)*8;if(!fl(X,Y)||!fl(X-14,Y-12)||!fl(X+14,Y-12)||!fl(X,Y+4))continue;npcs.push({x:X,y:Y,type:'rock',ri:npcs.length,gone:0});}
  npcs.push({x:6*TS,y:20*TS,type:'prop',w:118,h:24,bg:'#5d4030',edge:'#3e2a1e',lines:[['⛏ 제 1갱도 · 채광장',10,'#f5deb3']]});
  return{name:'⛏ 제 1갱도',key:'shaft1',w,h,t,safe:1,mine:1,portals:[{x:1.2*TS,y:22*TS,to:'mine',tx:5*TS,ty:19*TS,door:1}],npcs,labels:[{x:3*TS,y:24.6*TS,t:'← 탄광 입구'}],spawns:[],start:{x:5*TS,y:22*TS}};}
 const ORES=[['diamond','다이아몬드','💎',.1,1000000,'#b9f6ff'],['sapphire','사파이어','🔷',2,30000,'#448aff'],['ruby','루비','🔴',3,20000,'#ff1744'],['gold','금','🟡',5,10000,'#ffd740'],['silver','은','⚪',10,3000,'#eceff1'],['coal','석탄','⚫',30,1000,'#212121'],['stone','돌','🪨',50,500,'#9e9e9e']];
 function nearOre(){const cx=P.x,cy=P.y-6;let best=null,bd=50;for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++){const tx=Math.floor(cx/TS)+dx,ty=Math.floor(cy/TS)+dy;if(!map.t[ty]||!ORE_T.has(map.t[ty][tx]))continue;const ox=(tx+.5)*TS,oy=(ty+.5)*TS,d=Math.hypot(ox-cx,oy-cy);if(d<bd){bd=d;best={x:ox,y:oy,c:map.t[ty][tx]};}}return best;}
 function rollOre(coal){let r=Math.random()*100.1;for(const o of ORES){if(r<o[3])return o;r-=o[3];}return ORES[ORES.length-1];}
+// 탄광 바위는 같은 갱도 사람들과 실시간으로 함께 쓴다 (서버가 속의 광석을 정하고, 누가 깨면 모두에게 깨진 걸로 보인다)
+function rockBreakFx(o,col){for(let i=0;i<16;i++)parts.push({x:o.x+rnd(-12,12),y:o.y-12,vx:rnd(-110,110),vy:rnd(-170,-30),g:450,life:rnd(.3,.7),color:i%3?'#7d756f':col||'#948b84',s:i%4?3:4});}
 function mineSwing(){P.atkAnim=.25;
  if(map.key!=='shaft1'){P.acd=.4;if(gameT-(P.mineMsg||0)>2){P.mineMsg=gameT;toast('⛏ 왼쪽 「제 1갱도」로 들어가면 바위를 캘 수 있어요');}return;}
- P.acd=1;let o=null,bd=50;for(const r of map.npcs)if(r.type==='rock'&&!(r.gone>gameT)){const d=Math.hypot(r.x-P.x,r.y-10-(P.y-6));if(d<bd){bd=d;o=r;}}
+ P.acd=1;const now=Date.now();let o=null,bd=50;for(const r of map.npcs)if(r.type==='rock'&&!(r.gone>now)){const d=Math.hypot(r.x-P.x,r.y-10-(P.y-6));if(d<bd){bd=d;o=r;}}
  if(!o){P.acd=.3;if(gameT-(P.mineMsg||0)>2){P.mineMsg=gameT;toast('⛏ 바위 바로 옆에서 곡괭이를 휘둘러요');}return;}
  P.fx=Math.sign(o.x-P.x)||P.fx;sfx('hit');shake=.08;
- const ore=ORES.find(q=>q[0]===o.o)||ORES[ORES.length-1];o.gone=gameT+30;o.o=rollOre()[0];
+ if(NET.live&&NET.sock&&NET.sock.connected){o.gone=now+30000;rockBreakFx(o);NET.sock.emit('rock:hit',{i:o.ri});return;}
+ o.gone=now+30000;mineGive(o,rollOre()[0]);}
+function mineGive(o,oid){const ore=ORES.find(q=>q[0]===oid)||ORES[ORES.length-1];
  const full=!!P.labor,got=Math.floor(ore[4]*MINE_K*(full?1:MINE_ORD));P.mined=(P.mined||0)+1;P.mineEarn=(P.mineEarn||0)+got;
- for(let i=0;i<16;i++)parts.push({x:o.x+rnd(-12,12),y:o.y-12,vx:rnd(-110,110),vy:rnd(-170,-30),g:450,life:rnd(.3,.7),color:i%3?'#7d756f':ore[0]==='stone'?'#948b84':ore[5],s:i%4?3:4});
+ rockBreakFx(o,ore[0]==='stone'?'#948b84':ore[5]);
  let msg=`${ore[2]} ${ore[1]} +${got.toLocaleString()}G`;
  if(full&&P.bank&&P.bank.loan>0){const pay=Math.min(P.bank.loan,got);P.bank.loan-=pay;P.gold+=got-pay;msg=`${ore[2]} ${ore[1]} → 빚 -${pay.toLocaleString()}G`;}else P.gold+=got;
  addText(o.x,o.y-34,msg,ore[0]==='stone'?'#e0e0e0':ore[0]==='coal'?'#bdbdbd':ore[5],ore[4]>=20000?15:12);
  if(ore[0]==='diamond'){P.flags.diamond=1;flashA=.4;sfx('lvl');toast('💎💎 다이아몬드를 캤다!!! +'+got.toLocaleString()+'G');log('💎 다이아몬드를 캤어요! +'+got.toLocaleString()+'G');save(true);}
  else if(ore[4]>=20000){sfx('coin');log(`${ore[2]} ${ore[1]}을(를) 캤어요 +${got.toLocaleString()}G`);}
  if(P.mined%20===0)save(true);}
+const rockAt=i=>map&&map.key==='shaft1'?map.npcs.find(r=>r.type==='rock'&&r.ri===i):null;
 function mineWipe(){if(!P||P.flags.mineWipe1)return;P.flags.mineWipe1=1;let v=Math.max(0,Math.floor(P.mineEarn||0));P.mineEarn=0;if(v<=0)return;const tot=v;
  const g=Math.min(P.gold,v);P.gold-=g;v-=g;let d=0;if(P.bank&&v>0){d=Math.min(P.bank.dep,v);P.bank.dep-=d;v-=d;}save(true);
  setTimeout(()=>dialog('⛏ 탄광 수입 회수',[`탄광 가격이 바뀌어서 지금까지 탄광에서 번 돈 ${tot.toLocaleString()}G를 회수했어요.`,`지갑에서 ${g.toLocaleString()}G${d?`, 은행 예금에서 ${d.toLocaleString()}G`:''}를 가져갔어요.`]),1200);}
@@ -1080,7 +1086,7 @@ function spawnBoss(){if(!map.boss)return;const isDragon=map.boss.type==='dragon'
  if(wait>0){enemies=enemies.filter(e=>!e.b.boss||e.mirror);timers.push({t:wait,f:go});}else go();}
 function dragonIntro(){CUT.t=CUT.max=4.6;CUT.name='Lv80 화염 드래곤';CUT.sub='불타는 화산의 지배자';shake=1.2;setTimeout(playRoar,900);setTimeout(()=>{flashA=.35;},2800);}
 function enterMap(k,x,y){
- const fromKey=map?map.key:'';
+ const fromKey=map?map.key:'';if(k==='shaft1'&&NET.sock)setTimeout(()=>{if(NET.sock&&map&&map.key==='shaft1')NET.sock.emit('rock:sync');},700);
  if(TR.id){if(NET.sock)NET.sock.emit('tr:cancel',{id:TR.id});tradeReset();}
  if(VC.on){for(const u of [...VC.peers.keys()])vcDrop(u);setTimeout(()=>{if(VC.on&&NET.sock)NET.sock.emit('vc',{t:'hi'});vcBtn();},700);}
  if(map&&map.pvp&&!P.pvOver&&k!==map.key){P.pvl=(P.pvl||0)+1;netEv({k:'pvend'});toast('🏳 항복했어요');}
@@ -1232,15 +1238,18 @@ function rewardKill(i){
  const b=ENEMIES[i.t];if(!b)return;
  for(let k=0;k<14;k++)parts.push({x:i.x,y:i.y,vx:rnd(-110,110),vy:rnd(-150,30),g:300,life:rnd(.3,.6),color:i.t==='slime'?'#5fd35f':'#ddd',s:3});
  fx.push({k:'ring',x:i.x,y:i.y,r:26,life:.25,max:.25,color:'#ffffff'});
- if(b.boss){unseal(map);$('boss').classList.add('hidden');map.bossDeadAt=Date.now();}
+ if(b.boss&&!i.ok){unseal(map);$('boss').classList.add('hidden');map.bossDeadAt=Date.now();}
  if(b.evt){if(isHost())EVT.last.push({x:i.x,y:i.y});return;}
  if(P.dead||(!b.boss&&Math.hypot(i.x-P.x,i.y-P.y)>800))return;
+ if(b.boss&&!i.ok){bdSend(true);const id=i.id,mk=map.key;setTimeout(()=>{if(!map||map.key!==mk||!P)return;const tot=BD.id===id?[...BD.m.values()].reduce((a,c)=>a+c,0):0,mine=BD.id===id?BD.m.get(bdMe())||0:0;const sh=tot>0?mine/tot:0;bdReset(null);
+  if(sh<.05){log(`👑 보스 기여도 ${Math.round(sh*1000)/10}% — 5%가 안 돼서 보상을 못 받았어요`);toast(`👑 기여도 ${Math.round(sh*1000)/10}% · 5% 미만이라 보상 없음`);return;}
+  rewardKill(Object.assign({},i,{ok:1,sh}));},1300);return;}
  P.kills++;P.kc[i.t]=(P.kc[i.t]||0)+1;if(P.job==='dark')P.hp=Math.min(P.st.hp,P.hp+P.st.hp*.04);
  const rm=lvMul(b.lv||1);
  const nn=b.split?Math.max(1,i.n||1):1;if(nn>1)log(`🐉 ${nn}명이 함께 잡아 경험치를 ${nn}등분했어요`);
  gainExp(Math.max(1,Math.round(b.exp*rm/nn)));
  let g=earnG(ri(b.gold[0],b.gold[1])*(1+P.st.gold/100)*rm);
- if(b.boss)bossGold(i,g);
+ if(b.boss&&i.sh!=null){const g2=Math.round(g*i.sh);if(g2>0){const coins=Math.min(8,Math.ceil(g2/8));for(let k=0;k<coins;k++)pickups.push({k:'gold',v:Math.ceil(g2/coins),x:i.x+rnd(-14,14),y:i.y+rnd(-10,10),t:0});}log(`👑 보스 기여도 ${Math.round(i.sh*100)}% → 골드 ${g2.toLocaleString()}G (전체 ${g.toLocaleString()}G 중)`);toast(`👑 기여도 ${Math.round(i.sh*100)}% · 골드 ${g2.toLocaleString()}G`);}
  else if(g>0){const coins=Math.min(6,Math.ceil(g/8));for(let k=0;k<coins;k++)pickups.push({k:'gold',v:Math.ceil(g/coins),x:i.x+rnd(-10,10),y:i.y+rnd(-10,10),t:0});}
  if(Math.random()<.1/3)pickups.push({k:Math.random()<.6?'potHp':'potMp',x:i.x,y:i.y,t:0});
  for(const d of DROPS[i.t]||[]){if(Math.random()>=d[3])continue;const n=ri(d[1],d[2]);pickups.push({k:CONS[d[0]]?'cons':'mat',id:d[0],n,x:i.x+rnd(-18,18),y:i.y+rnd(-6,18),t:0});}
@@ -1680,7 +1689,7 @@ function update(dt){
 function isWater(x,y){const tx=Math.floor(x/TS),ty=Math.floor(y/TS);return !!map.t&&!!map.t[ty]&&map.t[ty][tx]==='~';}
 // 몬스터가 노릴 사람: 나와 같은 맵의 다른 플레이어 중 가장 가까운 사람
 function pickTarget(e){let best=null,bd=1e9;const sx=map.safeX!=null?map.safeX*TS:-1;if(!P.dead&&!safeHere()&&!paused){bd=Math.hypot(P.x-e.x,P.y-e.y);best={x:P.x,y:P.y,me:true,d:bd};}
- if(NET.live&&map['safe']!==1)for(const[uid,o]of NET.others){if(o.x<sx)continue;const d=Math.hypot(o.x-e.x,o.y-e.y);if(d<bd){bd=d;best={x:o.x,y:o.y,me:false,uid,d};}}return best;}
+ if(NET.live&&(map['safe']!==1||admDragon()))for(const[uid,o]of NET.others){if(o.x<sx)continue;const d=Math.hypot(o.x-e.x,o.y-e.y);if(d<bd){bd=d;best={x:o.x,y:o.y,me:false,uid,d};}}return best;}
 function hitTarget(T,atk){if(T.me)hurtPlayer(atk);else netEv({k:'dmg',to:T.uid,a:Math.round(atk)});}
 // 결투장: 상대 플레이어를 몬스터처럼 맞힐 수 있게 그림자 대상을 만든다
 const PVB={name:'상대',lv:1,r:12,exp:0,gold:[0,0],aggro:0};
@@ -2059,7 +2068,7 @@ function drawProp(n){const x=n.x,y=n.y,W=n.w,H=n.h,st=n.stand||0,top=y-st-H;cons
  if(n.helmet){drawHuman(x-6,top+H-4,{skin:'#f1c27d',hair:'#333',outfit:'#263238',hat:'#fbc02d',hatType:'miner',walk:0});px(x+12,top+H-28,14,14,'#43a047');px(x+18,top+H-26,2,10,'#fff');px(x+14,top+H-22,10,2,'#fff');}
  ctx.globalAlpha=1;}
 function drawRock(n){const x=n.x,y=n.y;ctx.fillStyle='rgba(0,0,0,.3)';ctx.beginPath();ctx.ellipse(x,y,17,5,0,0,7);ctx.fill();
- if(n.gone>gameT){for(const[a,b,c]of[[-9,-4,'#5a524d'],[2,-3,'#6d6560'],[-3,-7,'#4a4440'],[7,-6,'#5a524d']])px(x+a,y+b,6,4,c);return;}
+ if(n.gone>Date.now()){for(const[a,b,c]of[[-9,-4,'#5a524d'],[2,-3,'#6d6560'],[-3,-7,'#4a4440'],[7,-6,'#5a524d']])px(x+a,y+b,6,4,c);return;}
  const k=((x*7+y*13)|0)%3;px(x-16,y-20,32,20,['#6d6560','#675f5a','#726a64'][k]);px(x-12,y-25,24,6,'#7d756f');px(x-16,y-4,32,4,'#4a4440');px(x-10,y-23,7,3,'#948b84');px(x+9,y-17,4,10,'#5a524d');px(x-6,y-12,5,2,'#5a524d');}
 function drawNpc(n){
  if(n.type==='rock'){drawRock(n);return;}
@@ -2583,6 +2592,10 @@ function partyNet(k){
  k.on('admin:spawn',d=>{if(!d||d.t!=='dragon'||!map||d.m!==map.key)return;const x=+d.x||P.x,y=+d.y||P.y;const b=spawnEnemy('dragon',blocked(x,y,30)?P.x:x,blocked(x,y,30)?P.y-80:y);b.intro=4;b.face=1;b.aggroed=true;dragonIntro();});
  k.on('evt',evtMsg);k.on('evt:rank',d=>{if(!d)return;if(Array.isArray(d.list))EVT.rank=d.list.slice(0,40);if(EVT.on&&+d.stage>EVT.stage)evtMsg({on:1,stage:d.stage});});k.on('evt:reward',evtReward);
  k.on('dkleft',n=>{const was=NET.dkLeft;NET.dkLeft=Math.max(0,Math.min(10,+n||0));if(was!=null&&NET.dkLeft<was)toast(`🐶 달콩빔 명중! 오늘 남은 횟수 ${NET.dkLeft}/10`);});
+ k.on('rocks',l=>{const m=getMap('shaft1');if(!Array.isArray(l))return;const now=Date.now();for(const r of m.npcs)if(r.type==='rock')r.gone=0;for(const[i,ms]of l){const r=m.npcs.find(q=>q.type==='rock'&&q.ri===+i);if(r)r.gone=now+Math.max(0,+ms||0);}});
+ k.on('rock',d=>{if(!d)return;const m=getMap('shaft1');const r=m.npcs.find(q=>q.type==='rock'&&q.ri===+d.i);if(!r)return;const was=r.gone>Date.now();r.gone=Date.now()+Math.max(0,+d.ms||0);if(!was&&map&&map.key==='shaft1')rockBreakFx(r);});
+ k.on('rock:ok',d=>{if(!d||!P)return;const r=rockAt(+d.i);if(!r)return;r.gone=Date.now()+Math.max(0,+d.ms||30000);mineGive(r,String(d.o));});
+ k.on('rock:no',d=>{if(!d||!P)return;const r=rockAt(+d.i);if(!r)return;r.gone=Date.now()+Math.max(0,+d.ms||0);if(+d.ms>0&&gameT-(P.mineMsg||0)>1.5){P.mineMsg=gameT;toast('⛏ 다른 사람이 먼저 캤어요!');}});
  k.on('ride:ok',d=>{if(!d||!P)return;P.rideOn={uid:String(d.to),seat:Math.max(0,Math.min(1,+d.seat||0))};const o=NET.others.get(P.rideOn.uid);toast(`🛵 ${o?o.name:''} 님 뒤에 탔어요! (내리기 버튼/E로 내리기)`);sfx('lvl');});
  k.on('ride:off',d=>{if(!P||!P.rideOn)return;P.rideOn=null;toast('🛵 '+((d&&d.why)||'내렸어요'));});
  k.on('ride:map',d=>{if(!d||!P||!P.rideOn||typeof d.m!=='string')return;try{enterMap(d.m,+d.x||0,+d.y||0);P.portalLock=1;}catch(e){}});
