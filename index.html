@@ -1481,12 +1481,16 @@ function skidSfx(vol){try{if(!AC)AC=new (window.AudioContext||window.webkitAudio
 function skidMark(x,y,a){SKIDS.push({m:map.key,x,y,a,t:Date.now()});if(SKIDS.length>1500)SKIDS.splice(0,SKIDS.length-1500);}
 // 누르고 있는 동안만 스키딩, 손을 떼면 바로 다시 달린다
 function startSkid(){if(P.skid)return;if(!P.moving){toast('🚲 달리는 중에 누르고 있으면 스키딩해요');return;}
- P.skid=1;P.skidT=0;P.skidV=P.st.spd*(P.haste>0?1.4:1)*vehMul();skidSndOn();netEv({k:'skd',on:1,a:Math.round((P.hd||0)*100)/100});}
-function stopSkid(){if(!P||!P.skid)return;P.skid=0;P.lastSk=null;P.lean=0;skidSndOff();netEv({k:'skd',on:0});}
-function skidTick(dt){P.skidT+=dt;const k=Math.max(0,1-P.skidT/1.2),v=P.skidV*60*dt*k,a=P.hd!=null?P.hd:(P.fx<0?Math.PI:0);
- if(v>0){const ox=P.x,oy=P.y;moveEnt(P,Math.cos(a)*v,Math.sin(a)*v);if(Math.hypot(P.x-ox,P.y-oy)<.2*v)P.skidT=Math.max(P.skidT,1.2);} // 벽에 막히면 멈춤
- skidSndSet(k);P.moving=0;P.lean=-.3*k;P.fx=Math.cos(a);P.fy=Math.sin(a);
- if(k>0){const rx=P.x-Math.cos(a)*11,ry=P.y-1-Math.sin(a)*5;const L2=P.lastSk;if(!L2||Math.hypot(rx-L2.x,ry-L2.y)>3){skidMark(rx,ry,a);P.lastSk={x:rx,y:ry};}
+ P.skid=1;P.skidT=0;P.spun=0;P.skA=P.hd!=null?P.hd:(P.fx<0?Math.PI:0);P.skidV=P.st.spd*(P.haste>0?1.4:1)*vehMul();skidSndOn();netEv({k:'skd',on:1,a:Math.round((P.hd||0)*100)/100});}
+function stopSkid(){if(!P||!P.skid)return;if(P.skA!=null)P.hd=P.skA;P.skid=0;P.lastSk=null;P.lean=0;skidSndOff();netEv({k:'skd',on:0});}
+// 살짝 누르면 살짝 미끄러지고 속도는 거의 그대로, 꾹 누르면 미끄러지면서 한 바퀴 빙글 돈다
+const SKID_STOP=3.5,SPIN_AT=.45,SPIN_T=1.1;
+function skidTick(dt){P.skidT+=dt;const k=Math.max(0,1-P.skidT/SKID_STOP),v=P.skidV*60*dt*k,a=P.skA!=null?P.skA:(P.fx<0?Math.PI:0);
+ if(v>0){const ox=P.x,oy=P.y;moveEnt(P,Math.cos(a)*v,Math.sin(a)*v);if(Math.hypot(P.x-ox,P.y-oy)<.2*v)P.skidT=Math.max(P.skidT,SKID_STOP);} // 벽에 막히면 멈춤
+ const sp=clamp((P.skidT-SPIN_AT)/SPIN_T,0,1);{const h=a+(sp>0&&sp<1?(1-Math.pow(1-sp,2))*Math.PI*2:0);P.hd=((h+Math.PI)%(Math.PI*2)+Math.PI*2)%(Math.PI*2)-Math.PI;}
+ if(sp>0&&sp<1&&!P.spun){P.spun=1;}if(sp>=1&&P.spun===1){P.spun=2;addText(P.x,P.y-56,'360°!','#ffe066',13);}
+ skidSndSet(k);P.moving=0;P.lean=-.3*k;P.fx=Math.cos(P.hd);P.fy=Math.sin(P.hd);
+ if(k>0){const rx=P.x-Math.cos(P.hd)*11,ry=P.y-1-Math.sin(P.hd)*5;const L2=P.lastSk;if(!L2||Math.hypot(rx-L2.x,ry-L2.y)>3){skidMark(rx,ry,P.hd);P.lastSk={x:rx,y:ry};}
   if(Math.random()<.6*k)parts.push({x:rx,y:ry-2,vx:rnd(-30,30)-Math.cos(a)*40,vy:rnd(-40,-10),life:rnd(.3,.6),color:Math.random()<.5?'#cfcfcf':'#9e9e9e',s:3});}}
 function drawSkids(){if(!SKIDS.length)return;const now=Date.now(),vw=W/SC,vh=H/SC;while(SKIDS.length&&now-SKIDS[0].t>25000)SKIDS.shift();
  for(const q of SKIDS){if(q.m!==map.key||q.x<cam.x-20||q.x>cam.x+vw+20||q.y<cam.y-20||q.y>cam.y+vh+20)continue;ctx.globalAlpha=.75*(1-(now-q.t)/25000);ctx.save();ctx.translate(q.x,q.y);ctx.rotate(q.a);ctx.fillStyle='#1e1e1e';ctx.fillRect(-3.5,-2,7,4);ctx.restore();}ctx.globalAlpha=1;}
@@ -2040,7 +2044,7 @@ function drawChar(o){
 function drawPlayer(){
  if(P.inv>0&&!(P.holy>0)&&(gameT*20|0)%2)return;
  const myV=!P.rideOn&&!(map&&map.pvp)&&VEH[P.ride]?P.ride:'';if(myV&&myV!=='fixie')drawVehicle(P.x,P.y,myV,P.fx<0?-1:1,P.walk,P.moving);const pv=P.rideOn&&VEH[P.rideV]?P.rideV:'';
- const meC={sk:P.skid?Math.max(.35,1-(P.skidT||0)/1.2):0,wl:P.eq&&P.eq.weapon?P.eq.weapon.plus||0:0,hd:myV==='fixie'?(P.hd!=null?P.hd:(P.fx<0?Math.PI:0)):null,lean:P.lean||0,x:P.x,y:P.y,race:P.race,cls:P.cls,job:P.job,fx:P.fx,fy:P.fy,walk:P.walk,atk:P.atkAnim>0,wp:P.eq&&P.eq.weapon?P.eq.weapon.id:'',ar:P.eq&&P.eq.armor?P.eq.armor.id:''};
+ const meC={sk:P.skid?Math.max(.35,1-(P.skidT||0)/SKID_STOP):0,wl:P.eq&&P.eq.weapon?P.eq.weapon.plus||0:0,hd:myV==='fixie'?(P.hd!=null?P.hd:(P.fx<0?Math.PI:0)):null,lean:P.lean||0,x:P.x,y:P.y,race:P.race,cls:P.cls,job:P.job,fx:P.fx,fy:P.fy,walk:P.walk,atk:P.atkAnim>0,wp:P.eq&&P.eq.weapon?P.eq.weapon.id:'',ar:P.eq&&P.eq.armor?P.eq.armor.id:''};
  if(myV||pv)drawRider(meC,P.x,P.y,myV||pv,!!myV&&P.moving,P.walk,!myV);else
  drawChar({wl:P.eq&&P.eq.weapon?P.eq.weapon.plus||0:0,x:P.x,y:P.y,race:P.race,cls:P.cls,job:P.job,fx:P.fx,fy:P.fy,walk:P.walk,atk:P.atkAnim>0,wp:P.eq&&P.eq.weapon?P.eq.weapon.id:'',ar:P.eq&&P.eq.armor?P.eq.armor.id:''});
  const lup=(myV||pv)==='bonggu'?18:(myV||pv)?VEH[myV||pv].up:0;
@@ -3003,7 +3007,7 @@ setInterval(()=>{const k=NET.sock;if(!k||!k.connected||!P||!map||!NET.playing)re
  k.volatile.emit('s',{m:map.key,n:P.name,r:P.race,c:P.cls,j:P.job||'',l:P.lv,x:P.x,y:P.y,f:P.fx<0?-1:1,a:P.atkAnim>0?1:0,w:mv.l>0&&!paused?1:0,wp:P.eq.weapon?P.eq.weapon.id:'',ar:P.eq.armor?P.eq.armor.id:'',t:P.title||'',hp:Math.round(clamp(P.hp/P.st.hp*100,0,100)),v:P.rideOn||(map&&map.pvp)?'':P.ride||'',hd:P.ride==='fixie'&&P.hd!=null?Math.round(P.hd*100)/100:0,sp:spirits.map(x=>[SPI.indexOf(x.t),Math.round(x.x),Math.round(x.y)]),wl:P.eq.weapon?P.eq.weapon.plus||0:0});
  if(VQ.length){const v=VQ.splice(0,30);VQ.length=0;k.emit('ev',{k:'sk',v});}
  if(NET.host&&NET.hostMap===map.key)k.emit('es',enemies.filter(e=>!e.mirror&&!e.dead&&!e.pv).map(e=>[e.id,e.type,Math.round(e.x),Math.round(e.y),Math.round(e.hp),e.max,(e.strong?1:0)|(e.summon?2:0)|(e.slow>0?4:0)|(e.root>0?8:0)|(e.burn>0?16:0)|(e.aggroed?32:0)|(e.tel?64:0)|(e.fly>0?128:0)|(e.intro>0?256:0),Math.round(e.atk)]));},100);
-function netTick(dt){plainWrap();if(P){evtTick(dt);bdTick();}for(const o of NET.others.values())if(o.skid>0){o.skT=(o.skT||0)+dt;o.sk=Math.max(.35,1-o.skT/1.2);const a=o.skA,rx=o.x-Math.cos(a)*11,ry=o.y-1-Math.sin(a)*5;if(!o.lastSk||Math.hypot(rx-o.lastSk.x,ry-o.lastSk.y)>3){skidMark(rx,ry,a);o.lastSk={x:rx,y:ry};}if(Math.random()<.4)parts.push({x:rx,y:ry-2,vx:rnd(-30,30),vy:rnd(-40,-10),life:rnd(.3,.5),color:'#bdbdbd',s:3});}for(const o of NET.others.values()){const k=Math.min(1,dt*12);if(o.spc&&o.spt)o.spc.forEach((c,i)=>{const t=o.spt[i];if(!t)return;c[0]=t[0];c[1]+=(t[1]-c[1])*k;c[2]+=(t[2]-c[2])*k;});if(o.thd!=null&&o.hd!=null){const da=((o.thd-o.hd+Math.PI*3)%(Math.PI*2))-Math.PI;const st=da*Math.min(1,dt*10);o.hd+=st;o.lean=(o.lean||0)*.85+(st/Math.max(dt,.001))*.06;}o.x+=(o.tx-o.x)*k;o.y+=(o.ty-o.y)*k;if(o.w)o.walk+=dt*10;}}
+function netTick(dt){plainWrap();if(P){evtTick(dt);bdTick();}for(const o of NET.others.values())if(o.skid>0){o.skT=(o.skT||0)+dt;o.sk=Math.max(.35,1-o.skT/SKID_STOP);const a=o.skA,rx=o.x-Math.cos(a)*11,ry=o.y-1-Math.sin(a)*5;if(!o.lastSk||Math.hypot(rx-o.lastSk.x,ry-o.lastSk.y)>3){skidMark(rx,ry,a);o.lastSk={x:rx,y:ry};}if(Math.random()<.4)parts.push({x:rx,y:ry-2,vx:rnd(-30,30),vy:rnd(-40,-10),life:rnd(.3,.5),color:'#bdbdbd',s:3});}for(const o of NET.others.values()){const k=Math.min(1,dt*12);if(o.spc&&o.spt)o.spc.forEach((c,i)=>{const t=o.spt[i];if(!t)return;c[0]=t[0];c[1]+=(t[1]-c[1])*k;c[2]+=(t[2]-c[2])*k;});if(o.thd!=null&&o.hd!=null){const da=((o.thd-o.hd+Math.PI*3)%(Math.PI*2))-Math.PI;const st=da*Math.min(1,dt*10);o.hd+=st;o.lean=(o.lean||0)*.85+(st/Math.max(dt,.001))*.06;}o.x+=(o.tx-o.x)*k;o.y+=(o.ty-o.y)*k;if(o.w)o.walk+=dt*10;}}
 async function netInit(){
  renderTitle();
  for(let n=0;n<3&&!NET.on;n++){try{const r=await fetch(NET.base+'/api/rpg/ping',{cache:'no-store'});const j=await r.json();NET.on=!!(j&&j.rpg);}catch(e){NET.on=false;}if(!NET.on&&!SERVER)break;}
