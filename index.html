@@ -480,7 +480,7 @@ gslime0:{name:'거대 슬라임',hp:422400,atk:1,def:20,spd:.7,r:96,exp:0,gold:[
  scorpion:{name:'사막 전갈',hp:11000,atk:230,def:42,spd:1.9,r:16,exp:3400,gold:[300,420],aggro:300,ai:'scorpion'},
  centipede:{name:'사막 지네',hp:16000,atk:150,def:38,spd:2.3,r:18,exp:4600,gold:[380,500],aggro:340,ai:'centipede'},
  mummy:{name:'미라',hp:9000,atk:210,def:36,spd:1.7,r:14,exp:2200,gold:[0,0],aggro:400,summonOnly:1,ai:'mummy'},
- anubis:{name:'아누비스',hp:220000,atk:250,def:52,spd:1.5,r:42,exp:300000,split:1,gold:[50000,50000],aggro:800,boss:1,ai:'anubis'}
+ anubis:{name:'아누비스',hp:220000,atk:460,def:52,spd:1.5,r:42,exp:300000,split:1,gold:[50000,50000],aggro:800,boss:1,ai:'anubis'}
 };
 const ELV={gslime0:150,gslime1:150,gslime2:150,gslime3:150,gslime4:150,gslime5:150,gslime6:150,firespirit:58,firelizard:62,lavacrab:66,golem:72,dragon:80,slime:1,wolf:3,goblin:5,skeleton:8,darkmage:9,lich:12,orc:13,direwolf:14,wraith:16,marlin:28,crab:35,leviathan:42,scorpion:100,centipede:110,mummy:120,anubis:130};for(const k in ELV)ENEMIES[k].lv=ELV[k];
 const ATK_MUL=1.4; // 몬스터 공격력 전체 배율
@@ -891,18 +891,20 @@ function makeSandstorm(){const w=37,h=37;
  if(P&&P.flags&&P.flags.sandmaze){ // 미로를 깬 뒤로는 사라지고 뻥 뚫린 사막
   const t=grid(w,h,'.');border(t,'D');rect(t,0,0,w,2,'D');for(let i=0;i<40;i++){const x=ri(2,w-3),y=ri(2,h-3);t[y][x]='k';}
   return{name:'🌪 모래폭풍 지대',key:'sandstorm',w,h,t,tier:4,heat:1,pal:['#e3c283','#dcb974','#d0ac63','#eacf93'],
-   portals:[{x:1.6*TS,y:2*TS,to:'dunes',tx:(60-2)*TS,ty:20*TS,label:'사막으로',look:'gate'},{x:(w-2)*TS,y:(h-3)*TS,to:'anubislair',tx:14*TS,ty:26*TS,label:'동굴 입구',look:'cave'}],
-   npcs:[],labels:[],spawns:[],start:{x:2*TS,y:2*TS}};}
+   portals:[{x:1.6*TS,y:3*TS,to:'dunes',tx:(60-2)*TS,ty:20*TS,label:'사막으로',look:'gate'},{x:(w-2)*TS,y:(h-2)*TS,to:'anubislair',tx:14*TS,ty:26*TS,label:'동굴 입구',look:'cave'}],
+   npcs:[],labels:[],spawns:[],start:{x:4*TS,y:4*TS}};}
  // 미로 생성 (DFS, 셀 2칸)
  const t=grid(w,h,'D');const R=mulberry(2929);const cw=(w-1)>>1,ch=(h-1)>>1;const vis=[];for(let i=0;i<cw*ch;i++)vis.push(false);
  const cell=(cx,cy)=>{t[cy*2+1][cx*2+1]='.';};const stack=[[0,0]];vis[0]=true;cell(0,0);
  while(stack.length){const[cx,cy]=stack[stack.length-1];const dirs=[[0,-1],[0,1],[-1,0],[1,0]].filter(([dx,dy])=>{const nx=cx+dx,ny=cy+dy;return nx>=0&&ny>=0&&nx<cw&&ny<ch&&!vis[ny*cw+nx];});
   if(!dirs.length){stack.pop();continue;}const[dx,dy]=dirs[(R()*dirs.length)|0],nx=cx+dx,ny=cy+dy;t[cy*2+1+dy][cx*2+1+dx]='.';vis[ny*cw+nx]=true;cell(nx,ny);stack.push([nx,ny]);}
  for(let i=0;i<14;i++){const x=ri(1,w-2),y=ri(1,h-2);if(t[y][x]==='D'&&((t[y-1]&&t[y-1][x]==='.')||(t[y+1]&&t[y+1][x]==='.')||t[y][x-1]==='.'||t[y][x+1]==='.'))t[y][x]='.';} // 샛길 살짝
- t[1][1]='.';t[2][1]='.';t[h-2][w-2]='.';t[h-3][w-2]='.';
+ for(let y=1;y<=7;y++)t[y][1]='.'; // 좌측 입구 복도
+ for(let y=h-4;y<=h-2;y++)t[y][w-2]='.'; // 우측 출구 통로
+ t[h-2][w-3]='.';
  return{name:'🌪 모래폭풍 지대',key:'sandstorm',w,h,t,tier:4,heat:1,dark:1,maze:1,pal:['#e3c283','#dcb974','#d0ac63','#eacf93'],
-  portals:[{x:1.6*TS,y:2*TS,to:'dunes',tx:(60-2)*TS,ty:20*TS,label:'사막으로',look:'gate'},{x:(w-2)*TS,y:(h-2)*TS,to:'anubislair',tx:14*TS,ty:26*TS,label:'동굴 입구',look:'cave'}],
-  npcs:[],labels:[],spawns:[],start:{x:1.5*TS,y:1.5*TS}};}
+  portals:[{x:1.5*TS,y:1.1*TS,to:'dunes',tx:(60-2)*TS,ty:20*TS,label:'사막으로',look:'gate'},{x:(w-1.9)*TS,y:(h-1.9)*TS,to:'anubislair',tx:14*TS,ty:26*TS,label:'동굴 입구',look:'cave'}],
+  npcs:[],labels:[],spawns:[],start:{x:1.5*TS,y:6*TS}};}
 
 function makeAnubisLair(){const w=28,h=30,t=grid(w,h,'.');border(t,'D');rect(t,0,0,w,2,'D');
  const R=mulberry(130);for(let y=2;y<h-2;y++)for(let x=2;x<w-2;x++)if(R()<.015)t[y][x]='D';
@@ -1176,6 +1178,7 @@ function enterMap(k,x,y){
  map.spawnT=map.spawns.map(()=>0);
  if(!same)map.spawns.forEach(s=>{let left=s.max;while(left>0){const before=enemies.length;spawnIn(s,left);const made=enemies.length-before;if(!made)break;left-=made;}});
  if(k==='plain')P.flags.plain=1;
+ if(k==='sandstorm'||k==='anubislair'||k==='dunes')P.portalLock=Math.max(P.portalLock||0,1.5);
  if(k==='plain'&&fromKey!=='plain'){P.pots.scroll=(P.pots.scroll||0)+1;setTimeout(()=>{toast('📜 바람에 날려 온 귀환서를 하나 주웠다!');log('🌾 끝없는 평야 — 걸어서는 나갈 수 없어요. 📜 귀환서로만 돌아갈 수 있어요');setTimeout(()=>toast('🍃 바람이 남동쪽(오른쪽 아래)으로 불어간다… 저 멀리 무언가가 빛나고 있다'),2600);},900);}
  if(k==='lair'){P.flags.volcano=1;setTimeout(()=>{if(map&&map.key==='lair'&&!CUT.t&&enemies.some(e=>e.b.boss&&!e.intro)){CUT.t=CUT.max=3;CUT.name='Lv80 화염 드래곤';CUT.sub='불타는 화산의 지배자';playRoar();shake=.6;}},1200);}
  if(k==='volcano')P.flags.volcano=1;
