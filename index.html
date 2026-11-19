@@ -252,7 +252,7 @@ const NET={host:true,hostMap:null,dead:new Set(),checking:true,on:false,base:SER
 const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 // ================= 배경음악 =================
 // 지역별 배경음악 파일
-const TRACKS={village:'village2.mp3',field:'field.mp3',plain:'field.mp3',sea:'sea.mp3',abyss:'levi.mp3',volcano:'dragon.mp3',lair:'dragon.mp3'};
+const TRACKS={village:'village2.mp3',field:'field.mp3',plain:'field.mp3',sea:'sea.mp3',abyss:'levi.mp3',volcano:'dragon.mp3',lair:'dragon.mp3',desert:'desvillage.mp3',palace:'desvillage.mp3',dunes:'desertmid.mp3',sandstorm:'desertmid.mp3',anubislair:'anubisboss.mp3'};
 const BGM=new Audio();BGM.loop=true;BGM.volume=.75;BGM.preload='auto';let bgmSrc=''; // 모든 곡은 같은 크기(-18 LUFS)로 맞춰 둠
 let muted=false;try{muted=localStorage.getItem('dobakrpg_mute')==='1';}catch(e){}
 // 들판·보스전 음악은 직접 만든 8비트 연주 (웹 오디오)
@@ -480,7 +480,7 @@ gslime0:{name:'거대 슬라임',hp:422400,atk:1,def:20,spd:.7,r:96,exp:0,gold:[
  scorpion:{name:'사막 전갈',hp:11000,atk:230,def:42,spd:1.9,r:16,exp:3400,gold:[300,420],aggro:300,ai:'scorpion'},
  centipede:{name:'사막 지네',hp:16000,atk:150,def:38,spd:2.3,r:18,exp:4600,gold:[380,500],aggro:340,ai:'centipede'},
  mummy:{name:'미라',hp:9000,atk:210,def:36,spd:1.7,r:14,exp:2200,gold:[0,0],aggro:400,summonOnly:1,ai:'mummy'},
- anubis:{name:'아누비스',hp:220000,atk:460,def:52,spd:1.5,r:42,exp:300000,split:1,gold:[50000,50000],aggro:800,boss:1,ai:'anubis'}
+ anubis:{name:'아누비스',hp:220000,atk:460,def:52,spd:1.5,r:42,exp:300000,split:1,gold:[300000,300000],aggro:800,boss:1,ai:'anubis'}
 };
 const ELV={gslime0:150,gslime1:150,gslime2:150,gslime3:150,gslime4:150,gslime5:150,gslime6:150,firespirit:58,firelizard:62,lavacrab:66,golem:72,dragon:80,slime:1,wolf:3,goblin:5,skeleton:8,darkmage:9,lich:12,orc:13,direwolf:14,wraith:16,marlin:28,crab:35,leviathan:42,scorpion:100,centipede:110,mummy:120,anubis:130};for(const k in ELV)ENEMIES[k].lv=ELV[k];
 const ATK_MUL=1.4; // 몬스터 공격력 전체 배율
@@ -1366,7 +1366,12 @@ function hurtPlayer(d){
 const CUT={t:0,max:0,name:'',sub:''};
 let shake=0,flashA=0,lakeT=0; // lakeT: 호수 판정 대기시간 (저장하지 않는다)
 function die(){spirits=[];if(map&&map.pvp){pvLose();return;}P.hp=0;P.dead=true;const evFree=evtLocked();const inBoss=inBossFight()||!!(map&&map.sealed);$('boss').classList.add('hidden');const lost=evFree?0:Math.floor(P.gold*(inBoss?.05:.1));P.gold-=lost;
- setTimeout(()=>dialog('💀','쓰러지고 말았다…\n골드 '+lost+'G를 잃고 마을에서 깨어납니다.'+(inBoss?'\n(보스전이라 평소의 절반만 잃었어요)':''),[{t:'다시 일어서기',f:()=>{P.dead=false;armed=-1;calc();P.hp=P.st.hp;P.mp=P.st.mp;enterMap('village',30*TS,25*TS);}}]),600);}
+ const rv=respawnTown();
+ setTimeout(()=>dialog('💀','쓰러지고 말았다…\n골드 '+lost+'G를 잃고 '+rv.name+'에서 깨어납니다.'+(inBoss?'\n(보스전이라 평소의 절반만 잃었어요)':''),[{t:'다시 일어서기',f:()=>{P.dead=false;armed=-1;calc();P.hp=P.st.hp;P.mp=P.st.mp;enterMap(rv.k,rv.x,rv.y);}}]),600);}
+function respawnTown(){const k=map&&map.key;const DES=new Set(['desert','palace','dunes','sandstorm','anubislair']),SEA=new Set(['sea','abyss','grotto']);
+ if(DES.has(k)||P.map&&DES.has(P.map))return{k:'desert',x:21*TS,y:20*TS,name:'오아시스 마을'};
+ if(SEA.has(k)||P.map&&SEA.has(P.map))return{k:'sea',x:9*TS,y:15*TS,name:'해저마을'};
+ return{k:'village',x:30*TS,y:25*TS,name:'평화의 마을'};}
 function useItem(k){if(map&&map.pvp){toast('결투 중에는 쓸 수 없어요');return;}if(P.dead||!(P.pots[k]>0))return;
  if(k==='jobticket'){useJobTicket();return;}
  if(k==='protect'){toast('🛡 강화 방지권은 대장장이에게 강화할 때 깨지려 하면 자동으로 쓰여요');return;}
@@ -1989,24 +1994,30 @@ function anubisAI(e,dt,d,sp,T){
  const rage=e.hp<e.max*.4,n=norm(T.x-e.x,T.y-e.y),ang=Math.atan2(n.y,n.x);e.face=n.x<0?-1:1;
  // 5초마다 미라 소환
  e.sum=(e.sum==null?3:e.sum)-dt;const cnt=enemies.filter(q=>q.type==='mummy').length;
- if(e.sum<=0){e.sum=5;if(cnt<(rage?16:10)){const k=rage?4:3;for(let i=0;i<k;i++){const a=Math.random()*7,rr=60+Math.random()*120;let mx=e.x+Math.cos(a)*rr,my=e.y+Math.sin(a)*rr;if(blocked(mx,my,14)){mx=e.x;my=e.y+30;}const m=spawnEnemy('mummy',mx,my);m.summon=1;m.aggroed=true;puff(mx,my,'#cdbf96');}addText(e.x,e.y-90,'일어나라, 망자들이여!','#ffe082',13);}}
+ if(e.sum<=0){e.sum=rage?2.5:3.5;if(cnt<(rage?16:10)){const k=rage?4:3;for(let i=0;i<k;i++){const a=Math.random()*7,rr=60+Math.random()*120;let mx=e.x+Math.cos(a)*rr,my=e.y+Math.sin(a)*rr;if(blocked(mx,my,14)){mx=e.x;my=e.y+30;}const m=spawnEnemy('mummy',mx,my);m.summon=1;m.aggroed=true;puff(mx,my,'#cdbf96');}addText(e.x,e.y-90,'일어나라, 망자들이여!','#ffe082',13);}}
  // 이동
  if(e.st){const S=e.st;S.t-=dt;
   if(S.k==='aim'){if(S.t<=0){S.k='dash';S.t=.5;S.hit=new Set();sfx('boom');}}
-  else if(S.k==='dash'){moveEnt(e,S.x*820*dt,S.y*820*dt);for(const q of allTargets())if(!S.hit.has(q.uid||'me')&&Math.hypot(q.x-e.x,q.y-e.y)<e.r+18){S.hit.add(q.uid||'me');hitTarget(q,e.atk*1.6);}if(S.t<=0){e.st=null;e.pt=rage?1.1:1.7;}}
+  else if(S.k==='dash'){moveEnt(e,S.x*1050*dt,S.y*820*dt);for(const q of allTargets())if(!S.hit.has(q.uid||'me')&&Math.hypot(q.x-e.x,q.y-e.y)<e.r+18){S.hit.add(q.uid||'me');hitTarget(q,e.atk*1.6);}if(S.t<=0){e.st=null;e.pt=rage?1.1:1.7;}}
   else if(S.k==='rings'){if(S.t<=0){explodeFx(e.x,e.y,S.r,'#ffd700');netEv({k:'sk',v:[{t:'x',x:Math.round(e.x),y:Math.round(e.y),r:S.r,c:'#ffd700'}]});shake=.3;for(const q of allTargets()){const dd=Math.hypot(q.x-e.x,q.y-e.y);if(dd>S.r-40&&dd<S.r+20)hitTarget(q,e.atk*1.2);}e.st=null;e.pt=rage?.8:1.4;}}
   return;}
  if(d>150)moveEnt(e,n.x*sp,n.y*sp);else if(d<90)moveEnt(e,-n.x*sp*.6,-n.y*sp*.6);
  e.pt-=dt;if(e.pt>0)return;
- const pat=e.ph%4;e.ph++;
- if(pat===0){ // 부채꼴 저주 탄 (사이를 비집고 피함)
-  for(const da of[-.5,-.25,0,.25,.5]){const a=ang+da;eShot({x:e.x+Math.cos(a)*30,y:e.y-10+Math.sin(a)*30,vx:Math.cos(a)*300,vy:Math.sin(a)*300,r:11,life:3,dmg:e.atk*.9,color:'#b39ddb'});}addText(e.x,e.y-90,'저주의 바람!','#d1c4e9',12);e.pt=rage?1.4:2.2;}
- else if(pat===1){ // 돌진 예고 (옆으로 피함)
-  e.st={k:'aim',t:rage?.55:.8,x:n.x,y:n.y};bfx({k:'line',x:e.x,y:e.y,ang,len:640,life:e.st.t,max:e.st.t,color:'#ffca28'});addText(e.x,e.y-90,'창 돌진!','#ffe082',13);}
- else if(pat===2){ // 확장 고리 (안/밖으로 피함)
-  e.st={k:'rings',t:1,r:rage?240:190};bfx({k:'warn',x:e.x,y:e.y,r:e.st.r,life:1,max:1,color:'#ffd700'});addText(e.x,e.y-90,'망자의 고리!','#fff59d',12);}
- else{ // 유도 저주 (움직여서 피함)
-  for(let k=0;k<(rage?5:3);k++)timers.push({t:k*.35,f:()=>{if(e.dead)return;const t2=pickTarget(e);if(!t2)return;const m=norm(t2.x-e.x,t2.y-e.y);eShot({x:e.x,y:e.y-10,vx:m.x*200,vy:m.y*200,r:9,life:4,dmg:e.atk*.8,color:'#9575cd',eh:1});}});addText(e.x,e.y-90,'영혼 추적!','#b39ddb',12);e.pt=rage?1.8:2.6;}}
+const pat=e.ph%7;e.ph++;
+ if(pat===0){
+  for(const da of(rage?[-.6,-.36,-.12,.12,.36,.6]:[-.5,-.25,0,.25,.5])){const a=ang+da;eShot({x:e.x+Math.cos(a)*30,y:e.y-10+Math.sin(a)*30,vx:Math.cos(a)*380,vy:Math.sin(a)*380,r:11,life:3,dmg:e.atk*.9,color:'#b39ddb'});}addText(e.x,e.y-90,'저주의 바람!','#d1c4e9',12);e.pt=rage?.9:1.4;}
+ else if(pat===1){
+  e.st={k:'aim',t:rage?.4:.6,x:n.x,y:n.y};bfx({k:'line',x:e.x,y:e.y,ang,len:640,life:e.st.t,max:e.st.t,color:'#ffca28'});addText(e.x,e.y-90,'창 돌진!','#ffe082',13);}
+ else if(pat===2){
+  e.st={k:'rings',t:rage?.7:.9,r:rage?250:200};bfx({k:'warn',x:e.x,y:e.y,r:e.st.r,life:e.st.t,max:e.st.t,color:'#ffd700'});addText(e.x,e.y-90,'망자의 고리!','#fff59d',12);}
+ else if(pat===3){
+  for(let k=0;k<(rage?6:4);k++)timers.push({t:k*.25,f:()=>{if(e.dead)return;const t2=pickTarget(e);if(!t2)return;const m=norm(t2.x-e.x,t2.y-e.y);eShot({x:e.x,y:e.y-10,vx:m.x*250,vy:m.y*250,r:9,life:4,dmg:e.atk*.8,color:'#9575cd',eh:1});}});addText(e.x,e.y-90,'영혼 추적!','#b39ddb',12);e.pt=rage?1.1:1.7;}
+ else if(pat===4){
+  const N=rage?22:14,base=gameT*3;for(let k=0;k<N;k++)timers.push({t:k*.05,f:()=>{if(e.dead)return;const a=base+k*(Math.PI*2/N)*(rage?2:3);eShot({x:e.x,y:e.y-10,vx:Math.cos(a)*230,vy:Math.sin(a)*230,r:8,life:3,dmg:e.atk*.7,color:'#ce93d8'});}});addText(e.x,e.y-90,'죽음의 소용돌이!','#e1bee7',12);e.pt=rage?1.2:1.8;}
+ else if(pat===5){
+  const N=rage?7:5;for(let k=0;k<N;k++){const tx=T.x+rnd(-220,220),ty=T.y+rnd(-180,180);bfx({k:'warn',x:tx,y:ty,r:60,life:.9,max:.9,color:'#ffb300'});const dm=e.atk*1.3;timers.push({t:.9,f:()=>{if(e.dead)return;explodeFx(tx,ty,66,'#ffa000');for(const q of allTargets())if(Math.hypot(q.x-tx,q.y-ty)<70)hitTarget(q,dm);}});}addText(e.x,e.y-90,'모래 기둥!','#ffcc80',12);e.pt=rage?1.1:1.7;}
+ else{
+  for(let d4=0;d4<4;d4++){const a=ang+d4*Math.PI/2;for(let r0=1;r0<=10;r0++)timers.push({t:r0*.04,f:()=>{if(e.dead)return;eShot({x:e.x,y:e.y-10,vx:Math.cos(a)*340,vy:Math.sin(a)*340,r:9,life:2.4,dmg:e.atk*.85,color:'#b388ff'});}});}addText(e.x,e.y-90,'십자 심판!','#d1c4e9',12);e.pt=rage?1.2:1.9;}}
 function leviAI(e,dt,d,sp,T){
  bossBar(e);if(e.tailCd>0)e.tailCd-=dt;
  if(!e.aggroed||!T){e.st=null;return;}
@@ -2765,7 +2776,7 @@ function useDHorn(){if(!(P.mats.dhorn>0))return;$('mClose').click();
  if(torch&&Math.hypot(torch.x-P.x,torch.y-P.y)<120){
   P.flags.beachtorch=1;flashA=.3;for(let i=0;i<24;i++)parts.push({x:torch.x+rnd(-8,8),y:torch.y-44,vx:rnd(-30,30),vy:rnd(-90,-20),life:rnd(.5,1),color:i%2?'#ff6d00':'#ffab00',s:3});
   timers.push({t:1.2,f:()=>{toast('🔥 횃불에 불이 붙었다!');
-   if(P.lv>=85||P.flags.admin){timers.push({t:1.2,f:()=>{puff(P.x,P.y,'#ffcc80');toast('🏜 모래바람이 몰아치며 사막으로 빨려 들어간다…');enterMap('desert',21*TS,20*TS);P.portalLock=1.5;sfx('lvl');}});}
+   if(P.lv>=85||P.flags.admin||P.flags.sandgate){P.flags.sandgate=1;timers.push({t:1.2,f:()=>{puff(P.x,P.y,'#ffcc80');toast('🏜 모래바람이 몰아치며 사막으로 빨려 들어간다…');enterMap('desert',21*TS,20*TS);P.portalLock=1.5;sfx('lvl');}});}
    else timers.push({t:1.2,f:()=>toast('🔥 아직 열기를 견딜 수 없다… (Lv85 이상 필요)')});}});
   return;}
  timers.push({t:3,f:()=>toast('…깊은 울림이 퍼져 나갔다. 아직은 아무 일도 일어나지 않는다')});}
