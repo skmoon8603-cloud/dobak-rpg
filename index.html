@@ -815,7 +815,7 @@ function slotBind(B){betBind(B);$('slotGo').onclick=()=>{if(casinoBusy)return;co
  const res=[slotPick(),slotPick(),slotPick()];const t0=performance.now();sfx('coin');
  const tick=()=>{const t=performance.now()-t0;for(let i=0;i<3;i++){const el=$('reel'+i);if(!el)return;if(t<700+i*450)el.textContent=SLOT[ri(0,5)][0];else if(el.dataset.done!=='1'){el.dataset.done='1';el.textContent=res[i][0];sfx('hit');}}
   if(t<700+2*450+100){requestAnimationFrame(tick);return;}
-  let mult=0;if(res[0]===res[1]&&res[1]===res[2])mult=res[0][2];else if(res[0]===res[1]||res[1]===res[2]||res[0]===res[2])mult=1.5;
+  let mult=0;if(res[0]===res[1]&&res[1]===res[2])mult=res[0][2];
   if(mult){const w=casinoWin(bet,mult);$('slotRes').innerHTML=`<span style="color:${mult>=10?'#ff4081':'#7dff7d'}">${mult>=10?'🎉 대박! ':''}${w.toLocaleString()}G 획득! (×${mult})</span>`;sfx('win');if(res[0][0]==='7️⃣'&&mult===50){P.flags.s777=1;flashA=.5;toast('7️⃣7️⃣7️⃣ 잭팟!!');}}
   else{$('slotRes').innerHTML='<span style="color:#ff8a8a">꽝…</span>';sfx('lose');save(true);}
   $('cGold').textContent=P.gold.toLocaleString();for(let i=0;i<3;i++){const el=$('reel'+i);if(el)el.dataset.done='';}casinoBusy=false;};requestAnimationFrame(tick);};}
@@ -837,7 +837,7 @@ function roulBind(B){betBind(B);const cv=$('roulCv');if(cv)drawRoul(cv.getContex
   const res=RN[ri(0,RN.length-1)],idx=RN.indexOf(res),sw=Math.PI*2/RN.length;const start=roulAng,target=-idx*sw+Math.PI*2*(5+Math.floor(Math.random()*2));const end=start+((target-start%(Math.PI*2))+Math.PI*2*6);const t0=performance.now(),D=3600;
   const step=()=>{const t=Math.min(1,(performance.now()-t0)/D),e2=1-Math.pow(1-t,3);roulAng=start+(end-start)*e2;const c=$('roulCv');if(!c){casinoBusy=false;return;}
    drawRoul(c.getContext('2d'),roulAng,{a:-Math.PI/2-(1-e2)*20,r:100-12-(1-e2)*0});if(t<1){if(Math.random()<.2)sfx('hit');requestAnimationFrame(step);return;}
-   let mult=0;if(kind==='num'&&res===num)mult=36;else if(kind!=='num'&&rcol(res)===kind)mult=2;const cn={green:'초록',black:'검은색',white:'흰색'}[rcol(res)];
+   let mult=0;if(kind==='num'&&res===num)mult=28;else if(kind!=='num'&&rcol(res)===kind)mult=1.9;const cn={green:'초록',black:'검은색',white:'흰색'}[rcol(res)];
    if(mult){const w=casinoWin(bet,mult);$('roulRes').innerHTML=`<span style="color:${mult>2?'#ff4081':'#7dff7d'}">${res} (${cn})! ${mult>2?'🎉 잭팟!! ':''}${w.toLocaleString()}G 획득</span>`;sfx('win');if(mult>2){P.flags.jackpot=1;flashA=.5;toast('🎰 숫자 적중! 잭팟!!');}}
    else{$('roulRes').innerHTML=`<span style="color:#ff8a8a">${res} (${cn})… 꽝</span>`;sfx('lose');save(true);}
    $('cGold').textContent=P.gold.toLocaleString();casinoBusy=false;};requestAnimationFrame(step);});}
@@ -1437,7 +1437,7 @@ function cookHtml(){let h=`<div>💰 ${P.gold.toLocaleString()} G · 몹 재료�
 function cookBind(B){B.querySelectorAll('[data-cook]').forEach(b=>b.onclick=()=>{const r=COOK.find(x=>x[0]===b.dataset.cook);if(!r)return;const[id,need,g]=r;if(P.gold<g||!Object.keys(need).every(m=>(P.mats[m]||0)>=need[m]))return;
   for(const m in need)P.mats[m]-=need[m];P.gold-=g;P.pots[id]=(P.pots[id]||0)+1;P.cooked=(P.cooked||0)+1;sfx('win');toast(`🍳 ${CONS[id][0]} 완성!`);renderMenu();save(true);});}
 // ===== 탈것 =====
-const VEH={kick:{name:'킥보드',ic:'🛴',price:150000,spd:.1,seats:0,up:4,ped:1},fixie:{name:'픽시',ic:'🚲',price:1500000,spd:.3,seats:0,up:9,ped:1},moto:{name:'오토바이',ic:'🏍',price:5000000,spd:.5,seats:1,up:10},bonggu:{name:'봉구차',ic:'🚐',price:10000000,spd:.7,seats:2,up:20,car:1},lambo:{name:'람보르기니',ic:'🏎',price:100000000,spd:1,seats:2,up:5,car:1}};
+const VEH={kick:{name:'킥보드',ic:'🛴',price:150000,spd:.1,seats:0,up:4,ped:1},fixie:{name:'픽시',ic:'🚲',price:1500000,spd:.3,seats:0,up:9,ped:1},moto:{name:'오토바이',ic:'🏍',price:5000000,spd:.5,seats:1,up:10},bonggu:{name:'봉구차',ic:'🚐',price:10000000,spd:.7,seats:2,up:20,car:1},lambo:{name:'람보르기니',ic:'🏎',price:100000000,spd:1,seats:2,up:5,car:1},heli:{name:'헬기',ic:'🚁',price:1000000000,spd:1.5,seats:2,up:16}};
 const seatOff=(v,seat)=>v==='moto'?15:12+12*seat;
 const vehMul=()=>P.ride&&VEH[P.ride]&&!P.rideOn&&!(map&&map.pvp)?1+VEH[P.ride].spd:1;
 function mount(id){if(!P.veh.includes(id))return;if(map&&map.pvp){toast('결투장에서는 탈 수 없어요');return;}if(P.rideOn){toast('먼저 내려 주세요');return;}P.ride=P.ride===id?'':id;sfx('lvl');toast(P.ride?`${VEH[id].ic} ${VEH[id].name} 탑승! 속도 +${Math.round(VEH[id].spd*100)}%${VEH[id].seats?` · 뒤에 ${VEH[id].seats}명 탈 수 있어요`:''}`:'탈것에서 내렸어요');renderMenu();save(true);}
@@ -1456,7 +1456,17 @@ function drawVehicle(x,y,id,f,ph,mov){ph=ph||0;if(mov&&(id==='moto'||id==='bongg
   for(const k of[0,Math.PI]){const a=ph*1.2+k;const ex=bb.x+Math.cos(a)*5*f,ey=bb.y+Math.sin(a)*5;L(bb,{x:ex,y:ey},null,1.6,'#9e9e9e');px(ex-2,ey-1,4,2,'#424242');}}
  else if(id==='moto'){W(x-14,y-7,8);W(x+14,y-7,8);px(x-16,y-21,32,10,'#c62828');px(x-4,y-26,14,6,'#e53935');px(x-16,y-24,16,4,'#212121');px(x+f*16-(f<0?6:0),y-22,6,5,'#ffeb3b');px(x-f*18-(f>0?8:0),y-12,8,3,'#9e9e9e');px(x+f*12-1,y-32,2,10,'#424242');}
  else if(id==='bonggu'){px(x-30,y-54,60,46,'#eceff1');px(x-28,y-50,56,16,'#455a64');px(x-30,y-56,60,3,'#cfd8dc');W(x-18,y-6,7);W(x+18,y-6,7);}
- else if(id==='lambo'){px(x-32,y-18,64,12,'#ffd600');px(x-14,y-27,26,10,'#ffea00');px(x-10,y-25,18,6,'#263238');px(x-f*32-(f>0?4:0),y-24,4,8,'#212121');px(x-f*36-(f>0?6:-2),y-26,10,3,'#212121');px(x+f*30-(f<0?0:4),y-14,4,3,'#fff59d');px(x-32,y-9,64,2,'#f9a825');W(x-19,y-6,7);W(x+19,y-6,7);}}
+ else if(id==='lambo'){px(x-32,y-18,64,12,'#ffd600');px(x-14,y-27,26,10,'#ffea00');px(x-10,y-25,18,6,'#263238');px(x-f*32-(f>0?4:0),y-24,4,8,'#212121');px(x-f*36-(f>0?6:-2),y-26,10,3,'#212121');px(x+f*30-(f<0?0:4),y-14,4,3,'#fff59d');px(x-32,y-9,64,2,'#f9a825');W(x-19,y-6,7);W(x+19,y-6,7);}
+ else if(id==='heli'){const fl=f,bob=Math.sin(gameT*4)*1.5,yy=y+bob,tailX=x-fl*32;
+  const bx=Math.min(x,tailX),bw=Math.abs(tailX-x)+6;px(bx,yy-23,bw,5,'#b71c1c'); // 꼬리 붐
+  px(tailX-3,yy-31,6,11,'#c62828'); // 수직 꼬리날개
+  ctx.save();ctx.translate(tailX,yy-25);ctx.rotate(gameT*20);ctx.fillStyle='rgba(97,97,97,.8)';ctx.fillRect(-7,-1,14,2);ctx.restore(); // 테일로터
+  px(x-18,yy-1,36,2,'#37474f');px(x-13,yy-8,2,7,'#546e7a');px(x+11,yy-8,2,7,'#546e7a'); // 스키드
+  px(x-15,yy-28,30,20,'#d32f2f');px(x-15,yy-26,30,3,'#ef5350');px(x-15,yy-12,30,3,'#8e1414'); // 본체
+  px(x+fl*4-(fl<0?16:0),yy-26,12,12,'#1b2227');px(x+fl*5-(fl<0?16:0),yy-25,10,5,'#4fc3f7'); // 조종석 유리
+  px(x-1,yy-34,2,7,'#616161'); // 마스트
+  ctx.save();ctx.translate(x,yy-35);ctx.rotate(gameT*26);for(let i=0;i<2;i++){ctx.rotate(Math.PI/2);ctx.fillStyle=i?'rgba(69,90,100,.35)':'rgba(55,71,79,.9)';ctx.fillRect(-28,-1.5,56,3);}ctx.restore(); // 메인 로터
+  if(mov&&Math.random()<.4)parts.push({x:x+rnd(-20,20),y:y+2,vx:rnd(-30,30),vy:rnd(-6,6),life:.4,color:'#cfd8dc',s:3});}}
 // 차 앞쪽(탄 사람의 아랫부분을 덮는다)
 function drawVehicleFront(x,y,id,f){const W=(a,b,r)=>{ctx.fillStyle='#212121';ctx.beginPath();ctx.arc(a,b,r,0,7);ctx.fill();ctx.fillStyle='#9e9e9e';ctx.beginPath();ctx.arc(a,b,r*.4,0,7);ctx.fill();};
  if(id==='bonggu'){px(x-30,y-34,60,26,'#eceff1');px(x-30,y-26,60,4,'#1565c0');px(x-30,y-52,3,20,'#eceff1');px(x+27,y-52,3,20,'#eceff1');px(x-1,y-52,2,20,'#eceff1');px(x-30,y-36,60,3,'#cfd8dc');ctx.globalAlpha=.12;px(x-27,y-50,54,14,'#b3e5fc');ctx.globalAlpha=1;px(x+f*30-(f<0?0:3),y-18,3,5,'#ffeb3b');px(x-f*30-(f>0?3:0),y-18,3,5,'#e53935');W(x-18,y-6,7);W(x+18,y-6,7);}
@@ -2987,7 +2997,7 @@ let gambling=false;
 function coinFlip(bet){
  if(gambling)return;let v=bet==='all'?P.gold:+bet;if(v<=0||P.gold<v){$('gRes').textContent='골드가 부족해!';return;}
  gambling=true;P.gold-=v;const c=$('coin');c.classList.add('flip');$('gRes').textContent='빙글빙글…';sfx('shoot');
- setTimeout(()=>{c.classList.remove('flip');const win=Math.random()*100<Math.min(60,45+P.st.luck);
+ setTimeout(()=>{c.classList.remove('flip');const win=Math.random()*100<Math.min(50,35+P.st.luck*.7);
   if(win){P.gw=(P.gw||0)+1;P.gold+=v*2;c.textContent='🌕';$('gRes').innerHTML=`<span style="color:#7dff7d">앞면! +${v}G 획득 🎉</span>`;sfx('win');}
   else{c.textContent='🌑';$('gRes').innerHTML=`<span style="color:#ff8a8a">뒷면… ${v}G 잃음</span>`;sfx('lose');}
   $('gGold').textContent=P.gold.toLocaleString();gambling=false;setTimeout(()=>{if(menuTab==='gamble'&&!$('menu').classList.contains('hidden')){const r=$('gRes').innerHTML,ct=c.textContent;renderMenu();$('gRes').innerHTML=r;$('coin').textContent=ct;}},50);},900);
