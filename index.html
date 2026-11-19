@@ -815,7 +815,7 @@ function slotBind(B){betBind(B);$('slotGo').onclick=()=>{if(casinoBusy)return;co
  const res=[slotPick(),slotPick(),slotPick()];const t0=performance.now();sfx('coin');
  const tick=()=>{const t=performance.now()-t0;for(let i=0;i<3;i++){const el=$('reel'+i);if(!el)return;if(t<700+i*450)el.textContent=SLOT[ri(0,5)][0];else if(el.dataset.done!=='1'){el.dataset.done='1';el.textContent=res[i][0];sfx('hit');}}
   if(t<700+2*450+100){requestAnimationFrame(tick);return;}
-  let mult=0;if(res[0]===res[1]&&res[1]===res[2])mult=res[0][2];
+  let mult=0;if(res[0]===res[1]&&res[1]===res[2])mult=res[0][2];else if(res[0]===res[1]||res[1]===res[2]||res[0]===res[2])mult=1.3;
   if(mult){const w=casinoWin(bet,mult);$('slotRes').innerHTML=`<span style="color:${mult>=10?'#ff4081':'#7dff7d'}">${mult>=10?'🎉 대박! ':''}${w.toLocaleString()}G 획득! (×${mult})</span>`;sfx('win');if(res[0][0]==='7️⃣'&&mult===50){P.flags.s777=1;flashA=.5;toast('7️⃣7️⃣7️⃣ 잭팟!!');}}
   else{$('slotRes').innerHTML='<span style="color:#ff8a8a">꽝…</span>';sfx('lose');save(true);}
   $('cGold').textContent=P.gold.toLocaleString();for(let i=0;i<3;i++){const el=$('reel'+i);if(el)el.dataset.done='';}casinoBusy=false;};requestAnimationFrame(tick);};}
