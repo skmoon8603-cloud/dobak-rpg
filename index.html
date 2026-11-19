@@ -480,7 +480,7 @@ gslime0:{name:'거대 슬라임',hp:422400,atk:1,def:20,spd:.7,r:96,exp:0,gold:[
  scorpion:{name:'사막 전갈',hp:11000,atk:230,def:42,spd:1.9,r:16,exp:3400,gold:[300,420],aggro:300,ai:'scorpion'},
  centipede:{name:'사막 지네',hp:16000,atk:150,def:38,spd:2.3,r:18,exp:4600,gold:[380,500],aggro:340,ai:'centipede'},
  mummy:{name:'미라',hp:9000,atk:210,def:36,spd:1.7,r:14,exp:2200,gold:[0,0],aggro:400,summonOnly:1,ai:'mummy'},
- anubis:{name:'아누비스',hp:220000,atk:460,def:52,spd:1.5,r:42,exp:300000,split:1,gold:[300000,300000],aggro:800,boss:1,ai:'anubis'}
+ anubis:{name:'아누비스',hp:220000,atk:460,def:52,spd:1.5,r:42,exp:300000,split:1,gold:[100000,100000],aggro:800,boss:1,ai:'anubis'}
 };
 const ELV={gslime0:150,gslime1:150,gslime2:150,gslime3:150,gslime4:150,gslime5:150,gslime6:150,firespirit:58,firelizard:62,lavacrab:66,golem:72,dragon:80,slime:1,wolf:3,goblin:5,skeleton:8,darkmage:9,lich:12,orc:13,direwolf:14,wraith:16,marlin:28,crab:35,leviathan:42,scorpion:100,centipede:110,mummy:120,anubis:130};for(const k in ELV)ENEMIES[k].lv=ELV[k];
 const ATK_MUL=1.4; // 몬스터 공격력 전체 배율
@@ -2776,7 +2776,7 @@ function useDHorn(){if(!(P.mats.dhorn>0))return;$('mClose').click();
  if(torch&&Math.hypot(torch.x-P.x,torch.y-P.y)<120){
   P.flags.beachtorch=1;flashA=.3;for(let i=0;i<24;i++)parts.push({x:torch.x+rnd(-8,8),y:torch.y-44,vx:rnd(-30,30),vy:rnd(-90,-20),life:rnd(.5,1),color:i%2?'#ff6d00':'#ffab00',s:3});
   timers.push({t:1.2,f:()=>{toast('🔥 횃불에 불이 붙었다!');
-   if(P.lv>=85||P.flags.admin||P.flags.sandgate){P.flags.sandgate=1;timers.push({t:1.2,f:()=>{puff(P.x,P.y,'#ffcc80');toast('🏜 모래바람이 몰아치며 사막으로 빨려 들어간다…');enterMap('desert',21*TS,20*TS);P.portalLock=1.5;sfx('lvl');}});}
+   if(P.lv>=85||P.flags.admin){timers.push({t:1.2,f:()=>{puff(P.x,P.y,'#ffcc80');toast('🏜 모래바람이 몰아치며 사막으로 빨려 들어간다…');enterMap('desert',21*TS,20*TS);P.portalLock=1.5;sfx('lvl');}});}
    else timers.push({t:1.2,f:()=>toast('🔥 아직 열기를 견딜 수 없다… (Lv85 이상 필요)')});}});
   return;}
  timers.push({t:3,f:()=>toast('…깊은 울림이 퍼져 나갔다. 아직은 아무 일도 일어나지 않는다')});}
