@@ -1204,6 +1204,7 @@ function spawnBoss(){if(!map.boss)return;const isDragon=map.boss.type==='dragon'
 function anubisIntro(){CUT.t=CUT.max=3.8;CUT.name='Lv130 아누비스';CUT.sub='망자를 다스리는 무덤의 지배자';shake=1;setTimeout(()=>{flashA=.4;shake=.8;},2400);}
 function dragonIntro(){CUT.t=CUT.max=4.6;CUT.name='Lv80 화염 드래곤';CUT.sub='불타는 화산의 지배자';shake=1.2;setTimeout(playRoar,900);setTimeout(()=>{flashA=.35;},2800);}
 function enterMap(k,x,y){
+ if(k==='casino'&&!window._casNote){window._casNote=1;setTimeout(()=>{if(P&&map&&map.key==='casino')toast('🎲 카지노는 게임 골드로만 즐기는 놀이예요 · 현금으로 사거나 바꿀 수 없어요');},600);}
  if(k==='sandstorm'&&P&&P.flags&&P.flags.sandmaze){const fk0=map?map.key:'';if(fk0==='dunes'){k='anubislair';x=14*TS;y=26*TS;toast('🌀 이미 깬 미로 — 바로 아누비스의 동굴로!');}else if(fk0==='anubislair'){k='dunes';x=56*TS;y=20*TS;}}
  const fromKey=map?map.key:'';if(k==='anubislair'&&!(P.flags&&P.flags.sandmaze)){P.flags.sandmaze=1;delete MAPS.sandstorm;toast('🌀 미로를 빠져나왔다! 이제 모래폭풍 미로가 사라진다');}if(k==='shaft1'&&NET.sock)setTimeout(()=>{if(NET.sock&&map&&map.key==='shaft1')NET.sock.emit('rock:sync');},700);
  if(TR.id){if(NET.sock)NET.sock.emit('tr:cancel',{id:TR.id});tradeReset();}
