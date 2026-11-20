@@ -139,7 +139,7 @@ input[type=text],input[type=password]{font-family:inherit;background:#120a24;bor
     <div id="gold">💰 0 G</div>
   </div>
   <div id="topr">
-    <div id="mapname">마을</div>
+    <div id="mapname" style="pointer-events:auto;cursor:pointer" title="채널 바꾸기">마을</div>
     <div class="trow"><button class="tbtn" id="bFold" title="버튼 접기/펴기">☰</button></div>
     <div id="tbtns">
     <div class="trow"><button class="tbtn" id="bMute">🔊</button><button class="tbtn hidden" id="bVoice">🎤</button><button class="tbtn" id="bChat">💬</button><button class="tbtn" data-tab="stat">상태</button><button class="tbtn" data-tab="skill">스킬</button></div>
@@ -152,6 +152,7 @@ input[type=text],input[type=password]{font-family:inherit;background:#120a24;bor
 <div id="boss" class="hidden"><div id="bossDrop" style="font-size:10px;color:#ffe9a8;margin-bottom:3px;text-shadow:0 1px 0 #000">드랍: 🦴 모르간의 뼈 2~3개 · 🧥 모르간의 망토 10% · 내 직업 무기 · 행운의 부적</div><div id="bossName">Lv12 리치 모르간</div><div class="bar"><i></i></div><div id="bossRank"></div></div>
 <div id="qtrack"></div>
 <div id="chatbar" class="hidden"><input type="text" id="chatIn" maxlength="40" placeholder="할 말을 쓰고 Enter" autocomplete="off"><button class="btn gold" id="chatSend">보내기</button><button class="btn" id="chatRep" title="신고·차단">🚩</button></div>
+<div id="chBox" class="hidden" style="position:fixed;inset:12vh 6vw auto;z-index:60;background:#1d1236;border:3px solid #8a6bd1;border-radius:12px;padding:12px;font-size:13px;max-height:76vh;overflow:auto"></div>
 <div id="admBox" class="hidden" style="position:fixed;inset:6vh 3vw;z-index:60;background:#1d1236;border:3px solid #8a6bd1;border-radius:12px;padding:12px;overflow:auto;font-size:13px"></div>
 <div id="toast"></div>
 <div id="hint" class="hidden">🎯 쏠 곳을 터치하세요 (버튼을 한 번 더 누르면 자동 조준)</div>
@@ -1282,7 +1283,7 @@ function sendChat(){const raw=($('chatIn').value||'').replace(/[\u0000-\u001f]/g
  if(NET.admin&&/^\/이벤트\s*(시작|종료)$/.test(raw)){closeChat();if(NET.sock)NET.sock.emit('evt:admin',/시작/.test(raw)?'start':'stop');return;}
  if(NET.admin&&/^\/공지\s+/.test(raw)){closeChat();if(NET.sock)NET.sock.emit('ann',raw.replace(/^\/공지\s+/,'').slice(0,60));return;}const t=raw.slice(0,40);closeChat();if(!t)return;P.say=t;P.sayT=nowS()+5;chatLine('<b style="color:#ffe9a8">'+esc(P.name)+'</b>: '+esc(t));if(NET.sock&&NET.sock.connected)NET.sock.emit('c',t);}
 $('bChat').onclick=()=>{$('chatbar').classList.contains('hidden')?openChat():closeChat();};
-$('chatSend').onclick=sendChat;$('chatRep').onclick=chatReportPick;
+$('chatSend').onclick=sendChat;$('mapname').onclick=chOpen;$('chatRep').onclick=chatReportPick;
 // 전체화면
 function toggleFS(){const d=document,el=d.documentElement;try{if(d.fullscreenElement||d.webkitFullscreenElement){(d.exitFullscreen||d.webkitExitFullscreen).call(d);return;}
  const f=el.requestFullscreen||el.webkitRequestFullscreen;if(!f){toast('이 기기는 전체화면을 지원하지 않아요');log('💡 아이폰은 Safari 공유 버튼 → 「홈 화면에 추가」로 열면 전체화면처럼 쓸 수 있어요');return;}
@@ -2598,7 +2599,7 @@ function hud(){
  if(spirits.length)q+=`<div style="color:#9ccc65">🧚 ${spirits.map(x=>SPT[x.t].n.replace(' 정령','')+' '+Math.ceil(x.life)+'초').join(' · ')}${P.spBoost>0?' · ✨축복':''}</div>`;
  {const F=foodOn();if(F)q+=`<div style="color:#ffd740">${CONS[P.food.id][3]} ${CONS[P.food.id][0]} · ${Math.ceil((P.food.until-Date.now())/1000)}초</div>`;else if(P.food&&P.food.id){P.food=null;calc();toast('🍽 음식 효과가 끝났어요');}}
  const el=$('qtrack');if(el._q!==q){el._q=q;el.innerHTML=q;}}
- const oc=NET.others.size,mk='📍 '+map.name+(NET.live?' · 👥 '+(oc+1)+' (전체 '+Math.max(NET.total||0,oc+1)+')':'');if($('mapname').textContent!==mk)$('mapname').textContent=mk;
+ const oc=NET.others.size,mk='📍 '+map.name+(NET.live?(NET.ch?' · 📡'+NET.ch+'채널':'')+' · 👥 '+(oc+1)+' (전체 '+Math.max(NET.total||0,oc+1)+')':'');if($('mapname').textContent!==mk)$('mapname').textContent=mk;
  for(let i=0;i<3;i++){const b=$('bS'+(i+1)),id=P.slots[i],s=id&&SK[id];const key=id||'-';b.classList.toggle('arm',armed===i);
   if(b._k!==key){b._k=key;b.innerHTML=`<span class="key">${i+1}</span>`+(s?`<b>${s.ic}</b>${s.name}`:'<span style="opacity:.5">빈칸</span>')+'<div class="cd"></div>';b.classList.toggle('lock',!s);}
   b.querySelector('.cd').style.height=(s?(P.cds[id]||0)/s.cd*100:0)+'%';}
@@ -3069,6 +3070,11 @@ function accountHtml(){let h='<div style="color:#ffe9a8;margin-top:14px">⚙ 계
 function accountBind(){const ad=$('accAdm');if(ad)ad.onclick=admOpen;const base=(SERVER||'')+'/rpg/';const a=$('accPriv');if(a)a.onclick=()=>window.open(base+'privacy','_blank');
  const u=$('accUnblock');if(u)u.onclick=()=>{P.blocked=[];save(true);toast('차단을 모두 해제했어요');renderMenu();};
  const d=$('accDel');if(d)d.onclick=()=>{$('menu').classList.add('hidden');dialog('⚠ 계정 삭제',['계정과 캐릭터, 아이템, 골드, RANDOM FOOTBALL 기록까지 모두 영구히 지워져요.\n되돌릴 수 없어요. 정말 지울까요?'],[{t:'영구 삭제',c:'red',f:async()=>{const pw=prompt('본인 확인을 위해 비밀번호를 입력해 주세요 (Google 로그인이면 비워 두세요)')||'';try{const r=await fetch(NET.base+'/api/rpg/deleteme',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+NET.token},body:JSON.stringify({pw})});const j=await r.json().catch(()=>({}));if(!r.ok){toast(j.error==='forbidden'?'이 계정은 지울 수 없어요':j.error==='locked'?'잠시 후 다시 시도해 주세요':'비밀번호가 틀렸어요');return;}NET.stopped=true;try{localStorage.removeItem(SAVEKEY);}catch(e){}netLogout();dialog('계정 삭제 완료',['계정이 삭제됐어요. 이용해 주셔서 고마워요.'],[{t:'확인',f:()=>location.reload()}]);}catch(e){toast('서버에 연결하지 못했어요');}}},{t:'취소'}]);};}
+function chOpen(){if(!NET.sock||!NET.live){toast('온라인에 접속해야 채널을 고를 수 있어요');return;}NET.sock.emit('ch:list');}
+function chRender(d){const B=$('chBox');let h='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><b style="color:#ffe9a8;font-size:15px">📡 채널 선택</b><button class="btn" id="chX">닫기</button></div><div style="color:#b7a6d9;font-size:12px;margin-bottom:8px">채널마다 최대 '+d.max+'명 · 같은 채널 사람끼리만 보여요'+(PT.id?'<br>👥 파티원 채널: '+[...new Set((PT.st||[]).filter(a=>a[0]!==NET.uid&&a[7]).map(a=>a[7]+'채널'))].join(', '):'')+'</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">';
+ d.c.forEach((n,i)=>{const c=i+1,full=n>=d.max,me=c===d.cur;h+=`<button class="btn${me?' gold':''}" data-ch="${c}" ${full&&!me?'disabled':''} style="padding:8px 4px">${c}채널<br><small style="color:${full?'#ff8a8a':n>=d.max*.75?'#ffd740':'#9dffb0'}">${n}/${d.max}${me?' (지금)':''}</small></button>`;});
+ B.innerHTML=h+'</div>';B.classList.remove('hidden');$('chX').onclick=()=>B.classList.add('hidden');
+ B.querySelectorAll('[data-ch]').forEach(b=>b.onclick=()=>{const c=+b.dataset.ch;if(c===d.cur)return;NET.sock.emit('ch:set',c);B.classList.add('hidden');});}
 function chatReportPick(){closeChat();const seen=new Map();for(let i=CHATLOG.length-1;i>=0&&seen.size<6;i--){const c=CHATLOG[i];if(c.u&&c.u!==NET.uid&&!seen.has(c.u))seen.set(c.u,c.n||'?');}
  if(!seen.size){dialog('🚩 신고·차단',['최근에 채팅한 사람이 없어요.\n근처 사람은 메뉴 → 🤝 거래 탭에서도 신고·차단할 수 있어요.']);return;}
  dialog('🚩 신고·차단',['최근 채팅한 사람을 골라 주세요.'],[...[...seen].map(([u,n])=>({t:n,f:()=>setTimeout(()=>dialog('🚩 '+n,['어떻게 할까요?\n\n최근 채팅: '+CHATLOG.filter(c=>c.u===u).slice(-3).map(c=>c.t).join(' / ')],[{t:'🚩 신고',c:'red',f:()=>setTimeout(()=>reportUser(u,n),50)},{t:isBlocked(u)?'차단 풀기':'🚫 차단',f:()=>{if(isBlocked(u)){P.blocked=P.blocked.filter(x=>x[0]!==u);save(true);toast('차단을 풀었어요');}else blockUser(u,n);}},{t:'취소'}]),50)})),{t:'닫기'}]);}
@@ -3384,6 +3390,9 @@ setInterval(()=>netFlush(),4000);
 addEventListener('visibilitychange',()=>{if(document.hidden&&P&&map&&NET.playing){save(true);netFlush(true);}});
 function netConnect(){if(!NET.token||NET.sock)return;
  const go=()=>{if(NET.sock||!window.io)return;const k=window.io(NET.base+'/rpg',{auth:{token:NET.token},transports:['websocket','polling']});NET.sock=k;
+  k.on('ch',d=>{if(!d)return;NET.ch=+d.ch||0;if(d.moved){NET.host=false;NET.hostMap=null;if(map&&!map.pvp)enterMap(map.key,P.x,P.y);toast('📡 '+NET.ch+'채널로 옮겼어요');}});
+  k.on('ch:list',d=>{if(d&&Array.isArray(d.c))chRender(d);});
+  k.on('full',()=>{dialog('📡 접속 인원 초과',['모든 채널(15채널 × 12명)이 꽉 찼어요.\n잠시 뒤에 다시 접속해 주세요. 그동안은 혼자 플레이할 수 있어요.']);});
   k.on('adm:reps',d=>{if(d&&Array.isArray(d.list))admRender({list:d.list,sanc:Array.isArray(d.sanc)?d.sanc:[]});});
   const banShow=(left,why)=>{NET.banned=1;try{k.io.opts.reconnection=false;}catch(e){}dialog('⛔ 이용 정지',['운영 정책 위반으로 이 계정의 온라인 이용이 정지됐어요.\n남은 기간: '+left+(why?'\n사유: '+why:'')+'\n\n이의가 있으면 개인정보처리방침의 문의처로 연락해 주세요.']);};
   k.on('banned',d=>banShow(d&&d.left||'?',d&&d.why||''));
