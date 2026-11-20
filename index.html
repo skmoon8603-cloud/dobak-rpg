@@ -25,10 +25,10 @@ button{font-family:inherit;cursor:pointer}
 #hpb i{background:linear-gradient(#ff6b6b,#c0392b)}#mpb i{background:linear-gradient(#6ba8ff,#2c5bc0)}#xpb i{background:linear-gradient(#ffe066,#d4a017)}
 #xpb{height:10px}#xpb span{font-size:8px;line-height:10px}
 #gold{font-size:12px;color:#ffd75e;margin-top:3px}
-#topr{display:flex;flex-direction:column;align-items:flex-end;gap:6px;pointer-events:auto}
-#mapname{white-space:nowrap;max-width:62vw;overflow:hidden;text-overflow:ellipsis;background:rgba(20,10,40,.78);border:2px solid #6b4fa8;border-radius:8px;padding:4px 8px;font-size:12px}
+#topr{display:flex;flex-direction:column;align-items:flex-end;gap:6px;pointer-events:auto;min-width:0;flex:1 1 auto;max-width:100%}#tbtns{display:flex;flex-direction:column;align-items:flex-end;gap:6px;max-width:100%}
+#mapname{white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis;background:rgba(20,10,40,.78);border:2px solid #6b4fa8;border-radius:8px;padding:4px 8px;font-size:12px}
 .tbtn{background:#3b2766;border:2px solid #a585e8;color:#fff;border-radius:8px;padding:5px 7px;font-size:12px;white-space:nowrap}
-.trow{display:flex;gap:4px;justify-content:flex-end}
+.trow{display:flex;gap:4px;justify-content:flex-end;flex-wrap:wrap;max-width:100%}
 #chatbar{position:fixed;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top) + 150px);width:min(360px,94vw);display:flex;gap:6px;z-index:15;background:rgba(20,10,40,.9);border:2px solid #a585e8;border-radius:10px;padding:6px}
 #chatbar input{flex:1;min-width:0;font-size:14px;padding:6px}
 #bossRank{margin-top:4px;font-size:11px;line-height:1.45;color:#fff;text-shadow:0 1px 0 #000;background:rgba(20,6,30,.6);border-radius:6px;padding:2px 6px;display:inline-block}#bossRank:empty{display:none}#bossRank .me{color:#ffe066}
@@ -215,7 +215,7 @@ const TS=32;
 const $=id=>document.getElementById(id);
 const cv=$('game');let ctx=cv.getContext('2d');
 let W=0,H=0,SC=1,DPR=1;
-function resize(){DPR=Math.min(2,window.devicePixelRatio||1);W=innerWidth;H=innerHeight;cv.width=Math.floor(W*DPR);cv.height=Math.floor(H*DPR);cv.style.width=W+'px';cv.style.height=H+'px';SC=Math.max(.7,Math.min(2,H>W?W/(14*TS):Math.min(W,H)/(10*TS)));} // 세로 화면에서도 옆이 잘리지 않게 (가로 10칸)
+function resize(){DPR=Math.min(2,window.devicePixelRatio||1);W=innerWidth;H=innerHeight;cv.width=Math.floor(W*DPR);cv.height=Math.floor(H*DPR);cv.style.width=W+'px';cv.style.height=H+'px';SC=Math.max(1,Math.min(2,Math.min(W,H)/(10*TS)));}
 addEventListener('resize',resize);resize();
 document.addEventListener('fullscreenchange',()=>{const b=document.getElementById('bFull');if(b)b.textContent=document.fullscreenElement?'⛶ 나가기':'⛶';setTimeout(resize,50);});
 const rnd=(a,b)=>a+Math.random()*(b-a);
