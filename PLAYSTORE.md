@@ -16,7 +16,7 @@
 Render 대시보드 → 서버 → Environment 에 추가:
 - `RPG_APP_SHA256` = 위에서 복사한 지문 (플레이 콘솔의 "앱 서명 키" 지문도 있으면 쉼표로 이어서)
 - `RPG_APP_PKG` = `com.dobakrpg.app`
-- `RPG_CONTACT` = 문의 받을 이메일 주소
+- (문의 이메일은 skmoon8603@gmail.com 으로 코드에 넣어 둠)
 
 넣고 나면 `https://random-football-cflg.onrender.com/.well-known/assetlinks.json` 에 지문이 보여야 해요. (이게 없으면 앱 위에 주소창이 보여요)
 

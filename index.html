@@ -44,7 +44,8 @@ button{font-family:inherit;cursor:pointer}
 #qtrack div.h{border-left-color:#c58bff;color:#e3c8ff}
 #qtrack div.ok{border-left-color:#7dff7d;color:#b8ffb8}
 #toast{position:fixed;top:30%;left:50%;transform:translate(-50%,-50%);font-size:22px;color:#ffe066;text-shadow:0 2px 0 #000,0 0 12px #c08bff;pointer-events:none;text-align:center;transition:opacity .4s;opacity:0;white-space:nowrap}
-#log{position:fixed;left:calc(env(safe-area-inset-left) + 8px);bottom:calc(env(safe-area-inset-bottom) + 215px);font-size:11px;pointer-events:none;max-width:55vw;text-shadow:0 1px 0 #000}
+#chatlog{position:fixed;left:calc(env(safe-area-inset-left) + 8px);bottom:calc(env(safe-area-inset-bottom) + 215px);font-size:11px;pointer-events:none;max-width:55vw;text-shadow:0 1px 0 #000;background:rgba(10,5,25,.35);border-radius:6px;padding:0 4px}#chatlog:empty{display:none}
+#log{position:fixed;left:calc(env(safe-area-inset-left) + 8px);bottom:calc(env(safe-area-inset-bottom) + 290px);font-size:11px;pointer-events:none;max-width:55vw;text-shadow:0 1px 0 #000}
 #log div{opacity:.9;margin-top:2px}
 /* controls */
 #ctrl{position:fixed;right:calc(env(safe-area-inset-right) + 10px);bottom:calc(env(safe-area-inset-bottom) + 10px);width:232px;height:190px;pointer-events:none}
@@ -154,7 +155,7 @@ input[type=text],input[type=password]{font-family:inherit;background:#120a24;bor
 <div id="admBox" class="hidden" style="position:fixed;inset:6vh 3vw;z-index:60;background:#1d1236;border:3px solid #8a6bd1;border-radius:12px;padding:12px;overflow:auto;font-size:13px"></div>
 <div id="toast"></div>
 <div id="hint" class="hidden">🎯 쏠 곳을 터치하세요 (버튼을 한 번 더 누르면 자동 조준)</div>
-<div id="log"></div>
+<div id="log"></div><div id="chatlog"></div>
 
 <div id="ctrl" class="hidden">
   <button class="cb" id="bAtk"><span class="key">Space</span><b>⚔</b>공격</button>
@@ -422,7 +423,7 @@ const JOBS3={
  spiritgod:{from:'spiritking',name:'정령신',color:'#004d40',hat:'#ffd740',desc:'정령을 5마리까지 · 마그마·번개 정령 · 정령신의 축복'}};
 const JOB3OF={};for(const k in JOBS3)JOB3OF[JOBS3[k].from]=k;
 const jobName=o=>o.job3&&JOBS3[o.job3]?JOBS3[o.job3].name:o.job&&JOBS[o.job]?JOBS[o.job].name:CLASSES[o.cls].name;
-const SELF=new Set(['swordmaster1','swordmaster2','plum0','plum2','godbow2','boweye2','gatling1','headhunter2','dumbledore1','dumbledore2','voldemort2','swordemp0','swordemp2','spiritgod0','spiritgod1','spiritgod2','spirit0','spirit1','spirit2','spirit3','spirit4','spirit5','spirit6','spiritking0','spiritking1','special3','sword2','sword6','archer6','u0','u2','u3','ranger0','ranger2','ranger5','ranger6','white0','white1','tradbow0','expert1','peak1','msword3','msword6','msorder1','special1']);
+const SELF=new Set(['swordmaster1','swordmaster2','plum0','plum2','godbow2','boweye2','gatling1','headhunter2','dumbledore2','voldemort2','swordemp0','swordemp2','spiritgod0','spiritgod1','spiritgod2','spirit0','spirit1','spirit2','spirit3','spirit4','spirit5','spirit6','spiritking0','spiritking1','special3','sword2','sword6','archer6','u0','u2','u3','ranger0','ranger2','ranger5','ranger6','white0','white1','tradbow0','expert1','peak1','msword3','msword6','msorder1','special1']);
 const SK={};for(const c in SKILLS)SKILLS[c].forEach((x,i)=>{x.id=(c==='common'?'u':c)+i;SK[x.id]=x;});
 // 기본 스킬은 Lv1, 4, 7, 9, 11 에 하나씩 / 스킬북은 Lv5, 8, 12
 for(const c of ['mage','sword','archer','ranger']){const a=SKILLS[c];delete a[4].book;SKILLS[c]=[a[0],a[1],a[2],a[4],a[3],a[5],a[6],a[7]];[1,4,7,9,11].forEach((lv,i)=>SKILLS[c][i].lv=lv);[5,8,12].forEach((lv,i)=>SKILLS[c][5+i].lv=lv);}
@@ -1279,7 +1280,7 @@ function openChat(){if(!P||!map||P.dead)return;const c=$('chatbar');c.classList.
 function closeChat(){$('chatbar').classList.add('hidden');$('chatIn').blur();}
 function sendChat(){const raw=($('chatIn').value||'').replace(/[\u0000-\u001f]/g,' ').trim();if(/^\//.test(raw)&&!NET.admin){closeChat();toast('⚙ 명령어는 관리자만 쓸 수 있어요');return;}if(NET.admin&&/^\/드래곤$/.test(raw)){closeChat();if(NET.sock)NET.sock.emit('admin:spawn',{t:'dragon',x:Math.round(P.x+P.fx*160),y:Math.round(P.y-60)});return;}
  if(NET.admin&&/^\/이벤트\s*(시작|종료)$/.test(raw)){closeChat();if(NET.sock)NET.sock.emit('evt:admin',/시작/.test(raw)?'start':'stop');return;}
- if(NET.admin&&/^\/공지\s+/.test(raw)){closeChat();if(NET.sock)NET.sock.emit('ann',raw.replace(/^\/공지\s+/,'').slice(0,60));return;}const t=raw.slice(0,40);closeChat();if(!t)return;P.say=t;P.sayT=nowS()+5;log('<b style="color:#ffe9a8">'+esc(P.name)+'</b>: '+esc(t));if(NET.sock&&NET.sock.connected)NET.sock.emit('c',t);}
+ if(NET.admin&&/^\/공지\s+/.test(raw)){closeChat();if(NET.sock)NET.sock.emit('ann',raw.replace(/^\/공지\s+/,'').slice(0,60));return;}const t=raw.slice(0,40);closeChat();if(!t)return;P.say=t;P.sayT=nowS()+5;chatLine('<b style="color:#ffe9a8">'+esc(P.name)+'</b>: '+esc(t));if(NET.sock&&NET.sock.connected)NET.sock.emit('c',t);}
 $('bChat').onclick=()=>{$('chatbar').classList.contains('hidden')?openChat():closeChat();};
 $('chatSend').onclick=sendChat;$('chatRep').onclick=chatReportPick;
 // 전체화면
@@ -2602,6 +2603,7 @@ function hud(){
  $('bDash').querySelector('.cd').style.height=((P.dcd||0)/1.2*100)+'%';
 }
 let toastT=0;function toast(t){const e=$('toast');e.textContent=t;e.style.opacity=1;clearTimeout(toastT);toastT=setTimeout(()=>e.style.opacity=0,1600);}
+function chatLine(h){const l=$('chatlog');const d=document.createElement('div');d.innerHTML=h;l.appendChild(d);while(l.children.length>5)l.firstChild.remove();}
 function log(h){const l=$('log');const d=document.createElement('div');d.innerHTML=h;l.appendChild(d);while(l.children.length>5)l.firstChild.remove();setTimeout(()=>d.remove(),5000);}
 
 // ================= 대화 =================
@@ -3415,7 +3417,7 @@ function netConnect(){if(!NET.token||NET.sock)return;
   k.on('duel:go',d=>{if(!d||!/^arena[a-z]{5}$/.test(d.arena)||!P||P.dead)return;closeDlg();$('menu').classList.add('hidden');paused=false;P.pvOver=0;P.pvGone=0;calc();P.hp=P.st.hp;P.mp=P.st.mp;
    P.pvSides=d.sides&&typeof d.sides==='object'?d.sides:null;P.pvSide=d.side?1:0;P.pvOut=new Set();if(P.pvSides){const opp=Object.keys(P.pvSides).filter(u=>P.pvSides[u]!==P.pvSide).length,mine=Object.keys(P.pvSides).filter(u=>P.pvSides[u]===P.pvSide).length;log(`👑 1:다수 결투 — 우리 편 ${mine}명 vs 상대 ${opp}명`);}
    enterMap(d.arena,(d.side?21.5:4.5)*TS,(9.5+[0,-3,3,-6][Math.max(0,Math.min(3,+d.idx||0))])*TS);P.pvStart=gameT+3;for(let i=3;i>=1;i--)timers.push({t:3-i,f:()=>toast('⚔ '+i)});timers.push({t:3,f:()=>{toast('⚔ 결투 시작!');sfx('boom');}});});
-  k.on('c',d=>{if(!d||typeof d.t!=='string')return;CHATLOG.push({u:d.u,n:String(d.n||'?').slice(0,12),t:d.t.slice(0,60)});if(CHATLOG.length>200)CHATLOG.shift();if(isBlocked(d.u))return;const t=d.t.slice(0,60),o=NET.others.get(d.u);if(o){o.say=t;o.sayT=nowS()+5;}log('<b style="color:#9dffb0">'+esc(String(d.n||'?').slice(0,12))+'</b>: '+esc(t));});
+  k.on('c',d=>{if(!d||typeof d.t!=='string')return;CHATLOG.push({u:d.u,n:String(d.n||'?').slice(0,12),t:d.t.slice(0,60)});if(CHATLOG.length>200)CHATLOG.shift();if(isBlocked(d.u))return;const t=d.t.slice(0,60),o=NET.others.get(d.u);if(o){o.say=t;o.sayT=nowS()+5;}chatLine('<b style="color:#9dffb0">'+esc(String(d.n||'?').slice(0,12))+'</b>: '+esc(t));});
   k.on('kicked',()=>netStop('다른 기기에서 이 계정으로 접속했어요.'));
   k.on('ps',list=>{if(!Array.isArray(list))return;const seen=new Set();for(const a of list){if(!a||a[0]===NET.uid)continue;seen.add(a[0]);let o=NET.others.get(a[0]);if(!o){o={x:a[6],y:a[7],walk:0,fy:0};NET.others.set(a[0],o);}
     o.name=String(a[1]);o.race=a[2];o.cls=a[3];o.job=a[4];o.lv=a[5];o.tx=a[6];o.ty=a[7];o.fx=a[8];o.atk=!!a[9];o.w=!!a[10];o.wp=a[11];o.ar=a[12];o.tt=a[13];o.hp=a[14];o.v=a[15]||'';o.rd=!!a[16];o.wl=+a[19]||0;{const L=Array.isArray(a[18])?a[18].slice(0,5):[];o.spt=L;if(!o.spc||o.spc.length!==L.length)o.spc=L.map(c=>c.slice());}if(o.v==='fixie'&&typeof a[17]==='number'){if(o.thd==null)o.hd=a[17];o.thd=a[17];}if(Math.hypot(o.tx-o.x,o.ty-o.y)>200){o.x=o.tx;o.y=o.ty;}}
