@@ -846,7 +846,7 @@ function slotBind(B){betBind(B);$('slotGo').onclick=()=>{if(casinoBusy)return;co
   if(t<700+2*450+100){requestAnimationFrame(tick);return;}
   let mult=0;if(res[0]===res[1]&&res[1]===res[2])mult=res[0][2];else if(res[0]===res[1]||res[1]===res[2]||res[0]===res[2])mult=1.3;
   if(mult){const w=casinoWin(bet,mult);$('slotRes').innerHTML=`<span style="color:${mult>=10?'#ff4081':'#7dff7d'}">${mult>=10?'🎉 대박! ':''}${w.toLocaleString()}G 획득! (×${mult})</span>`;sfx('win');if(res[0][0]==='7️⃣'&&mult===50){P.flags.s777=1;flashA=.5;toast('7️⃣7️⃣7️⃣ 잭팟!!');}}
-  else{$('slotRes').innerHTML='<span style="color:#ff8a8a">꽝…</span>';sfx('lose');save(true);}
+  else{$('slotRes').innerHTML='<span style="color:#ff8a8a">꽝…</span>';sfx('lose');saveLoss();}
   $('cGold').textContent=P.gold.toLocaleString();for(let i=0;i<3;i++){const el=$('reel'+i);if(el)el.dataset.done='';}casinoBusy=false;};requestAnimationFrame(tick);};}
 // 빙글판: 0(초록) + 1~36 (홀수 검정 · 짝수 흰색)
 const RN=[0,32,15,19,4,21,2,25,17,34,6,27,13,36,11,30,8,23,10,5,24,16,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26];
@@ -868,7 +868,7 @@ function roulBind(B){betBind(B);const cv=$('roulCv');if(cv)drawRoul(cv.getContex
    drawRoul(c.getContext('2d'),roulAng,{a:-Math.PI/2-(1-e2)*20,r:100-12-(1-e2)*0});if(t<1){if(Math.random()<.2)sfx('hit');requestAnimationFrame(step);return;}
    let mult=0;if(kind==='num'&&res===num)mult=28;else if(kind!=='num'&&rcol(res)===kind)mult=1.9;const cn={green:'초록',black:'검은색',white:'흰색'}[rcol(res)];
    if(mult){const w=casinoWin(bet,mult);$('roulRes').innerHTML=`<span style="color:${mult>2?'#ff4081':'#7dff7d'}">${res} (${cn})! ${mult>2?'🎉 잭팟!! ':''}${w.toLocaleString()}G 획득</span>`;sfx('win');if(mult>2){P.flags.jackpot=1;flashA=.5;toast('🎰 숫자 적중! 잭팟!!');}}
-   else{$('roulRes').innerHTML=`<span style="color:#ff8a8a">${res} (${cn})… 꽝</span>`;sfx('lose');save(true);}
+   else{$('roulRes').innerHTML=`<span style="color:#ff8a8a">${res} (${cn})… 꽝</span>`;sfx('lose');saveLoss();}
    $('cGold').textContent=P.gold.toLocaleString();casinoBusy=false;};requestAnimationFrame(step);});}
 function makeHouse(){
  const w=11,h=9,t=grid(w,h,'H');rect(t,0,0,w,2,'K');rect(t,1,2,w-2,h-3,'o');
@@ -1163,6 +1163,7 @@ function snap(){const d=Object.assign({},P);delete d.st;delete d.dash;delete d.s
 function save(silent){let ok=true;try{localStorage.setItem(SAVEKEY,JSON.stringify(snap()));}catch(e){ok=false;}
  if(NET.token&&!NET.stopped){NET.dirty=true;ok=true;}
  if(!silent)log(ok?(NET.token?'💾 저장되었습니다 (서버)':'💾 저장되었습니다'):'⚠ 이 브라우저에서는 저장할 수 없어요');return ok;}
+function saveLoss(){save(true);try{netFlush();}catch(e){}} // 도박에서 잃으면 바로 서버까지 저장
 function hasSave(){try{return !!localStorage.getItem(SAVEKEY);}catch(e){return false;}}
 function applySave(d){if(!d||!d.race||!RACES[d.race]||!CLASSES[d.cls])return false;P=Object.assign(newPlayer(d.name,d.race,d.cls),d);fixPlayer();return true;}
 function load(){try{return applySave(JSON.parse(localStorage.getItem(SAVEKEY)));}catch(e){return false;}}
@@ -1672,7 +1673,7 @@ function puff(x,y,c){for(let k=0;k<12;k++)parts.push({x,y:y-10,vx:rnd(-90,90),vy
 function zone(o){zones.push(Object.assign({t:0,life:o.dur},o));vis({t:'z',x:Math.round(o.x),y:Math.round(o.y),r:o.r,d:o.dur,c:o.color,p:o.pull?1:0});}
 function chainFrom(src,n,dmg){const hit=new Set([src]);const pts=[{x:src.x,y:src.y}];let cur=src;for(let k=0;k<n;k++){let nx=null,nd=170;for(const e of enemies)if(!hit.has(e)){const dd=dist(e,cur);if(dd<nd){nd=dd;nx=e;}}if(!nx)break;hit.add(nx);pts.push({x:nx.x,y:nx.y});hurtEnemy(nx,dmg,{slow:.6},true);cur=nx;}if(pts.length>1)vfx({k:'bolt',pts,life:.25,max:.25,color:'#fff27a'});}
 function diceRoll(lv){const n=ri(1,6),m=1+.15*(lv-1);addText(P.x,P.y-46,'🎲 '+n,'#ffe066',18);
- if(n===1){const v=Math.round(P.st.hp*.1);P.hp=Math.max(1,P.hp-v);toast('🎲 1 — 꽝! 체력 -'+v);sfx('lose');}
+ if(n===1){const v=Math.round(P.st.hp*.1);P.hp=Math.max(1,P.hp-v);toast('🎲 1 — 꽝! 체력 -'+v);sfx('lose');saveLoss();}
  else if(n===2){P.mp=P.st.mp;toast('🎲 2 — 마나 완전 회복!');}
  else if(n===3){P.hp=P.st.hp;toast('🎲 3 — 체력 완전 회복!');}
  else if(n===4){P.haste=8*m;toast('🎲 4 — 신속!');}
@@ -3042,10 +3043,11 @@ function tradeHtml(){
  for(const k in MATS){if(!(P.mats[k]>0)||k==='conch'||k==='dhorn')continue;const l=left('m',k,0,P.mats[k]);h+=`<div class="row"><div class="t">${MATS[k][1]} ${MATS[k][0]} <span style="color:#b7a6d9">×${l}</span></div><button class="btn" data-tadd="m:${k}" ${l>0?'':'disabled'}>+1</button><button class="btn" data-tadd="m:${k}:10" ${l>=10?'':'disabled'}>+10</button><button class="btn" data-tsub="m:${k}">-1</button></div>`;}
  for(const k in CONS){if(!(P.pots[k]>0))continue;const l=left('c',k,0,P.pots[k]);h+=`<div class="row"><div class="t">${CONS[k][3]} ${CONS[k][0]} <span style="color:#b7a6d9">×${l}</span></div><button class="btn" data-tadd="c:${k}" ${l>0?'':'disabled'}>+1</button><button class="btn" data-tsub="c:${k}">-1</button></div>`;}
  return h;}
+function inDebt(){return !!(P&&(P.labor||(P.bank&&P.bank.loan>0)));}
 function tradeSend(){if(TR.id&&NET.sock)NET.sock.emit('tr:offer',{id:TR.id,offer:TR.mine});}
 function tradeBind(B){const k=NET.sock;
- B.querySelectorAll('[data-treq]').forEach(b=>b.onclick=()=>{if(k)k.emit('tr:req',{to:b.dataset.treq});});
- const lk=$('trLock');if(lk)lk.onclick=()=>{if(k)k.emit('tr:lock',{id:TR.id,on:!TR.lk.includes(NET.uid)});};
+ B.querySelectorAll('[data-treq]').forEach(b=>b.onclick=()=>{if(inDebt()){toast('💳 빚이 있으면 거래할 수 없어요. 은행 대출부터 갚아 주세요');return;}if(k)k.emit('tr:req',{to:b.dataset.treq});});
+ const lk=$('trLock');if(lk)lk.onclick=()=>{if(inDebt()){k.emit('tr:cancel',{id:TR.id});tradeReset('💳 빚이 있으면 거래할 수 없어요');return;}if(k)k.emit('tr:lock',{id:TR.id,on:!TR.lk.includes(NET.uid)});};
  const cc=$('trCancel');if(cc)cc.onclick=()=>{if(k)k.emit('tr:cancel',{id:TR.id});tradeReset('거래를 취소했어요');};
  const gs=$('trGoldSet');if(gs)gs.onclick=()=>{const v=Math.max(0,Math.min(P.gold,Math.floor(+($('trGold').value||0)||0)));TR.mine.g=v;tradeSend();renderMenu();};
  B.querySelectorAll('[data-tadd],[data-tsub]').forEach(b=>b.onclick=()=>{const add=!!b.dataset.tadd,[kind,id,x]=(b.dataset.tadd||b.dataset.tsub).split(':'),me=TR.mine;
@@ -3067,8 +3069,8 @@ function tradeApply(give,get){const N=(v,hi)=>Math.max(0,Math.min(hi,Math.floor(
  P.trades=(P.trades||0)+1;calc();save(true);netFlush();}
 function tradeNet(k){
  k.on('tr:msg',m=>toast(String(m).slice(0,60)));
- k.on('tr:ask',d=>{if(!d||!P||P.dead)return;$('menu').classList.add('hidden');dialog('🤝 거래 신청',[`${String(d.op||'?').slice(0,12)} 님이 거래를 신청했어요.`],[{t:'수락',c:'gold',f:()=>k.emit('tr:ans',{id:d.id,yes:1})},{t:'거절',f:()=>k.emit('tr:ans',{id:d.id,yes:0})}]);});
- k.on('tr:open',d=>{if(!d)return;TR.id=d.id;TR.op=String(d.op||'?').slice(0,12);TR.mine=offerEmpty();TR.theirs=null;TR.lk=[];if(dlgState)closeDlg();openMenu('trade');sfx('coin');});
+ k.on('tr:ask',d=>{if(!d||!P||P.dead)return;if(inDebt()){k.emit('tr:ans',{id:d.id,yes:0});toast('💳 빚이 있어서 '+String(d.op||'?').slice(0,12)+' 님의 거래 신청을 받을 수 없어요');return;}$('menu').classList.add('hidden');dialog('🤝 거래 신청',[`${String(d.op||'?').slice(0,12)} 님이 거래를 신청했어요.`],[{t:'수락',c:'gold',f:()=>k.emit('tr:ans',{id:d.id,yes:1})},{t:'거절',f:()=>k.emit('tr:ans',{id:d.id,yes:0})}]);});
+ k.on('tr:open',d=>{if(!d)return;if(inDebt()){k.emit('tr:cancel',{id:d.id});toast('💳 빚이 있으면 거래할 수 없어요');return;}TR.id=d.id;TR.op=String(d.op||'?').slice(0,12);TR.mine=offerEmpty();TR.theirs=null;TR.lk=[];if(dlgState)closeDlg();openMenu('trade');sfx('coin');});
  k.on('tr:offer',d=>{if(!d||d.id!==TR.id)return;TR.theirs=d.offer;if(menuTab==='trade')renderMenu();});
  k.on('tr:st',d=>{if(!d||d.id!==TR.id)return;TR.lk=Array.isArray(d.lk)?d.lk:[];TR.at=d.at?Date.now()+Math.max(0,Math.min(6000,d.at-Date.now())):0;if(TR.at)sfx('coin');if(menuTab==='trade')renderMenu();});
  k.on('tr:end',d=>{if(!d||d.id!==TR.id)return;tradeReset(d.msg||'거래가 끝났어요');});
@@ -3133,7 +3135,7 @@ function coinFlip(bet){
  gambling=true;P.gold-=v;const c=$('coin');c.classList.add('flip');$('gRes').textContent='빙글빙글…';sfx('shoot');
  setTimeout(()=>{c.classList.remove('flip');const win=Math.random()*100<Math.min(50,35+P.st.luck*.7);
   if(win){P.gw=(P.gw||0)+1;P.gold+=v*2;c.textContent='🌕';$('gRes').innerHTML=`<span style="color:#7dff7d">앞면! +${v}G 획득 🎉</span>`;sfx('win');}
-  else{c.textContent='🌑';$('gRes').innerHTML=`<span style="color:#ff8a8a">뒷면… ${v}G 잃음</span>`;sfx('lose');}
+  else{c.textContent='🌑';$('gRes').innerHTML=`<span style="color:#ff8a8a">뒷면… ${v}G 잃음</span>`;sfx('lose');saveLoss();}
   $('gGold').textContent=P.gold.toLocaleString();gambling=false;setTimeout(()=>{if(menuTab==='gamble'&&!$('menu').classList.contains('hidden')){const r=$('gRes').innerHTML,ct=c.textContent;renderMenu();$('gRes').innerHTML=r;$('coin').textContent=ct;}},50);},900);
 }
 function openBox(){
@@ -3141,7 +3143,7 @@ function openBox(){
  gambling=true;P.gold-=300;$('gBoxRes').textContent='📦 덜컹덜컹…';sfx('shoot');
  setTimeout(()=>{const r=Math.random()*100-P.st.luck*.3;let res;
   if(r<1)res='r4';else if(r<8)res=pickItem(3);else if(r<30)res=pickItem(2);else if(r<75)res=pickItem(1);else res=null;
-  let msg;if(!res){msg='<span style="color:#ff8a8a">꽝! 빈 상자다…</span>';sfx('lose');}else{P.bag.push({id:res,plus:0});const it=ITEMS[res];msg=`<span class="r${it.tier}">${it.tier===4?'🌟 전설!! ':''}${it.name}</span> 획득!`;sfx('win');if(it.tier>=3)toast('🎰 '+it.name+'!');}
+  let msg;if(!res){msg='<span style="color:#ff8a8a">꽝! 빈 상자다…</span>';sfx('lose');saveLoss();}else{P.bag.push({id:res,plus:0});const it=ITEMS[res];msg=`<span class="r${it.tier}">${it.tier===4?'🌟 전설!! ':''}${it.name}</span> 획득!`;sfx('win');if(it.tier>=3)toast('🎰 '+it.name+'!');}
   gambling=false;renderMenu();$('gBoxRes').innerHTML=msg;},900);
 }
 const enhCost=e=>Math.round(60*(e.plus+1)*Math.min(5,ITEMS[e.id].tier));
@@ -3174,13 +3176,13 @@ function smithAnim(it,res,done){const cv=$('anvilCv');if(!cv){done();return;}con
 function smithDo(k){const e=P.eq[k];if(smithBusy||!e||e.plus>=10||NOENH.has(e.id))return;const cost=enhCost(e);if(P.gold<cost)return;smithBusy=true;P.gold-=cost;
  const o=enhOdds(e),r=Math.random()*100;let res=r<o.up?'up':r<o.up+o.keep?'keep':'break';const it=ITEMS[e.id],nm=it.name;let saved=false;if(res==='break'&&P.pots.protect>0){P.pots.protect--;res='keep';saved=true;}
  smithAnim(it,res,()=>{if(res==='up'){e.plus++;if(e.plus>=7){P.flags.plus7=1;toast('🔥 +'+e.plus+' 강화 성공!');}if(e.plus>=10)P.flags.plus10=1;}else if(res==='break'){P.eq[k]=null;P.flags.broke=1;log('💥 '+nm+'이(가) 깨져 버렸다…');}
-  smithBusy=false;calc();save(true);renderMenu();const m=$('smRes');if(m)m.innerHTML=res==='up'?`<span style="color:#7dff7d">${nm} +${e.plus}!</span>`:res==='keep'?(saved?'<span style="color:#82b1ff">🛡 깨질 뻔했지만 방지권이 막아 줬다!</span>':'<span style="color:#ccc">그대로 유지됐다</span>'):`<span style="color:#ff5252">${nm}이(가) 깨졌다…</span>`;const cv=$('anvilCv');if(cv)drawAnvil(cv.getContext('2d'),{t:0,ham:-1.1,sp:[],it:P.eq[k]?ITEMS[P.eq[k].id]:it,broke:res==='break',bk:res==='break'?1:0});});}
+  smithBusy=false;calc();if(res==='up')save(true);else saveLoss();renderMenu();const m=$('smRes');if(m)m.innerHTML=res==='up'?`<span style="color:#7dff7d">${nm} +${e.plus}!</span>`:res==='keep'?(saved?'<span style="color:#82b1ff">🛡 깨질 뻔했지만 방지권이 막아 줬다!</span>':'<span style="color:#ccc">그대로 유지됐다</span>'):`<span style="color:#ff5252">${nm}이(가) 깨졌다…</span>`;const cv=$('anvilCv');if(cv)drawAnvil(cv.getContext('2d'),{t:0,ham:-1.1,sp:[],it:P.eq[k]?ITEMS[P.eq[k].id]:it,broke:res==='break',bk:res==='break'?1:0});});}
 function enhance(k){
  const e=P.eq[k];if(gambling||!e||e.plus>=10)return;const cost=enhCost(e);if(P.gold<cost)return;gambling=true;P.gold-=cost;const rate=enhRate(e);
  $('gEnhRes').textContent='⚒ 깡! 깡! 깡!';sfx('hit');
  setTimeout(()=>{let msg;if(Math.random()*100<rate){e.plus++;msg=`<span style="color:#7dff7d">강화 성공! ${ITEMS[e.id].name} +${e.plus}</span>`;sfx('win');if(e.plus>=7){P.flags.plus7=1;toast('🔥 +'+e.plus+' 강화 성공!');}}
-  else if(e.plus>=3){e.plus--;msg=`<span style="color:#ff8a8a">강화 실패… +${e.plus}로 떨어졌다</span>`;sfx('lose');}
-  else{msg='<span style="color:#ffb3b3">강화 실패! (하락 없음)</span>';sfx('lose');}
+  else if(e.plus>=3){e.plus--;msg=`<span style="color:#ff8a8a">강화 실패… +${e.plus}로 떨어졌다</span>`;sfx('lose');saveLoss();}
+  else{msg='<span style="color:#ffb3b3">강화 실패! (하락 없음)</span>';sfx('lose');saveLoss();}
   gambling=false;calc();renderMenu();$('gEnhRes').innerHTML=msg;},700);
 }
 
