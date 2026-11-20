@@ -1994,10 +1994,12 @@ function bfx(o){fx.push(o);netEv({k:'bf',o});}
 function eShot(o){projs.push(Object.assign({owner:'e',kind:'orb',hit:new Set()},o));netEv({k:'ep',w:o.wob?1:0,h:o.eh?1:0,x:Math.round(o.x),y:Math.round(o.y),vx:Math.round(o.vx),vy:Math.round(o.vy),r:o.r,life:o.life,dmg:Math.round(o.dmg),color:o.color});}
 function bossBar(e){const bb=$('boss');{const dt2=BOSSDROP[e.type]||'';if($('bossDrop').textContent!==dt2)$('bossDrop').textContent=dt2;}if(!e.aggroed||P.dead){bb.classList.add('hidden');return;}bb.classList.remove('hidden');const bn='Lv'+e.b.lv+' '+e.b.name+(e.strong?' ★2배 강화':'');if($('bossName').textContent!==bn)$('bossName').textContent=bn;bb.querySelector('i').style.width=clamp(e.hp/e.max*100,0,100)+'%';}
 // 방장이 아닐 때: 방장이 보내준 몬스터 상태를 따라 그린다
-function syncMirrors(l){const seen=new Set();for(const a of l){if(!Array.isArray(a)||!ENEMIES[a[1]]||NET.dead.has(a[0]))continue;seen.add(a[0]);let e=enemies.find(x=>x.id===a[0]);
+function mirrorUpd(a){if(!Array.isArray(a)||!ENEMIES[a[1]]||NET.dead.has(a[0]))return false;let e=enemies.find(x=>x.id===a[0]);
   if(!e){const b=ENEMIES[a[1]];e={id:a[0],mirror:1,type:a[1],x:a[2],y:a[3],hx:a[2],hy:a[3],r:b.r,b,def:b.def,spd:b.spd,acd:1,slow:0,root:0,burn:0,hitT:0,wander:{x:0,y:0,t:0},ph:0,pt:2,anim:Math.random()*9};enemies.push(e);}
-  e.tx=a[2];e.ty=a[3];if(Math.hypot(e.tx-e.x,e.ty-e.y)>160){e.x=e.tx;e.y=e.ty;}e.hp=a[4];e.max=a[5];const f=a[6];e.strong=!!(f&1);e.summon=f&2?1:0;e.slow=f&4?.3:0;e.root=f&8?.3:0;e.burn=f&16?.3:0;e.aggroed=!!(f&32);e.tel=!!(f&64);e.fly=f&128?1:0;e.intro=f&256?1:0;e.atk=a[7];}
- enemies=enemies.filter(e=>e.pv||(e.mirror&&seen.has(e.id)));}
+  e.tx=a[2];e.ty=a[3];if(Math.hypot(e.tx-e.x,e.ty-e.y)>160){e.x=e.tx;e.y=e.ty;}e.hp=a[4];e.max=a[5];const f=a[6];e.strong=!!(f&1);e.summon=f&2?1:0;e.slow=f&4?.3:0;e.root=f&8?.3:0;e.burn=f&16?.3:0;e.aggroed=!!(f&32);e.tel=!!(f&64);e.fly=f&128?1:0;e.intro=f&256?1:0;e.atk=a[7];return true;}
+function syncMirrors(l){const seen=new Set();for(const a of l)if(mirrorUpd(a))seen.add(a[0]);enemies=enemies.filter(e=>e.pv||(e.mirror&&seen.has(e.id)));}
+// 바뀐 몬스터만 받은 경우 (d: 바뀐 것, g: 사라진 id)
+function deltaMirrors(o){if(Array.isArray(o.d))for(const a of o.d){if(!Array.isArray(a)||NET.dead.has(a[0]))continue;if(a.length>=8){mirrorUpd(a);continue;}const e=enemies.find(x=>x.id===a[0]&&x.mirror);if(!e)continue;e.tx=+a[1];e.ty=+a[2];if(Math.hypot(e.tx-e.x,e.ty-e.y)>160){e.x=e.tx;e.y=e.ty;}e.hp=+a[3];const f=+a[4]||0;e.strong=!!(f&1);e.summon=f&2?1:0;e.slow=f&4?.3:0;e.root=f&8?.3:0;e.burn=f&16?.3:0;e.aggroed=!!(f&32);e.tel=!!(f&64);e.fly=f&128?1:0;e.intro=f&256?1:0;}if(Array.isArray(o.g)&&o.g.length){const g=new Set(o.g.map(String));enemies=enemies.filter(e=>!(e.mirror&&g.has(e.id)));}}
 function mirrorTick(dt){let boss=null;for(const e of enemies){if(e.pv)continue;e.anim+=dt;e.hitT-=dt;if(e.tx!=null){if(Math.abs(e.tx-e.x)>2)e.face=e.tx<e.x?-1:1;const k=Math.min(1,dt*12);e.x+=(e.tx-e.x)*k;e.y+=(e.ty-e.y)*k;}if(e.b.boss)boss=e;}if(boss)bossBar(boss);else if(map.bossRoom)$('boss').classList.add('hidden');}
 // 방장을 넘겨받았을 때: 따라 그리던 몬스터를 내가 직접 움직인다
 function takeOver(){for(const e of enemies)if(e.mirror){delete e.mirror;e.hx=e.x;e.hy=e.y;e.acd=1;e.sp=e.summon?null:(map.spawns.find(s=>s.type===e.type)||null);e.def=e.def*(e.strong?2:1);}
@@ -3386,7 +3388,7 @@ function netConnect(){if(!NET.token||NET.sock)return;
   k.on('host',d=>{if(!d||!map||d.m!==map.key)return;const was=NET.host&&NET.hostMap===map.key;NET.host=!!d.h;NET.hostMap=map.key;
    if(d.h&&map.boss&&d.bd!=null&&d.bd<10000&&!was){map.bossDeadAt=Date.now()-d.bd;spawnBoss();}
    if(NET.host){if(enemies.some(e=>e.mirror))takeOver();}else if(!enemies.every(e=>e.mirror)){enemies=[];projs=projs.filter(q=>q.owner!=='e');$('boss').classList.add('hidden');}});
-  k.on('es',l=>{if(!Array.isArray(l)||!map||!P||(NET.host&&NET.hostMap===map.key))return;if(NET.hostMap!==map.key)return;syncMirrors(l);});
+  k.on('es',l=>{if(!l||!map||!P||(NET.host&&NET.hostMap===map.key))return;if(NET.hostMap!==map.key)return;if(Array.isArray(l))syncMirrors(l);else if(typeof l==='object')deltaMirrors(l);});
   k.on('ev',d=>{if(!d||!map||!P)return;
    if(d.k==='skd'){const o=NET.others.get(String(d.from));if(!o)return;if(!d.on){o.skid=0;o.sk=0;o.lastSk=null;return;}if(o.v==='fixie'){o.skid=1;o.skT=0;o.sk=1;o.skA=Number.isFinite(+d.a)?+d.a:(o.fx<0?Math.PI:0);const dd=Math.hypot(o.x-P.x,o.y-P.y);if(dd<600)skidSfx(Math.max(.15,1-dd/600));}return;}
    if(d.k==='bd'){if(!d.from||!d.id)return;if(BD.id!==d.id)bdReset(d.id);BD.m.set(String(d.from),Math.max(0,Math.min(1e12,+d.v||0)));return;}
@@ -3419,15 +3421,21 @@ function netConnect(){if(!NET.token||NET.sock)return;
    enterMap(d.arena,(d.side?21.5:4.5)*TS,(9.5+[0,-3,3,-6][Math.max(0,Math.min(3,+d.idx||0))])*TS);P.pvStart=gameT+3;for(let i=3;i>=1;i--)timers.push({t:3-i,f:()=>toast('⚔ '+i)});timers.push({t:3,f:()=>{toast('⚔ 결투 시작!');sfx('boom');}});});
   k.on('c',d=>{if(!d||typeof d.t!=='string')return;CHATLOG.push({u:d.u,n:String(d.n||'?').slice(0,12),t:d.t.slice(0,60)});if(CHATLOG.length>200)CHATLOG.shift();if(isBlocked(d.u))return;const t=d.t.slice(0,60),o=NET.others.get(d.u);if(o){o.say=t;o.sayT=nowS()+5;}chatLine('<b style="color:#9dffb0">'+esc(String(d.n||'?').slice(0,12))+'</b>: '+esc(t));});
   k.on('kicked',()=>netStop('다른 기기에서 이 계정으로 접속했어요.'));
-  k.on('ps',list=>{if(!Array.isArray(list))return;const seen=new Set();for(const a of list){if(!a||a[0]===NET.uid)continue;seen.add(a[0]);let o=NET.others.get(a[0]);if(!o){o={x:a[6],y:a[7],walk:0,fy:0};NET.others.set(a[0],o);}
-    o.name=String(a[1]);o.race=a[2];o.cls=a[3];o.job=a[4];o.lv=a[5];o.tx=a[6];o.ty=a[7];o.fx=a[8];o.atk=!!a[9];o.w=!!a[10];o.wp=a[11];o.ar=a[12];o.tt=a[13];o.hp=a[14];o.v=a[15]||'';o.rd=!!a[16];o.wl=+a[19]||0;{const L=Array.isArray(a[18])?a[18].slice(0,5):[];o.spt=L;if(!o.spc||o.spc.length!==L.length)o.spc=L.map(c=>c.slice());}if(o.v==='fixie'&&typeof a[17]==='number'){if(o.thd==null)o.hd=a[17];o.thd=a[17];}if(Math.hypot(o.tx-o.x,o.ty-o.y)>200){o.x=o.tx;o.y=o.ty;}}
-   for(const id of NET.others.keys())if(!seen.has(id))NET.others.delete(id);});};
+  const psUpd=a=>{let o=NET.others.get(a[0]);if(!o){o={x:a[6],y:a[7],walk:0,fy:0};NET.others.set(a[0],o);}
+    o.name=String(a[1]);o.race=a[2];o.cls=a[3];o.job=a[4];o.lv=a[5];o.tx=a[6];o.ty=a[7];o.fx=a[8];o.atk=!!a[9];o.w=!!a[10];o.wp=a[11];o.ar=a[12];o.tt=a[13];o.hp=a[14];o.v=a[15]||'';o.rd=!!a[16];o.wl=+a[19]||0;{const L=Array.isArray(a[18])?a[18].slice(0,5):[];o.spt=L;if(!o.spc||o.spc.length!==L.length)o.spc=L.map(c=>c.slice());}if(o.v==='fixie'&&typeof a[17]==='number'){if(o.thd==null)o.hd=a[17];o.thd=a[17];}if(Math.hypot(o.tx-o.x,o.ty-o.y)>200){o.x=o.tx;o.y=o.ty;}};
+  k.on('ps',list=>{if(!Array.isArray(list))return;const seen=new Set();for(const a of list){if(!Array.isArray(a)||a[0]===NET.uid)continue;seen.add(a[0]);psUpd(a);}
+   for(const id of NET.others.keys())if(!seen.has(id))NET.others.delete(id);});
+  k.on('pd',list=>{if(!Array.isArray(list))return;for(const a of list){if(!Array.isArray(a)||a[0]===NET.uid)continue;psUpd(a);}});};
  if(window.io)go();else{const sc=document.createElement('script');sc.src=NET.base+'/socket.io/socket.io.js';sc.onload=go;document.head.appendChild(sc);}}
 let netLastMove=0;
 setInterval(()=>{const k=NET.sock;if(!k||!k.connected||!P||!map||!NET.playing)return;const mv=getMove();
  k.volatile.emit('s',{m:map.key,n:P.name,r:P.race,c:P.cls,j:P.job||'',l:P.lv,x:P.x,y:P.y,f:P.fx<0?-1:1,a:P.atkAnim>0?1:0,w:mv.l>0&&!paused?1:0,wp:P.eq.weapon?P.eq.weapon.id:'',ar:P.eq.armor?P.eq.armor.id:'',t:P.title||'',hp:Math.round(clamp(P.hp/P.st.hp*100,0,100)),v:P.rideOn||(map&&map.pvp)?'':P.ride||'',hd:P.ride==='fixie'&&P.hd!=null?Math.round(P.hd*100)/100:0,sp:spirits.map(x=>[SPI.indexOf(x.t),Math.round(x.x),Math.round(x.y)]),wl:P.eq.weapon?P.eq.weapon.plus||0:0});
  if(VQ.length){const v=VQ.splice(0,30);VQ.length=0;k.emit('ev',{k:'sk',v});}
- if(NET.host&&NET.hostMap===map.key)k.emit('es',enemies.filter(e=>!e.mirror&&!e.dead&&!e.pv).map(e=>[e.id,e.type,Math.round(e.x),Math.round(e.y),Math.round(e.hp),e.max,(e.strong?1:0)|(e.summon?2:0)|(e.slow>0?4:0)|(e.root>0?8:0)|(e.burn>0?16:0)|(e.aggroed?32:0)|(e.tel?64:0)|(e.fly>0?128:0)|(e.intro>0?256:0),Math.round(e.atk)]));},100);
+ if(NET.host&&NET.hostMap===map.key){const L=enemies.filter(e=>!e.mirror&&!e.dead&&!e.pv).map(e=>[e.id,e.type,Math.round(e.x),Math.round(e.y),Math.round(e.hp),e.max,(e.strong?1:0)|(e.summon?2:0)|(e.slow>0?4:0)|(e.root>0?8:0)|(e.burn>0?16:0)|(e.aggroed?32:0)|(e.tel?64:0)|(e.fly>0?128:0)|(e.intro>0?256:0),Math.round(e.atk)]);
+  // 전송량 줄이기: 1.5초마다 전체, 그 사이엔 바뀐 몬스터만
+  const ES=NET.esS||(NET.esS={n:0,last:new Map(),mk:''});if(ES.mk!==map.key){ES.mk=map.key;ES.n=0;ES.last.clear();}
+  const n0=ES.n++;if(n0%15===0){k.emit('es',L);ES.last=new Map(L.map(a=>[a[0],a.join(',')]));}
+  else if(n0%2===0){const d=[],now=new Map();for(const a of L){const sg=a.join(',');now.set(a[0],sg);const ls=ES.last.get(a[0]);if(ls===undefined)d.push(a);else if(ls!==sg)d.push([a[0],a[2],a[3],a[4],a[6]]);}const g=[];for(const id of ES.last.keys())if(!now.has(id))g.push(id);ES.last=now;if(d.length||g.length)k.emit('es',{d,g});}}},100);
 function netTick(dt){plainWrap();if(P){evtTick(dt);bdTick();}for(const o of NET.others.values())if(o.skid>0){o.skT=(o.skT||0)+dt;o.sk=Math.max(.35,1-o.skT/SKID_STOP);const a=o.skA,rx=o.x-Math.cos(a)*11,ry=o.y-1-Math.sin(a)*5;if(!o.lastSk||Math.hypot(rx-o.lastSk.x,ry-o.lastSk.y)>3){skidMark(rx,ry,a);o.lastSk={x:rx,y:ry};}if(Math.random()<.4)parts.push({x:rx,y:ry-2,vx:rnd(-30,30),vy:rnd(-40,-10),life:rnd(.3,.5),color:'#bdbdbd',s:3});}for(const o of NET.others.values()){const k=Math.min(1,dt*12);if(o.spc&&o.spt)o.spc.forEach((c,i)=>{const t=o.spt[i];if(!t)return;c[0]=t[0];c[1]+=(t[1]-c[1])*k;c[2]+=(t[2]-c[2])*k;});if(o.thd!=null&&o.hd!=null){const da=((o.thd-o.hd+Math.PI*3)%(Math.PI*2))-Math.PI;const st=da*Math.min(1,dt*10);o.hd+=st;o.lean=(o.lean||0)*.85+(st/Math.max(dt,.001))*.06;}o.x+=(o.tx-o.x)*k;o.y+=(o.ty-o.y)*k;if(o.w)o.walk+=dt*10;}}
 async function netInit(){
  renderTitle();
