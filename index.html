@@ -3390,7 +3390,7 @@ setInterval(()=>netFlush(),4000);
 addEventListener('visibilitychange',()=>{if(document.hidden&&P&&map&&NET.playing){save(true);netFlush(true);}});
 function netConnect(){if(!NET.token||NET.sock)return;
  const go=()=>{if(NET.sock||!window.io)return;const k=window.io(NET.base+'/rpg',{auth:{token:NET.token},transports:['websocket','polling']});NET.sock=k;
-  k.on('ch',d=>{if(!d)return;NET.ch=+d.ch||0;if(d.moved){NET.host=false;NET.hostMap=null;if(map&&!map.pvp)enterMap(map.key,P.x,P.y);toast('📡 '+NET.ch+'채널로 옮겼어요');}});
+  k.on('ch',d=>{if(!d)return;NET.ch=+d.ch||0;if(d.moved){if(P&&P.rideOn){P.rideOn=null;}NET.host=false;NET.hostMap=null;if(map&&!map.pvp)enterMap(map.key,P.x,P.y);toast('📡 '+NET.ch+'채널로 옮겼어요');}});
   k.on('ch:list',d=>{if(d&&Array.isArray(d.c))chRender(d);});
   k.on('full',()=>{dialog('📡 접속 인원 초과',['모든 채널(15채널 × 12명)이 꽉 찼어요.\n잠시 뒤에 다시 접속해 주세요. 그동안은 혼자 플레이할 수 있어요.']);});
   k.on('adm:reps',d=>{if(d&&Array.isArray(d.list))admRender({list:d.list,sanc:Array.isArray(d.sanc)?d.sanc:[]});});
