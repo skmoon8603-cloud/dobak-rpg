@@ -1,0 +1,17 @@
+{
+  "name": "도박 RPG",
+  "short_name": "도박 RPG",
+  "description": "픽셀 판타지 RPG — 사냥, 전직, 보스전, 그리고 (게임 골드로만 하는) 카지노",
+  "lang": "ko",
+  "start_url": "./?app=1",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "any",
+  "background_color": "#0d0818",
+  "theme_color": "#1a1030",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
