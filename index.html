@@ -2725,10 +2725,14 @@ function chiefTalk(n){const q=P.sq;
  if(q.s==='none')dialog(n.name,Q.talk.concat([`[퀘스트] ${Q.name}\n목표: ${ENEMIES[Q.tgt].name} ${Q.n}마리 처치\n보상: ${Q.gold}G, 경험치 ${Q.exp}`]),[{t:'수락',c:'gold',f:()=>{q.s='active';q.c=0;log('📜 퀘스트 「'+Q.name+'」 시작');save(true);}},{t:'나중에'}]);
  else if(q.s==='active')dialog(n.name,[`「${Q.name}」… 부탁드려요. (${q.c}/${Q.n})`]);
  else{const fin=Q.tgt==='leviathan';dialog(n.name,Q.done.split('\n\n'),[{t:'보상 받기',c:'gold',f:()=>{P.gold+=Q.gold;gainExp(Q.exp);log(`🎉 보상: ${Q.gold}G, 경험치 ${Q.exp}`);q.i++;q.s='none';q.c=0;sfx('win');if(fin){P.flags.statue=1;toast('🗿 광장에 내 동상이 세워졌다!');flashA=.4;}save(true);}}]);}}
+const STATUE={c:null,k:''};
 function drawStatue(){const x=21.5*TS,y=13*TS;px(x-46,y-18,92,18,'#607d8b');px(x-40,y-24,80,7,'#78909c');px(x-34,y-28,68,5,'#90a4ae');
- const f=ctx.filter;try{ctx.filter='grayscale(1) brightness(1.15) contrast(.85)';}catch(e){}
- ctx.save();ctx.translate(x,y-28);ctx.scale(2,2);drawChar({x:0,y:0,race:P.race,cls:P.cls,job:P.job,fx:-1,fy:0,walk:0,atk:false,wp:P.eq.weapon?P.eq.weapon.id:'',ar:P.eq.armor?P.eq.armor.id:''});ctx.restore();
- try{ctx.filter=f||'none';}catch(e){}label('🗿 '+P.name+'의 동상',x,y-130,'#ffe066');}
+ // 동상 모습은 한 번만 그려 두고 재사용 (매 프레임 필터를 쓰면 폰에서 크게 느려진다)
+ const wp=P.eq.weapon?P.eq.weapon.id:'',ar=P.eq.armor?P.eq.armor.id:'',key=[P.race,P.cls,P.job,wp,ar].join('|');
+ if(!STATUE.c||STATUE.k!==key){const c=document.createElement('canvas');c.width=240;c.height=260;const g=c.getContext('2d');const old=ctx;ctx=g;try{g.translate(120,230);g.scale(2,2);drawChar({x:0,y:0,race:P.race,cls:P.cls,job:P.job,fx:-1,fy:0,walk:0,atk:false,wp,ar});}catch(e){}ctx=old;
+  try{const im=g.getImageData(0,0,c.width,c.height),d=im.data;for(let i=0;i<d.length;i+=4){if(!d[i+3])continue;let v=(d[i]*.299+d[i+1]*.587+d[i+2]*.114)*1.15;v=(v-128)*.85+128;v=Math.max(0,Math.min(255,v));d[i]=d[i+1]=d[i+2]=v;}g.putImageData(im,0,0);}catch(e){}
+  STATUE.c=c;STATUE.k=key;}
+ ctx.drawImage(STATUE.c,x-120,y-28-230);label('🗿 '+P.name+'의 동상',x,y-130,'#ffe066');}
 function elderTalk(){
  const q=P.q;
  if(q.i>=QUESTS.length){dialog('촌장',['영웅이여, 덕분에 마을은 평화롭다네.','…그런데 요즘에 들판에 호수가 이상하더군…','밤마다 호수 밑에서 노랫소리 같은 게 들린다는 사람도 있고 말이야.']);return;}
