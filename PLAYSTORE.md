@@ -3,7 +3,7 @@
 게임 쪽 준비(욕설 필터·신고·차단·계정 삭제·개인정보처리방침·앱 설치 파일)는 끝났어요. 아래는 직접 해야 하는 일이에요.
 
 ## 1. 앱 파일 만들기 (PWABuilder, 무료)
-1. https://www.pwabuilder.com 에 들어가서 주소에 `https://random-football-cflg.onrender.com/rpg/` 를 넣고 Start.
+1. https://www.pwabuilder.com 에 들어가서 주소에 `https://skmoon8603-cloud.github.io/dobak-rpg/` 를 넣고 Start.
 2. **Package For Stores → Android → Generate Package**.
    - Package ID: `com.dobakrpg.app` (바꾸면 아래 3번의 `RPG_APP_PKG` 도 같이 바꾸기)
    - App name: 도박 RPG
@@ -12,21 +12,19 @@
 3. 내려받은 zip 안의 `.aab` 파일이 플레이스토어에 올릴 파일이에요.
 4. zip 안의 `assetlinks.json` 을 열어 `sha256_cert_fingerprints` 값을 복사해 둬요.
 
-## 2. Render 환경변수 넣기
-Render 대시보드 → 서버 → Environment 에 추가:
-- `RPG_APP_SHA256` = 위에서 복사한 지문 (플레이 콘솔의 "앱 서명 키" 지문도 있으면 쉼표로 이어서)
-- `RPG_APP_PKG` = `com.dobakrpg.app`
-- (문의 이메일은 skmoon8603@gmail.com 으로 코드에 넣어 둠)
-
-넣고 나면 `https://random-football-cflg.onrender.com/.well-known/assetlinks.json` 에 지문이 보여야 해요. (이게 없으면 앱 위에 주소창이 보여요)
+## 2. 앱 확인 파일 올리기 (GitHub)
+게임 화면은 GitHub Pages(`skmoon8603-cloud.github.io/dobak-rpg/`)에서 바로 열려요. 앱이 이 사이트의 주인임을 확인하는 파일은 사이트 맨 위에 있어야 해서 저장소를 하나 더 만들어야 해요.
+1. GitHub에서 새 저장소 이름을 정확히 `skmoon8603-cloud.github.io` 로 만들기 (Public).
+2. 그 안에 `.well-known/assetlinks.json` 파일을 만들고 PWABuilder zip 안의 `assetlinks.json` 내용을 그대로 붙여넣기.
+3. 몇 분 뒤 `https://skmoon8603-cloud.github.io/.well-known/assetlinks.json` 이 열리면 성공. (이게 없으면 앱 위에 주소창이 보여요)
 
 ## 3. 플레이 콘솔
 1. https://play.google.com/console 개발자 계정 만들기 ($25, 한 번만).
 2. 앱 만들기 → 게임 → 무료.
 3. **개인 계정이면 비공개 테스트에 테스터 12명 이상이 14일 동안 계속 참여**해야 정식 출시를 신청할 수 있어요.
 4. 앱 콘텐츠에서 채우기:
-   - 개인정보처리방침: `https://random-football-cflg.onrender.com/rpg/privacy`
-   - 계정 삭제 URL: `https://random-football-cflg.onrender.com/rpg/delete`
+   - 개인정보처리방침: `https://skmoon8603-cloud.github.io/dobak-rpg/privacy.html`
+   - 계정 삭제 URL: `https://skmoon8603-cloud.github.io/dobak-rpg/delete.html`
    - 콘텐츠 등급 설문 (15세를 노리는 답, 단 사실과 다르게 답하면 안 됨):
      - 카테고리: 게임
      - 폭력: 판타지 캐릭터·몬스터 대상, 피·잔혹 묘사 없음
