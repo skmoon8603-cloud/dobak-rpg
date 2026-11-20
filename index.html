@@ -2703,7 +2703,7 @@ function firstJob(k){if(P.cls!=='novice'||!['mage','sword','archer','ranger'].in
  const old=P.eq.weapon;if(old&&old.id==='w_novice1')P.eq.weapon={id:'w_'+k+'1',plus:old.plus};else{if(old)P.bag.push(old);P.eq.weapon={id:'w_'+k+'1',plus:0};}
  P.cds={};calc();P.hp=P.st.hp;P.mp=P.st.mp;autoLearn();if(!P.slots.some(Boolean)&&P.skl[k+'0'])P.slots[0]=k+'0';
  toast('⚜ '+CLASSES[k].name+'(으)로 전직!');sfx('lvl');flashA=.3;for(let i=0;i<40;i++)parts.push({x:P.x,y:P.y,vx:rnd(-170,170),vy:rnd(-220,20),life:rnd(.5,1.1),color:CLASSES[k].color,s:3});log('📖 직업 스킬을 배웠어요 (스킬 창에서 슬롯 장착)');save(true);}
-function becomeMsword(){if(P.cls!=='novice'||P.hq.s!=='clear')return;
+function becomeMsword(){if(P.cls!=='novice'||(P.hq.s!=='clear'&&P.hq.s!=='done'))return;
  let back=0;for(const id in P.skl){if(/^u\d+$/.test(id)||/^special\d+$/.test(id))continue;back+=P.skl[id]-1;delete P.skl[id];}
  P.sp+=back;P.slots=P.slots.map(id=>id&&P.skl[id]?id:null);
  const old=P.eq.weapon;if(old){P.bag.push(old);P.eq.weapon={id:'w_msword'+Math.min(3,ITEMS[old.id].tier),plus:old.plus};}else P.eq.weapon={id:'w_msword1',plus:0};
