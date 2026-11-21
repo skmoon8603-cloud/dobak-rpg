@@ -3581,7 +3581,7 @@ function adminGift(){P.flags.admin=1;const up=Math.max(0,999-P.lv);P.lv=Math.max
 const GRANT_KEYS=['id','lv','title','keep','setLv','lvAdd','sp','ap','spDown','apDown','goldMul','goldAdd','item','setCls','recalc','cons','mats'];
 function applyGrants(){const list=NET.grants;NET.grants=[];for(const g of list){const lv=Math.round(+g.lv||0);
   if(g.title&&TITLES[g.title]){if(!P.gt.includes(g.title)){P.gt.push(g.title);P.title=g.title;if(!P.titles.includes(g.title))P.titles.push(g.title);setTimeout(()=>{toast('🏅 칭호 수여: '+TITLES[g.title][0]);log('🏅 운영자가 칭호 「'+TITLES[g.title][0]+'」를 내렸어요');sfx('win');},1500);}continue;}
-  if(g.item&&ITEMS[g.item]&&!(P.eq.weapon&&P.eq.weapon.id===g.item)&&!P.bag.some(x=>x.id===g.item)){P.bag.push({id:g.item,plus:0});setTimeout(()=>{toast('🎁 운영자 지급: '+ITEMS[g.item].name+' (인벤토리에서 장착)');},2000);}
+  if(g.item){const iid=String(g.item).replace('{cls}',P.cls);if(!ITEMS[iid])g.wait=1;if(ITEMS[iid]&&!(P.eq.weapon&&P.eq.weapon.id===iid)&&!P.bag.some(x=>x.id===iid)){P.bag.push({id:iid,plus:0});setTimeout(()=>{toast('🎁 운영자 지급: '+ITEMS[iid].name+' (인벤토리에서 장착)');log('🎁 운영자 지급: '+ITEMS[iid].name);},2000);}} // {cls} = 내 직업 무기
   if(g.setCls&&CLASSES[g.setCls]&&P.cls!==g.setCls){let back=0;for(const id in P.skl){if(/^u\d+$/.test(id)||/^special\d+$/.test(id))continue;back+=P.skl[id]-1;delete P.skl[id];}P.sp+=back;P.slots=P.slots.map(id=>id&&P.skl[id]?id:null);const w=P.eq.weapon;if(w&&ITEMS[w.id]&&ITEMS[w.id].cls){P.bag.push(w);P.eq.weapon={id:'w_'+g.setCls+'1',plus:0};}P.cls=g.setCls;P.job='';calc();autoLearn(true);spirits=[];setTimeout(()=>toast('🧚 직업이 '+CLASSES[g.setCls].name+'(으)로 바뀌었어요'),2400);}
   if(g.mats&&typeof g.mats==='object'){const got=[];for(const k in g.mats)if(MATS[k]){const n=Math.max(0,Math.min(999,Math.round(+g.mats[k]||0)));if(n){P.mats[k]=(P.mats[k]||0)+n;got.push(MATS[k][1]+' '+MATS[k][0]+' ×'+n);}}if(got.length)setTimeout(()=>{toast('🎁 운영자 지급: '+got.join(', '));log('🎁 운영자 지급: '+got.join(', '));},3000);}
   if(g.cons&&typeof g.cons==='object'){const got=[];for(const k in g.cons)if(CONS[k]){const n=Math.max(0,Math.min(99,Math.round(+g.cons[k]||0)));if(n){P.pots[k]=(P.pots[k]||0)+n;got.push(CONS[k][3]+' '+CONS[k][0]+' ×'+n);}}if(got.length)setTimeout(()=>{toast('🎁 운영자 지급: '+got.join(', '));log('🎁 운영자 지급: '+got.join(', ')+' (인벤토리 → 소모품에서 사용)');},2600);}
@@ -3598,7 +3598,7 @@ function applyGrants(){const list=NET.grants;NET.grants=[];for(const g of list){
    calc();P.hp=Math.min(P.hp,P.st.hp);P.mp=Math.min(P.mp,P.st.mp);
    setTimeout(()=>{toast('⚖ 운영자가 캐릭터를 조정했어요');log('⚖ 운영자 조정: Lv'+P.lv+' · 남은 스킬/능력치 포인트 '+P.sp+'/'+P.ap+' · '+P.gold.toLocaleString()+'G');},900);}
   if(lv>P.lv&&lv<=999){const up=lv-P.lv;P.lv=lv;P.exp=0;P.sp+=up;P.ap=(P.ap||0)+3*up;calc();P.hp=P.st.hp;P.mp=P.st.mp;autoLearn(true);setTimeout(()=>{toast('🎁 운영자 선물: Lv'+lv+'!');log('🎁 레벨 '+lv+' · 스킬 포인트 +'+up+' · 능력치 포인트 +'+3*up);},900);}
-  if(Object.keys(g).every(k=>g[k]==null||GRANT_KEYS.includes(k)))netApi('/api/rpg/grantdone',{id:g.id}).catch(()=>{});} // 모르는 지급은 '받음' 처리를 안 해서, 업데이트된 화면에서 다시 받는다
+  if(!g.wait&&Object.keys(g).every(k=>g[k]==null||GRANT_KEYS.includes(k)))netApi('/api/rpg/grantdone',{id:g.id}).catch(()=>{});} // 모르는 지급은 '받음' 처리를 안 해서, 업데이트된 화면에서 다시 받는다
  setTimeout(()=>{save(true);netFlush();},1200);}
 // ================= UI 설명 (처음 시작할 때) =================
 const TUT=[
