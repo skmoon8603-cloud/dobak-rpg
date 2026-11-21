@@ -482,6 +482,8 @@ const ITEMS={
  w_spirit5:{name:'용혼의 정령홀',slot:'weapon',cls:'spirit',atk:72,mp:160,mpr:2,tier:5,price:30000,craft:1},
  w_msword4:{name:'심연의 마검',slot:'weapon',cls:'msword',atk:33,mp:70,tier:4,price:6000,craft:1},
  r4:{name:'황금 주사위',slot:'acc',luck:15,gold:50,atk:10,tier:4,price:5000},
+ a_anubis:{name:'아누비스의 수의',slot:'armor',def:62,hp:750,mp:160,hpr:4,tier:6,price:80000,craft:1,heat:1,desc0:'망자의 힘이 깃든 황금 수의 · 모래열을 막아 준다'},
+ a_yeti:{name:'예티 털 갑옷',slot:'armor',def:80,hp:1000,mp:200,hpr:5,tier:7,price:150000,craft:1,cold:1,desc0:'예티의 털로 짠 갑옷 · 추위를 막아 준다'},
  a_snow:{name:'방한복',slot:'armor',def:40,hp:400,mp:40,tier:4,price:50000,cold:1,desc0:'설산의 매서운 추위를 막아 준다'},
  // 아누비스 무기 (6등급 · 황금) — 아누비스의 가죽·심장·창으로 만든다
  w_mage6:{name:'아누비스의 홀',slot:'weapon',cls:'mage',atk:104,mp:220,mpr:3,tier:6,price:60000,craft:1},
@@ -540,7 +542,7 @@ const MATC={dscale:'#d32f2f',dtooth:'#fff8e1',dheart:'#ff1744',bone:'#f1ede0',sl
 const DROPS={yeti:[['yfur',2,5,1],['yhand',1,2,1],['yeye',1,1,.1]],anubis:[['ahide',1,5,1],['aspear',1,1,.2],['aheart',1,1,.1]],scorpion:[['poisongland',1,2,.6]],centipede:[['centleg',1,2,.6]],dragon:[['dscale',5,10,1],['dtooth',1,2,1],['dheart',1,1,.3]],firespirit:[['scale',1,2,.3]],golem:[['bone2',3,5,1]],slime:[['slime',5,5,1]],wolf:[['hide',2,3,1],['bone2',1,1,1]],goblin:[['heart',1,1,.1],['flesh',3,3,1]],skeleton:[['bone2',5,5,1]],marlin:[['horn',1,1,.2],['scale',1,3,1]],crab:[['burger',1,1,1]],leviathan:[['scale',10,13,1],['ltooth',3,4,1]]};
 // 대장장이 제작법: [만들 장비, {재료:개수}, 골드]
 const RECIPES=[['a_hide',{hide:8,bone2:4},200],['r_slime',{slime:30},150],['a_bone',{bone2:20,hide:5},500],['r_heart',{heart:3,flesh:10},800],
- ['r_lich',{bone:6},1500],['r_horn',{horn:4,scale:6},1500],['w_{cls}5',{dscale:50,dtooth:13,dheart:3},0],['a_dragon',{dscale:100,dheart:5},0],['a_scale',{scale:35,hide:20,horn:3,ltooth:2},4000],['w_{cls}4',{ltooth:12,scale:45,horn:8,bone:4},9000],['w_{cls}6',{ahide:40,aheart:2,aspear:1},50000],['w_{cls}7',{yfur:60,yhand:15,yeye:2},100000]];
+ ['r_lich',{bone:6},1500],['r_horn',{horn:4,scale:6},1500],['w_{cls}5',{dscale:50,dtooth:13,dheart:3},0],['a_dragon',{dscale:100,dheart:5},0],['a_scale',{scale:35,hide:20,horn:3,ltooth:2},4000],['w_{cls}4',{ltooth:12,scale:45,horn:8,bone:4},9000],['w_{cls}6',{ahide:40,aheart:2,aspear:1},50000],['w_{cls}7',{yfur:60,yhand:15,yeye:2},100000],['a_anubis',{ahide:60,aheart:2},80000],['a_yeti',{yfur:80,yhand:20,yeye:1},150000]];
 const EARN=1; // 일반 수입 배율 (원래대로)
 const MINE_K=.5,MINE_ORD=.25; // 탄광 가격은 절반, 빚 없는 일반인은 거기서 또 4분의 1
 const earnG=v=>Math.floor(v*EARN+Math.random()); // 소수는 확률로 올림
@@ -574,7 +576,7 @@ const TITLES={
  aheart:['🖤 차가운 심장의 주인','#90a4ae','아누비스의 심장 손에 넣기',()=>(P.mats.aheart||0)>=1],
  aspear:['🔱 황금 창을 든 자','#ffca28','아누비스의 창 손에 넣기',()=>(P.mats.aspear||0)>=1],
  anubis50:['👑 사막의 새 지배자','#ff6f00','아누비스 50번 처치',()=>(P.kc.anubis||0)>=50],
- anubisw:['⚱ 망자의 무기를 든 자','#ffd740','아누비스 무기 만들기',()=>[P.eq.weapon,...P.bag].some(e=>e&&ITEMS[e.id]&&ITEMS[e.id].tier===6)],
+ anubisw:['⚱ 망자의 무기를 든 자','#ffd740','아누비스 무기 만들기',()=>[P.eq.weapon,...P.bag].some(e=>e&&ITEMS[e.id]&&ITEMS[e.id].slot==='weapon'&&ITEMS[e.id].tier===6)],
  snowvil:['❄ 설산의 방문자','#b3e5fc','동아줄을 타고 설산마을에 가 보기',()=>!!P.flags.snowvil],
  frozen:['🥶 동상 환자','#81d4fa','방한복 없이 버티다 얼어서 쓰러지기',()=>!!P.flags.frozen],
  yetitrack:['👣 발자국 추적자','#fff59d','예티의 발자국을 끝까지 따라가기',()=>!!P.flags.yetitrack],
@@ -583,7 +585,7 @@ const TITLES={
  yeti50:['👑 만년설의 왕','#00e5ff','예티 50번 처치',()=>(P.kc.yeti||0)>=50],
  snowman:['⛄ 눈사람 파괴자','#eceff1','눈사람 200마리 처치',()=>(P.kc.snowman||0)>=200],
  yeye:['👁 예티의 눈을 가진 자','#00e5ff','예티의 눈 손에 넣기',()=>(P.mats.yeye||0)>=1],
- yetiw:['🧊 얼음 무기의 주인','#80deea','예티 무기 만들기',()=>[P.eq.weapon,...P.bag].some(e=>e&&ITEMS[e.id]&&ITEMS[e.id].tier===7)],
+ yetiw:['🧊 얼음 무기의 주인','#80deea','예티 무기 만들기',()=>[P.eq.weapon,...P.bag].some(e=>e&&ITEMS[e.id]&&ITEMS[e.id].slot==='weapon'&&ITEMS[e.id].tier===7)],
  job:['전직자','#6fc3ff','2차 전직',()=>!!P.job],
  hidden:['금지된 길','#b388ff','히든 직업으로 전직',()=>P.cls==='msword'],
  rich:['부자','#ffd75e','10,000G 모으기',()=>P.gold>=10000],
@@ -2513,12 +2515,14 @@ function drawHuman(x,y,o){
  const live=ctx.canvas===cv;
  if(o.wt===5||o.armor==='a_dragon'){const a=.2+.12*Math.sin(gameT*5+x*.1);ctx.globalCompositeOperation='lighter';const g=ctx.createRadialGradient(x,y-16,3,x,y-16,o.wt===5&&o.armor==='a_dragon'?32:26);g.addColorStop(0,'rgba(255,61,0,'+a+')');g.addColorStop(.6,'rgba(213,0,0,'+(a*.5)+')');g.addColorStop(1,'rgba(255,0,0,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y-16,32,0,7);ctx.fill();ctx.globalCompositeOperation='source-over';
   if(live&&Math.random()<.18)parts.push({x:x+rnd(-11,11),y:y-rnd(2,30),vx:rnd(-8,8),vy:-rnd(20,45),life:rnd(.4,.8),color:Math.random()<.5?'#ff5722':'#ffab00',s:2});}
+ else if((o.wt===6||o.armor==='a_anubis')&&live&&Math.random()<.12)parts.push({x:x+rnd(-11,11),y:y-rnd(2,30),vx:rnd(-6,6),vy:-rnd(15,35),life:.7,color:Math.random()<.6?'#ffd740':'#00e5ff',s:2});
+ else if((o.wt===7||o.armor==='a_yeti')&&live&&Math.random()<.12)parts.push({x:x+rnd(-12,12),y:y-rnd(18,36),vx:rnd(-8,8),vy:rnd(8,22),life:.9,color:Math.random()<.6?'#ffffff':'#b3e5fc',s:2});
  else if(o.wt===4&&live&&Math.random()<.07)parts.push({x:x+rnd(-10,10),y:y-rnd(4,28),vx:rnd(-5,5),vy:-rnd(15,30),life:.8,color:'#b2ebf2',s:2});
  if(o.tail){const sw=Math.sin(gameT*4+x)*2;px(x-5,y-8,10,6,o.tail);px(x-3+sw*.5,y-2,6,3,o.tail);px(x-7+sw,y+1,5,3,o.tail);px(x+2+sw,y+1,5,3,o.tail);px(x-4,y-7,2,2,'#ffffff66');px(x+1,y-5,2,2,'#ffffff66');}
  else{px(x-5,y-8+(st>0?-1:0),4,8,'#3a2a1a');px(x+1,y-8+(st<0?-1:0),4,8,'#3a2a1a');}
  if(o.armor==='cloak'){px(x-11,y-19,22,17,'#240a44');px(x-11,y-4,22,2,'#5a1fa3');}
  px(x-7,y-18,14,11,o.outfit);px(x-7,y-11,14,2,'rgba(0,0,0,.25)');px(x-9,y-17,3,7,o.outfit);px(x+6,y-17,3,7,o.outfit);
- if(o.armor){const ac={a1:['#8a5a2b','#6b4423'],a2:['#aab2bb','#6f7780'],a3:['#bfe9f2','#5fb4c9'],cloak:['#3a1466','#e040fb'],a_hide:['#8d8d8d','#5f5f5f'],a_bone:['#efe6d2','#a1937a'],a_scale:['#26a69a','#00695c'],a_dragon:['#c62828','#4a0000'],a_desert:['#e6c99a','#a1793e'],a_snow:['#eceff1','#90a4ae']}[o.armor];if(ac){
+ if(o.armor){const ac={a1:['#8a5a2b','#6b4423'],a2:['#aab2bb','#6f7780'],a3:['#bfe9f2','#5fb4c9'],cloak:['#3a1466','#e040fb'],a_hide:['#8d8d8d','#5f5f5f'],a_bone:['#efe6d2','#a1937a'],a_scale:['#26a69a','#00695c'],a_dragon:['#c62828','#4a0000'],a_anubis:['#1a1a1a','#ffd740'],a_yeti:['#f5f5f5','#b0bec5'],a_desert:['#e6c99a','#a1793e'],a_snow:['#eceff1','#90a4ae']}[o.armor];if(ac){
   if(o.armor==='cloak'){px(x-9,y-19,18,3,ac[0]);px(x-2,y-18,4,4,ac[1]);}
   else{px(x-7,y-18,14,7,ac[0]);px(x-10,y-19,4,5,ac[1]);px(x+6,y-19,4,5,ac[1]);px(x-1,y-17,2,6,ac[1]);if(o.armor==='a3')px(x-5,y-16,2,2,'#fff');
    if(o.armor==='a_hide'){px(x-7,y-12,14,2,'#cfcfcf');px(x-10,y-20,4,2,'#cfcfcf');px(x+6,y-20,4,2,'#cfcfcf');px(x-4,y-15,2,2,'#bdbdbd');px(x+3,y-17,2,2,'#bdbdbd');}
@@ -2526,6 +2530,8 @@ function drawHuman(x,y,o){
    if(o.armor==='a_scale'){for(let i=0;i<3;i++)for(let j=0;j<3;j++)px(x-6+j*4+(i%2)*2,y-17+i*2,2,1,'#80cbc4');px(x-10,y-20,4,1,'#b2dfdb');px(x+6,y-20,4,1,'#b2dfdb');}
    if(o.armor==='a_desert'){px(x-8,y-12,16,8,'#e6c99a');px(x-8,y-6,16,2,'#c9a66b');px(x-7,y-15,14,2,'#b7410e');px(x+fl*4-1,y-15,3,6,'#b7410e');px(x-4,y-10,1,5,'#d4b483');px(x+3,y-10,1,5,'#d4b483');px(x-7,y-31,14,3,'#e6c99a');px(x-8,y-29,2,8,'#e6c99a');px(x+6,y-29,2,8,'#e6c99a');px(x-6,y-21,12,2,'#b7410e');} // 사막 로브: 두건·스카프·긴 자락
    if(o.armor==='a_snow'){px(x-9,y-19,18,12,'#eceff1');px(x-9,y-14,18,1,'#cfd8dc');px(x-9,y-10,18,1,'#cfd8dc');px(x-1,y-19,2,12,'#90a4ae');px(x-11,y-18,4,9,'#eceff1');px(x+7,y-18,4,9,'#eceff1');px(x-11,y-10,4,2,'#8d6e63');px(x+7,y-10,4,2,'#8d6e63');px(x-8,y-21,16,3,'#a1887f');px(x-7,y-22,3,2,'#bcaaa4');px(x+4,y-22,3,2,'#bcaaa4');px(x-8,y-32,16,4,'#d84315');px(x-2,y-35,4,3,'#ffffff');} // 방한복: 패딩·털 깃·털모자
+   if(o.armor==='a_anubis'){px(x-8,y-19,16,13,'#1a1a1a');for(let i=0;i<3;i++)px(x-8,y-17+i*4,16,1,'#ffd740');px(x-2,y-19,4,13,'#ffd740');px(x-1,y-16,2,2,'#00bfa5');px(x-12,y-21,5,5,'#ffd740');px(x+7,y-21,5,5,'#ffd740');px(x-11,y-20,3,3,'#1a1a1a');px(x+8,y-20,3,3,'#1a1a1a');px(x-8,y-7,16,3,'#1a1a1a');px(x-8,y-5,16,1,'#ffd740');px(x-7,y-35,2,6,'#1a1a1a');px(x+5,y-35,2,6,'#1a1a1a');px(x-7,y-35,2,2,'#ffd740');px(x+5,y-35,2,2,'#ffd740');} // 아누비스의 수의: 검정·황금 띠, 자칼 귀
+   if(o.armor==='a_yeti'){px(x-10,y-20,20,15,'#f5f5f5');for(let i=0;i<5;i++)px(x-9+i*4,y-6+(i%2),3,2,'#ffffff');px(x-10,y-20,20,1,'#e0e0e0');px(x-3,y-16,6,6,'#cfd8dc');px(x-2,y-15,1,1,'#4fc3f7');px(x+1,y-15,1,1,'#4fc3f7');px(x-13,y-21,6,7,'#fafafa');px(x+7,y-21,6,7,'#fafafa');px(x-13,y-15,6,1,'#4fc3f7');px(x+7,y-15,6,1,'#4fc3f7');px(x-11,y-23,2,2,'#4fc3f7');px(x+9,y-23,2,2,'#4fc3f7');} // 예티 털 갑옷: 북슬북슬 흰 털, 얼음 장식
    if(o.armor==='a_dragon'){for(let i=0;i<3;i++)for(let j=0;j<4;j++)px(x-7+j*4+(i%2)*2,y-17+i*2,2,1,'#ff5252');px(x-7,y-12,14,1,'#ffd740');px(x-3,y-19,6,2,'#ffd740');px(x-1,y-18,2,2,'#ff1744');px(x-11,y-22,2,3,'#212121');px(x-9,y-23,2,2,'#212121');px(x+9,y-22,2,3,'#212121');px(x+7,y-23,2,2,'#212121');}}}}
  px(x-6,y-29,12,11,o.skin);
  if(o.ear){px(x-9,y-26,3,3,o.skin);px(x+6,y-26,3,3,o.skin);px(x-10,y-28,2,2,o.skin);px(x+8,y-28,2,2,o.skin);}
