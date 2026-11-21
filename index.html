@@ -645,7 +645,7 @@ const TITLES={
  goldfish:['황금 손','#ffd740','황금 잉어 낚기',()=>(P.mats.goldfish||0)>0||!!P.flags.gf],
  smith2:['장인','#bcaaa4','장비 5개 제작',()=>(P.crafted||0)>=5],
  daily:['성실한 모험가','#aed581','일일 의뢰 10개 완료',()=>(P.dqn||0)>=10],
- maxlv:['정점에 선 자','#ffd740','최고 레벨 Lv140 달성',()=>P.lv>=CAP],
+ maxlv:['정점에 선 자','#ffd740','최고 레벨 Lv160 달성',()=>P.lv>=CAP],
  cloak:['망토의 주인','#e040fb','모르간의 망토 획득',()=>!!(P.eq.armor&&P.eq.armor.id==='cloak')||P.bag.some(e=>e.id==='cloak')]};
 function checkTitles(){if(!P||!P.titles)return;
  if(!NET.admin){const i=P.titles.indexOf('admin');if(i>=0)P.titles.splice(i,1);if(P.title==='admin')P.title='newbie';}
@@ -1251,7 +1251,7 @@ function calc(){
  const pt=P.pts||{def:0,patk:0,matk:0};s.def+=pt.def;s.patk=s.atk+pt.patk;s.matk=s.atk+pt.matk;s.hatk=s.atk+2*Math.min(pt.patk,pt.matk)+Math.round(Math.abs(pt.patk-pt.matk)/3); // 반반 직업: 물리·마법을 고르게 찍어야 강하다
  P.st=s;P.wf=wFacOf(P.eq.weapon&&P.eq.weapon.id,P.lv);P.hp=Math.min(P.hp,s.hp);P.mp=Math.min(P.mp,s.mp);
 }
-const CAP=140; // 레벨 제한 (관리자 제외)
+const CAP=160; // 레벨 제한 (관리자 제외)
 const atCap=()=>P.lv>=CAP&&!P.flags.admin;
 const need=lv=>Math.floor(30*Math.pow(lv,1.6));
 
