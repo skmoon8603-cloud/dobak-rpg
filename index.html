@@ -2609,7 +2609,7 @@ function hud(){
  if(spirits.length)q+=`<div style="color:#9ccc65">🧚 ${spirits.map(x=>SPT[x.t].n.replace(' 정령','')+' '+Math.ceil(x.life)+'초').join(' · ')}${P.spBoost>0?' · ✨축복':''}</div>`;
  {const F=foodOn();if(F)q+=`<div style="color:#ffd740">${CONS[P.food.id][3]} ${CONS[P.food.id][0]} · ${Math.ceil((P.food.until-Date.now())/1000)}초</div>`;else if(P.food&&P.food.id){P.food=null;calc();toast('🍽 음식 효과가 끝났어요');}}
  const el=$('qtrack');if(el._q!==q){el._q=q;el.innerHTML=q;}}
- const oc=NET.others.size,mk=(NET.live?'👥 '+Math.max(NET.total||0,oc+1)+(NET.ch?' · 서버'+NET.ch:'')+' · ':'')+'📍 '+map.name;/* 접속자 수 = 지금 서버에 있는 사람 (잘려도 숫자는 보이게 맨 앞에) */if($('mapname').textContent!==mk)$('mapname').textContent=mk;
+ const oc=NET.others.size,mk='📍 '+map.name+(NET.live?(NET.ch?' · 서버'+NET.ch:'')+' · 👥 '+(oc+1)+'/'+Math.max(NET.total||0,oc+1):'');if($('mapname').textContent!==mk)$('mapname').textContent=mk;
  for(let i=0;i<3;i++){const b=$('bS'+(i+1)),id=P.slots[i],s=id&&SK[id];const key=id||'-';b.classList.toggle('arm',armed===i);
   if(b._k!==key){b._k=key;b.innerHTML=`<span class="key">${i+1}</span>`+(s?`<b>${s.ic}</b>${s.name}`:'<span style="opacity:.5">빈칸</span>')+'<div class="cd"></div>';b.classList.toggle('lock',!s);}
   b.querySelector('.cd').style.height=(s?(P.cds[id]||0)/s.cd*100:0)+'%';}
@@ -3318,7 +3318,7 @@ function applyGrants(){const list=NET.grants;NET.grants=[];for(const g of list){
 const TUT=[
  [null,'👋 어서 와요!','도박 RPG 화면을 하나씩 설명해 줄게요.\n노란 테두리가 가리키는 곳을 보면서 「다음」을 눌러요.'],
  ['#stat','📋 내 정보','이름 · 종족 · 직업과 레벨이에요.\n❤ 빨간 줄 = 체력(HP), 0이 되면 쓰러져요.\n💧 파란 줄 = 마나(MP), 스킬을 쓰면 줄어요.\n✨ 주황 줄 = 경험치(EXP), 꽉 차면 레벨 업!\n💰 아래는 가진 골드, ⭐SP는 남은 스킬 포인트예요.'],
- ['#mapname','📍 지금 있는 곳','지금 서버의 실시간 접속자 수, 서버 번호, 맵 이름이에요.'],
+ ['#mapname','📍 지금 있는 곳','지금 있는 맵 이름, 서버 번호, 같은 맵 사람 수/서버 전체 접속자 수예요.'],
  ['#bFold','☰ 버튼 접기','오른쪽 위 메뉴 버튼들을 접었다 폈다 해요. 화면이 좁을 때 쓰세요.'],
  ['#bMute','🔊 소리','배경 음악과 효과음을 켜고 꺼요.'],
  ['#bChat','💬 채팅','같은 맵 사람들에게 말을 걸어요. 말이 머리 위에 말풍선으로 떠요. (PC: Enter)'],
