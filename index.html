@@ -3740,6 +3740,32 @@ requestAnimationFrame(loop);
 setInterval(()=>{if(P&&map&&!paused&&!P.dead)save(true);},20000);
 setInterval(()=>{if(!P||!map||!NET.playing)return;save(true);if(NET.token&&!NET.stopped)netFlush();log('💾 자동 저장 (5분마다)');},300000);
 </script>
+<script>
+// ================= 새 업데이트 자동 새로고침 =================
+// 1분마다(그리고 화면으로 돌아올 때) 게임 파일이 바뀌었는지 확인하고, 바뀌었으면 저장한 뒤 새로고침한다.
+// 보스전·결투·거래 중이면 끝날 때까지(최대 2분) 기다렸다가 새로고침한다.
+(function(){
+ if(!/^https?:$/.test(location.protocol))return;
+ try{const u=new URL(location.href);if(u.searchParams.has('v')){u.searchParams.delete('v');history.replaceState(null,'',u.pathname+(u.search||'')+u.hash);}}catch(e){}
+ const url=location.pathname;let sig0=null,hash0=null,found=0,busy=false;
+ const hashOf=t=>{let h=2166136261;for(let i=0;i<t.length;i++){h^=t.charCodeAt(i);h=Math.imul(h,16777619);}return (h>>>0)+':'+t.length;};
+ const head=async()=>{const r=await fetch(url+'?chk='+Date.now(),{method:'HEAD',cache:'no-store'});if(!r.ok)return null;return r.headers.get('etag')||r.headers.get('last-modified')||r.headers.get('content-length');};
+ const body=async()=>{const r=await fetch(url+'?chk='+Date.now(),{cache:'no-store'});if(!r.ok)return null;return hashOf(await r.text());};
+ const fighting=()=>{try{return !!(typeof P!=='undefined'&&P&&typeof map!=='undefined'&&map&&NET.playing&&!P.dead&&(inBossFight()||map.pvp||map.sealed||lairLocked()||(typeof TR!=='undefined'&&TR.id)));}catch(e){return false;}};
+ const go=()=>{try{if(typeof P!=='undefined'&&P&&NET.playing){save(true);try{netFlush();}catch(e){}}}catch(e){}
+  setTimeout(()=>location.replace(url+'?v='+Date.now()+location.hash),1500);};
+ const apply=()=>{if(!found)found=Date.now();
+  if(fighting()&&Date.now()-found<120000){if(!apply.told){apply.told=1;try{toast('🔄 새 업데이트가 있어요! 전투가 끝나면 새로고침돼요');}catch(e){}}setTimeout(apply,3000);return;}
+  try{toast('🔄 새 업데이트! 저장하고 새로고침할게요');}catch(e){}go();};
+ const check=async()=>{if(busy||found)return;busy=true;try{
+  if(hash0===null){hash0=await body();sig0=await head();return;}
+  const sg=await head();if(sg===null||sg===sig0)return;
+  const h=await body();if(h===null)return;if(h===hash0){sig0=sg;return;} // 서버 표시만 바뀌고 내용은 같으면 무시
+  apply();}catch(e){}finally{busy=false;}};
+ setTimeout(check,4000);setInterval(check,60000);
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)check();});
+})();
+</script>
 <script>if('serviceWorker'in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});</script>
 </body>
 </html>
