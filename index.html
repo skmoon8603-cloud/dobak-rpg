@@ -2907,9 +2907,9 @@ function interact(){
  if(n.type==='fountain'){P.hp=P.st.hp;P.mp=P.st.mp;toast('💧 체력과 마나가 회복되었다');sfx('lvl');save(true);return;}
  if(n.type==='torch'){dialog('모래사장의 횃불',P.flags.beachtorch?['불이 활활 타오르고 있다.','다시 드래곤의 뿔을 불면 사막으로 갈 수 있다.']:['꺼져 있는 횃불이다.','드래곤의 뿔(📯)을 불면 불이 붙을 것 같다. (인벤토리 → 재료)']);return;}
  if(n.type==='master3'){master3Talk(n);return;}
- if(n.type==='dshop'){dialog(n.name,['어서 오게, 사막은 호락호락하지 않아.','사막 로브가 없으면 모래 열기에 초당 5%씩 타들어 간다네.'],[{t:'🧥 사막 로브 사기 (8,000G)',c:'gold',f:()=>buyDesert('a_desert',8000)},{t:'🏜 사막마을 귀환권 (150G)',f:()=>buyDesert('desertscroll',150)},{t:'판매하기',f:()=>openMenu('sell')},{t:'나가기'}]);return;}
+ if(n.type==='dshop'){dialog(n.name,['어서 오게, 사막은 호락호락하지 않아.','사막 로브가 없으면 모래 열기에 초당 5%씩 타들어 간다네.'],[{t:'🧥 사막 로브 사기 (8,000G)',c:'gold',f:()=>buyDesert('a_desert',8000)},{t:'🏜 사막마을 귀환권 (150G)',f:()=>{buyDesert('desertscroll',150);setTimeout(()=>{if(!dlgState)interact();},30);}},{t:'판매하기',f:()=>openMenu('sell')},{t:'나가기'}]);return;}
  if(n.type==='princess'){princessTalk(n);return;}
- if(n.type==='snowshop'){dialog(n.name,['어서 와요! 여긴 세상에서 제일 추운 마을이라오.','방한복 없이 마을을 돌아다니면 초당 5%씩 몸이 얼어 버려요. 모닥불 곁에서만 버틸 수 있지.'],[{t:'🧥 방한복 사기 (50,000G)',c:'gold',f:()=>buyDesert('a_snow',50000)},{t:'❄ 설산마을 귀환권 (300G)',f:()=>buyDesert('snowscroll',300)},{t:'판매하기',f:()=>openMenu('sell')},{t:'나가기'}]);return;}
+ if(n.type==='snowshop'){dialog(n.name,['어서 와요! 여긴 세상에서 제일 추운 마을이라오.','방한복 없이 마을을 돌아다니면 초당 5%씩 몸이 얼어 버려요. 모닥불 곁에서만 버틸 수 있지.'],[{t:'🧥 방한복 사기 (50,000G)',c:'gold',f:()=>buyDesert('a_snow',50000)},{t:'❄ 설산마을 귀환권 (300G)',f:()=>{buyDesert('snowscroll',300);setTimeout(()=>{if(!dlgState)interact();},30);}},{t:'판매하기',f:()=>openMenu('sell')},{t:'나가기'}]);return;}
  if(n.type==='bonfire'){P.hp=P.st.hp;P.mp=P.st.mp;toast('🔥 따뜻하다… 체력과 마나가 회복되었다');sfx('lvl');save(true);return;}
  if(n.type==='ychief'){yChiefTalk(n);return;}
  if(n.type==='yetisleep'){yetiSleepTalk(n);return;}
@@ -3388,7 +3388,7 @@ function reportUser(uid,name){$('menu').classList.add('hidden');const go=why=>{i
 function blockUser(uid,name){P.blocked=P.blocked||[];if(!isBlocked(uid))P.blocked.push([uid,String(name).slice(0,12)]);save(true);toast('🚫 '+name+' 님을 차단했어요. 채팅과 신청이 보이지 않아요');renderMenu();}
 function tradeSend(){if(TR.id&&NET.sock)NET.sock.emit('tr:offer',{id:TR.id,offer:TR.mine});}
 function tradeBind(B){const k=NET.sock;
- B.querySelectorAll('[data-rep]').forEach(b=>b.onclick=()=>reportUser(b.dataset.rep,b.dataset.nm));B.querySelectorAll('[data-blk]').forEach(b=>b.onclick=()=>{const u=b.dataset.blk;if(isBlocked(u)){P.blocked=P.blocked.filter(x=>x[0]!==u);save(true);toast('차단을 풀었어요');renderMenu();}else blockUser(u,b.dataset.nm);});B.querySelectorAll('[data-treq]').forEach(b=>b.onclick=()=>{if(inDebt()){toast('💳 빚이 있으면 거래할 수 없어요. 은행 대출부터 갚아 주세요');return;}if(k)k.emit('tr:req',{to:b.dataset.treq});});
+ B.querySelectorAll('[data-rep]').forEach(b=>b.onclick=()=>reportUser(b.dataset.rep,b.dataset.nm));B.querySelectorAll('[data-blk]').forEach(b=>b.onclick=()=>{const u=b.dataset.blk;if(isBlocked(u)){P.blocked=P.blocked.filter(x=>x[0]!==u);save(true);toast('차단을 풀었어요');renderMenu();}else blockUser(u,b.dataset.nm);});B.querySelectorAll('[data-treq]').forEach(b=>b.onclick=()=>{if(inDebt()){toast('💳 빚이 있으면 거래할 수 없어요. 은행 대출부터 갚아 주세요');return;}if(k)k.emit('tr:req',{to:b.dataset.treq});$('mClose').click();toast('🤝 거래 신청을 보냈어요');});
  const lk=$('trLock');if(lk)lk.onclick=()=>{if(inDebt()){k.emit('tr:cancel',{id:TR.id});tradeReset('💳 빚이 있으면 거래할 수 없어요');return;}if(k)k.emit('tr:lock',{id:TR.id,on:!TR.lk.includes(NET.uid)});};
  const cc=$('trCancel');if(cc)cc.onclick=()=>{if(k)k.emit('tr:cancel',{id:TR.id});tradeReset('거래를 취소했어요');};
  const gs=$('trGoldSet');if(gs)gs.onclick=()=>{const v=Math.max(0,Math.min(P.gold,Math.floor(+($('trGold').value||0)||0)));TR.mine.g=v;tradeSend();renderMenu();};
