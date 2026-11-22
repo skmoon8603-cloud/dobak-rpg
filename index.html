@@ -3574,7 +3574,7 @@ function renderTitle(){
   const who=`Lv${c.lv||1} ${c.name||'모험가'}`,where=logged?'이 계정':'이 기기';
   const ask=n=>dialog('⚠ 새 게임 ('+n+'/3)',[[`새 게임을 시작하면 ${where}의 캐릭터 「${who}」가 삭제돼요.\n정말 새로 시작할까요?`,`한 번 더 확인할게요.\n「${who}」의 레벨·골드·장비·스킬이 전부 사라지고 되돌릴 수 없어요.\n그래도 삭제할까요?`,`마지막 확인이에요!\n${where}의 「${who}」는 영원히 삭제돼요.\n정말로, 정말로 삭제하고 새 게임을 시작할까요?`][n-1]],[{t:'취소',c:'gold'},{t:n<3?'삭제하고 계속':'삭제하고 새 게임',c:'red',f:()=>{if(n<3)ask(n+1);else goCreate();}}]);
   ask(1);});
- on('bLoad',()=>{if(logged?!applySave(NET.cloud):!load()){toast('저장된 게임이 없어요');return;}startGame();});
+ on('bLoad',async()=>{if(logged){const b=$('bLoad');if(b.disabled)return;b.disabled=true;b.textContent='☁ 최신 저장을 불러오는 중…';await netFresh(true);}if(logged?!applySave(NET.cloud):!load()){toast('저장된 게임이 없어요');renderTitle();return;}startGame();});
  on('bImport',()=>{if(!load())return;startGame();save(true);netFlush();});
  const pw=$('lPw');if(pw)pw.onkeydown=e=>{if(e.key==='Enter')netAuth('signin');};
 }
@@ -3685,16 +3685,24 @@ async function netAuth(kind){const msg=$('lMsg'),u=$('lId').value.trim(),pw=$('l
  }catch(e){msg.style.color='#ff9a9a';msg.textContent='서버에 연결하지 못했어요';}}
 function netStop(why){if(NET.stopped)return;NET.stopped=true;NET.dirty=false;try{if(NET.sock)NET.sock.disconnect();}catch(e){}
  setTimeout(()=>dialog('⚠ 저장 멈춤',[why+'\n\n이 기기의 예전 데이터가 서버의 최신 데이터를 덮어쓰지 않도록 이 기기에서는 저장을 멈췄어요.\n새로고침하면 서버에 있는 최신 데이터로 이어서 할 수 있어요.'],[{t:'🔄 새로고침',c:'gold',f:()=>location.reload()}]),300);}
-async function netFlush(keep){if(!NET.token||!NET.dirty||NET.busy||!P||NET.stopped)return;NET.busy=true;NET.dirty=false;const d=snap();
+async function netFlush(keep){if(NET.busy&&NET.dirty){NET.again=keep?2:Math.max(NET.again||0,1);return;}if(!NET.token||!NET.dirty||NET.busy||!P||NET.stopped)return;NET.busy=true;NET.dirty=false;const d=snap();
  try{const r=await fetch(NET.base+'/api/rpg/save',{method:'POST',keepalive:!!keep,headers:{'Content-Type':'application/json',Authorization:'Bearer '+NET.token},body:JSON.stringify({save:d,base:NET.saveT||0})});
   if(r.ok){NET.cloud=d;NET.fail=0;try{const j=await r.json();if(j&&j.t)NET.saveT=j.t;}catch(e){}}else if(r.status===409){netStop('다른 기기에서 이 계정으로 더 최근에 저장했어요.');}else if(r.status===401){log('⚠ 로그인이 만료됐어요. 타이틀에서 다시 로그인해 주세요');NET.token=null;}else{NET.dirty=true;}
  }catch(e){NET.dirty=true;if(!(NET.fail++%10))log('⚠ 서버 저장에 실패했어요. 다시 시도할게요');}
- NET.busy=false;}
+ NET.busy=false;if(NET.again){const k=NET.again===2;NET.again=0;if(NET.dirty)netFlush(k);}}
 setInterval(()=>netFlush(),4000);
+// 다른 기기에서 이어하기를 누르기 전에: 그 기기에 '저장하고 멈춰'를 보낸 뒤, 서버의 가장 최신 저장을 다시 받는다
+async function netFresh(take){try{if(take){const r=await netApi('/api/rpg/takeover',{});if(r.ok&&r.j&&r.j.n>0)await new Promise(f=>setTimeout(f,2500));}await netCloud();}catch(e){}}
+// 레벨·돈·장비·재료처럼 중요한 게 바뀌면 바로 서버에 저장 (경험치만 바뀐 건 20초마다)
+const SIG={k:'',g:0};
+setInterval(()=>{if(!P||!map||!NET.playing||!NET.token||NET.stopped)return;const B=P.bank||{};const k=[P.lv,P.cls,P.job,P.job3,P.sp,P.ap,JSON.stringify(P.eq),P.bag.map(x=>x.id+(x.plus||0)).join(),JSON.stringify(P.mats),JSON.stringify(P.pots),B.dep,B.loan,(P.titles||[]).length,P.ride].join('|');
+ const big=Math.abs((P.gold||0)-SIG.g)>=Math.max(20000,SIG.g*.05);if(k!==SIG.k||big){const first=!SIG.k;SIG.k=k;SIG.g=P.gold||0;if(!first){save(true);netFlush();}}},2000);
 addEventListener('visibilitychange',()=>{if(document.hidden&&P&&map&&NET.playing){save(true);netFlush(true);}});
+addEventListener('pagehide',()=>{if(P&&map&&NET.playing){save(true);netFlush(true);}});
 function netConnect(){if(!NET.token||NET.sock)return;
  const go=()=>{if(NET.sock||!window.io)return;const k=window.io(NET.base+'/rpg',{auth:{token:NET.token},transports:['websocket','polling']});NET.sock=k;
   k.on('ch',d=>{if(!d)return;NET.ch=+d.ch||0;if(d.moved){if(P&&P.rideOn){P.rideOn=null;}NET.host=false;NET.hostMap=null;if(map&&!map.pvp)enterMap(map.key,P.x,P.y);toast('📡 서버 '+NET.ch+'(으)로 옮겼어요');}});
+  k.on('takeover',async()=>{if(!P||!map||!NET.playing||NET.stopped)return;save(true);NET.again=0;for(let i=0;i<20&&NET.busy;i++)await new Promise(f=>setTimeout(f,100));await netFlush(true);NET.stopped=true;NET.dirty=false;try{k.disconnect();}catch(e){}NET.sock=null;NET.live=false;dialog('📱 다른 기기에서 접속',['다른 기기에서 이 계정으로 이어하기를 눌렀어요.\n\n여기까지의 진행은 서버에 저장했고, 이 기기에서는 저장을 멈췄어요.\n이 기기에서 계속하려면 새로고침해 주세요.'],[{t:'🔄 새로고침',c:'gold',f:()=>location.reload()}]);});
   k.on('ch:list',d=>{if(d&&Array.isArray(d.c))chRender(d);});
   k.on('full',()=>{dialog('📡 접속 인원 초과',['모든 서버(14개 × 12명)가 꽉 찼어요.\n잠시 뒤에 다시 접속해 주세요. 그동안은 혼자 플레이할 수 있어요.']);});
   k.on('adm:reps',d=>{if(d&&Array.isArray(d.list))admRender({list:d.list,sanc:Array.isArray(d.sanc)?d.sanc:[]});});
@@ -3763,6 +3771,7 @@ async function netInit(){
   if(typeof t==='string'&&t){NET.token=t;try{if(!(await netCloud())&&!NET.token){}}catch(e){NET.token=null;}}}
  if(!$('title').classList.contains('hidden'))renderTitle();
  let rs=null;try{rs=sessionStorage.getItem('dobakrpg_resume');sessionStorage.removeItem('dobakrpg_resume');}catch(e){}
+ if(rs&&NET.on&&NET.token)await netFresh(false);
  if(rs&&!NET.playing&&!$('title').classList.contains('hidden')&&(NET.on&&NET.token?applySave(NET.cloud):load())){startGame();log('🔄 새 버전으로 업데이트됐어요');}
 }
 netInit();
