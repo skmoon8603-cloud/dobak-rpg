@@ -3584,13 +3584,14 @@ function adminGift(){P.flags.admin=1;const up=Math.max(0,999-P.lv);P.lv=Math.max
  if(!(P.eq.weapon&&P.eq.weapon.id==='catsword')){if(P.eq.weapon)P.bag.push(P.eq.weapon);P.eq.weapon={id:'catsword',plus:0};}
  calc();P.hp=P.st.hp;P.mp=P.st.mp;autoLearn(true);setTimeout(()=>{toast('👑 관리자 보상 지급!');log('👑 Lv999 · 999,999G · 🐱 고양이 소드');save(true);},800);}
 // 운영자가 계정에 준 보상(레벨 등)을 한 번만 적용
-const GRANT_KEYS=['id','lv','title','keep','setLv','lvAdd','sp','ap','spDown','apDown','goldMul','goldAdd','item','setCls','recalc','cons','mats'];
+const GRANT_KEYS=['id','lv','title','keep','setLv','lvAdd','sp','ap','spDown','apDown','goldMul','goldAdd','item','setCls','recalc','cons','mats','clearDebt'];
 function applyGrants(){const list=NET.grants;NET.grants=[];for(const g of list){const lv=Math.round(+g.lv||0);
   if(g.title&&TITLES[g.title]){if(!P.gt.includes(g.title)){P.gt.push(g.title);P.title=g.title;if(!P.titles.includes(g.title))P.titles.push(g.title);setTimeout(()=>{toast('🏅 칭호 수여: '+TITLES[g.title][0]);log('🏅 운영자가 칭호 「'+TITLES[g.title][0]+'」를 내렸어요');sfx('win');},1500);}continue;}
   if(g.item){const iid=String(g.item).replace('{cls}',P.cls);if(!ITEMS[iid])g.wait=1;if(ITEMS[iid]&&!(P.eq.weapon&&P.eq.weapon.id===iid)&&!P.bag.some(x=>x.id===iid)){P.bag.push({id:iid,plus:0});setTimeout(()=>{toast('🎁 운영자 지급: '+ITEMS[iid].name+' (인벤토리에서 장착)');log('🎁 운영자 지급: '+ITEMS[iid].name);},2000);}} // {cls} = 내 직업 무기
   if(g.setCls&&CLASSES[g.setCls]&&P.cls!==g.setCls){let back=0;for(const id in P.skl){if(/^u\d+$/.test(id)||/^special\d+$/.test(id))continue;back+=P.skl[id]-1;delete P.skl[id];}P.sp+=back;P.slots=P.slots.map(id=>id&&P.skl[id]?id:null);const w=P.eq.weapon;if(w&&ITEMS[w.id]&&ITEMS[w.id].cls){P.bag.push(w);P.eq.weapon={id:'w_'+g.setCls+'1',plus:0};}P.cls=g.setCls;P.job='';calc();autoLearn(true);spirits=[];setTimeout(()=>toast('🧚 직업이 '+CLASSES[g.setCls].name+'(으)로 바뀌었어요'),2400);}
   if(g.mats&&typeof g.mats==='object'){const got=[];for(const k in g.mats)if(MATS[k]){const n=Math.max(0,Math.min(999,Math.round(+g.mats[k]||0)));if(n){P.mats[k]=(P.mats[k]||0)+n;got.push(MATS[k][1]+' '+MATS[k][0]+' ×'+n);}}if(got.length)setTimeout(()=>{toast('🎁 운영자 지급: '+got.join(', '));log('🎁 운영자 지급: '+got.join(', '));},3000);}
   if(g.cons&&typeof g.cons==='object'){const got=[];for(const k in g.cons)if(CONS[k]){const n=Math.max(0,Math.min(99,Math.round(+g.cons[k]||0)));if(n){P.pots[k]=(P.pots[k]||0)+n;got.push(CONS[k][3]+' '+CONS[k][0]+' ×'+n);}}if(got.length)setTimeout(()=>{toast('🎁 운영자 지급: '+got.join(', '));log('🎁 운영자 지급: '+got.join(', ')+' (인벤토리 → 소모품에서 사용)');},2600);}
+  if(g.clearDebt){const B=P.bank;if(B){B.loan=0;B.prin=0;delete B.lt;}P.labor=0;$('laborBox')&&$('laborBox').classList.add('hidden');setTimeout(()=>{toast('🎁 운영자가 빚을 모두 없애 줬어요');log('🎁 운영자가 빚을 모두 없애 줬어요 (이제 거래·광산 나가기 가능)');},2200);}
   if(g.goldAdd>0){P.gold+=Math.round(g.goldAdd);setTimeout(()=>{toast('💰 운영자 지급: '+Math.round(g.goldAdd).toLocaleString()+' G');log('💰 운영자 지급 '+Math.round(g.goldAdd).toLocaleString()+' G');},1800);}
   if(g.setLv||g.lvAdd||g.goldMul!=null||g.sp!=null||g.ap!=null||g.spDown||g.apDown){
    if(g.setLv>=1&&g.setLv<=999){P.lv=Math.round(g.setLv);P.exp=0;}
