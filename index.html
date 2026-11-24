@@ -1310,7 +1310,7 @@ const need=lv=>Math.floor(30*Math.pow(lv,1.6));
 const SAVEKEY='dobakrpg_save_v1';
 function snap(){const d=Object.assign({},P);delete d.st;delete d.dash;delete d.say;delete d.sayT;delete d.rideOn;delete d.rideAsk;delete d.frz;delete d.coldT;return d;}
 function save(silent){let ok=true;try{localStorage.setItem(SAVEKEY,JSON.stringify(snap()));}catch(e){ok=false;}
- if(NET.token&&!NET.stopped){NET.dirty=true;ok=true;}
+ if(NET.token&&!NET.stopped&&NET.srv){NET.dirty=true;ok=true;}
  if(!silent)log(ok?(NET.token?'💾 저장되었습니다 (서버)':'💾 저장되었습니다'):'⚠ 이 브라우저에서는 저장할 수 없어요');return ok;}
 function saveLoss(){save(true);try{netFlush();}catch(e){}} // 도박에서 잃으면 바로 서버까지 저장
 function hasSave(){try{return !!localStorage.getItem(SAVEKEY);}catch(e){return false;}}
@@ -3289,7 +3289,7 @@ function renderMenu(){
  B.querySelectorAll('[data-enh]').forEach(b=>b.onclick=()=>enhance(b.dataset.enh));
  const ms=$('mSave');if(ms)ms.onclick=()=>{save();ms.textContent='✅ 저장됨';};
  const mtu=$('mTut');if(mtu)mtu.onclick=()=>{$('menu').classList.add('hidden');tutStart();};
- const mt=$('mTitleBtn');if(mt)mt.onclick=()=>{save(true);BGM.pause();netFlush().finally(()=>location.reload());};
+ const mt=$('mTitleBtn');if(mt)mt.onclick=()=>{save(true);BGM.pause();netFlushWait().finally(()=>location.reload());};
 }
 // ================= 일일 의뢰 =================
 const kstDay=()=>Math.floor((Date.now()+9*3600000)/86400000);
@@ -3628,13 +3628,14 @@ function renderTitle(){
   <div style="display:flex;gap:8px"><button class="btn gold big" id="bIn" style="min-width:0;flex:1">로그인</button><button class="btn big" id="bUp" style="min-width:0;flex:1">회원가입</button></div>
   <button class="x" id="bGuest" style="font-size:12px;color:#8d7bb3;text-decoration:underline">로그인 없이 이 기기에만 저장하기</button></div>`;
  }else{
+  if(NET.checking||(logged&&!NET.cloudOk)){h=`<div style="font-size:13px;color:#c9b3ff;text-align:center;line-height:1.7">${NET.checking?'⏳ 계정 서버에 연결하는 중…<br><span style="font-size:11px;color:#8d7bb3">서버가 자고 있으면 1분쯤 걸려요. 잠시만 기다려 주세요</span>':'⚠ 서버에서 저장 데이터를 받지 못했어요.<br><span style="font-size:11px;color:#8d7bb3">데이터가 섞이지 않게 지금은 시작할 수 없어요</span>'}</div>`+(NET.checking?'':`<button class="btn gold big" id="bRetry">🔄 다시 시도</button>`);A.innerHTML=h;const rb=$('bRetry');if(rb)rb.onclick=()=>location.reload();return;}
   if(logged)h+=`<div style="font-size:13px;color:#7dff7d">👤 ${esc(NET.nick)} 님 · 서버에 저장돼요</div>`;
   const c=NET.cloud,cont=logged?!!c:hasSave();
   h+=`<button class="btn gold big" id="bNew">새 게임</button><button class="btn big" id="bLoad" ${cont?'':'disabled'}>이어하기${logged&&c?` · Lv${c.lv||1} ${esc(c.name||'')}`:''}</button>`;
   if(logged&&!c&&hasSave())h+=`<button class="btn big" id="bImport">이 기기의 저장 가져오기</button>`;
   if(logged)h+=`<button class="x" id="bOut" style="font-size:12px;color:#8d7bb3;text-decoration:underline">로그아웃</button>`;
   else if(NET.on)h+=`<button class="x" id="bBack" style="font-size:12px;color:#8d7bb3;text-decoration:underline">계정으로 로그인하기</button>`;
-  else h+=`<div style="font-size:11px;color:#8d7bb3;text-align:center;line-height:1.6">${NET.checking?'⏳ 계정 서버에 연결하는 중… (서버가 자고 있으면 1분쯤 걸려요)':'계정 서버에 연결하지 못했어요. 지금은 이 기기에만 저장돼요.<br>새로고침하면 다시 연결을 시도해요.'}</div>`;
+  else if(!NET.checking)h+=`<div style="font-size:11px;color:#8d7bb3;text-align:center;line-height:1.6">${NET.checking?'⏳ 계정 서버에 연결하는 중… (서버가 자고 있으면 1분쯤 걸려요)':'계정 서버에 연결하지 못했어요. 지금은 이 기기에만 저장돼요.<br>새로고침하면 다시 연결을 시도해요.'}</div>`;
  }
  A.innerHTML=h;const on=(id,f)=>{const b=$(id);if(b)b.onclick=f;};
  on('bIn',()=>netAuth('signin'));on('bUp',()=>netAuth('register'));
@@ -3656,7 +3657,7 @@ function adminGift(){P.flags.admin=1;const up=Math.max(0,999-P.lv);P.lv=Math.max
  calc();P.hp=P.st.hp;P.mp=P.st.mp;autoLearn(true);setTimeout(()=>{toast('👑 관리자 보상 지급!');log('👑 Lv999 · 999,999G · 🐱 고양이 소드');save(true);},800);}
 // 운영자가 계정에 준 보상(레벨 등)을 한 번만 적용
 const GRANT_KEYS=['id','lv','title','keep','setLv','lvAdd','sp','ap','spDown','apDown','goldMul','goldAdd','item','setCls','recalc','cons','mats','clearDebt'];
-function applyGrants(){const list=NET.grants;NET.grants=[];for(const g of list){const lv=Math.round(+g.lv||0);
+function applyGrants(){const list=NET.grants;NET.grants=[];P.gotG=Array.isArray(P.gotG)?P.gotG:[];for(const g of list){const lv=Math.round(+g.lv||0);if(g.id&&P.gotG.includes(String(g.id))){netApi('/api/rpg/grantdone',{id:g.id}).catch(()=>{});continue;} // 이미 받은 지급 (받음 처리가 서버에 안 닿았던 경우)
   if(g.title&&TITLES[g.title]){if(!P.gt.includes(g.title)){P.gt.push(g.title);P.title=g.title;if(!P.titles.includes(g.title))P.titles.push(g.title);setTimeout(()=>{toast('🏅 칭호 수여: '+TITLES[g.title][0]);log('🏅 운영자가 칭호 「'+TITLES[g.title][0]+'」를 내렸어요');sfx('win');},1500);}continue;}
   if(g.item){const iid=String(g.item).replace('{cls}',P.cls);if(!ITEMS[iid])g.wait=1;if(ITEMS[iid]&&!(P.eq.weapon&&P.eq.weapon.id===iid)&&!P.bag.some(x=>x.id===iid)){P.bag.push({id:iid,plus:0});setTimeout(()=>{toast('🎁 운영자 지급: '+ITEMS[iid].name+' (인벤토리에서 장착)');log('🎁 운영자 지급: '+ITEMS[iid].name);},2000);}} // {cls} = 내 직업 무기
   if(g.setCls&&CLASSES[g.setCls]&&P.cls!==g.setCls){let back=0;for(const id in P.skl){if(/^u\d+$/.test(id)||/^special\d+$/.test(id))continue;back+=P.skl[id]-1;delete P.skl[id];}P.sp+=back;P.slots=P.slots.map(id=>id&&P.skl[id]?id:null);const w=P.eq.weapon;if(w&&ITEMS[w.id]&&ITEMS[w.id].cls){P.bag.push(w);P.eq.weapon={id:'w_'+g.setCls+'1',plus:0};}P.cls=g.setCls;P.job='';calc();autoLearn(true);spirits=[];setTimeout(()=>toast('🧚 직업이 '+CLASSES[g.setCls].name+'(으)로 바뀌었어요'),2400);}
@@ -3676,7 +3677,7 @@ function applyGrants(){const list=NET.grants;NET.grants=[];for(const g of list){
    calc();P.hp=Math.min(P.hp,P.st.hp);P.mp=Math.min(P.mp,P.st.mp);
    setTimeout(()=>{toast('⚖ 운영자가 캐릭터를 조정했어요');log('⚖ 운영자 조정: Lv'+P.lv+' · 남은 스킬/능력치 포인트 '+P.sp+'/'+P.ap+' · '+P.gold.toLocaleString()+'G');},900);}
   if(lv>P.lv&&lv<=999){const up=lv-P.lv;P.lv=lv;P.exp=0;P.sp+=up;P.ap=(P.ap||0)+3*up;calc();P.hp=P.st.hp;P.mp=P.st.mp;autoLearn(true);setTimeout(()=>{toast('🎁 운영자 선물: Lv'+lv+'!');log('🎁 레벨 '+lv+' · 스킬 포인트 +'+up+' · 능력치 포인트 +'+3*up);},900);}
-  if(!g.wait&&Object.keys(g).every(k=>g[k]==null||GRANT_KEYS.includes(k)))netApi('/api/rpg/grantdone',{id:g.id}).catch(()=>{});} // 모르는 지급은 '받음' 처리를 안 해서, 업데이트된 화면에서 다시 받는다
+  if(!g.wait&&Object.keys(g).every(k=>g[k]==null||GRANT_KEYS.includes(k))){if(g.id&&!g.keep)P.gotG.push(String(g.id));netApi('/api/rpg/grantdone',{id:g.id}).catch(()=>{});}} // 모르는 지급은 '받음' 처리를 안 해서, 업데이트된 화면에서 다시 받는다
  setTimeout(()=>{save(true);netFlush();},1200);}
 // ================= UI 설명 (처음 시작할 때) =================
 const TUT=[
@@ -3737,7 +3738,7 @@ function startGame(isNew){
  bankSettle();mineWipe();setTimeout(attendCheck,2500);
  if(inJail())enterMap('police',11.5*TS,4*TS);
  if(blocked(P.x,P.y,8)){P.x=map.start.x;P.y=map.start.y;}
- paused=false;NET.playing=true;netConnect();if(isNew)save(true);
+ NET.srv=!!(NET.on&&NET.token&&!NET.stopped);paused=false;NET.playing=true;netConnect();if(isNew)save(true);
  if(isNew)tutStart(()=>dialog('📜 이야기',[`${RACES[P.race].name} ${jobName(P)} ${P.name}, 평화의 마을에 도착했다.`,'최근 북쪽 던전에서 어둠의 리치 「모르간」이 깨어나 세상에 몬스터가 넘쳐나고 있다.','마을 북서쪽 「촌장의 집」 앞의 촌장을 찾아가 이야기를 들어보자.\n\n💡 마법 도서관에서 스킬북을 사면 새 스킬을 익힐 수 있어요. 대쉬(Shift/💨)로 공격을 피하세요!']));
 }
 
@@ -3746,7 +3747,7 @@ function startGame(isNew){
 function netLogout(){NET.token=null;NET.cloud=null;NET.uid='';NET.live=false;try{localStorage.removeItem('dobakrpg_session');}catch(e){}if(NET.sock){try{NET.sock.disconnect();}catch(e){}NET.sock=null;}NET.others.clear();}
 async function netApi(path,body){const o={method:body?'POST':'GET',cache:'no-store',headers:{}};if(NET.token)o.headers.Authorization='Bearer '+NET.token;if(body){o.headers['Content-Type']='application/json';o.body=JSON.stringify(body);}
  const r=await fetch(NET.base+path,o);let j=null;try{j=await r.json();}catch(e){}return{status:r.status,ok:r.ok,j:j||{}};}
-async function netCloud(){const r=await netApi('/api/rpg/save');if(r.status===401){netLogout();return false;}if(!r.ok)return false;NET.uid=r.j.id;NET.admin=!!r.j.admin;NET.grants=Array.isArray(r.j.grants)?r.j.grants:[];NET.nick=r.j.nick||'';NET.cloud=r.j.save||null;NET.saveT=+r.j.t||0;return true;}
+async function netCloud(){const r=await netApi('/api/rpg/save');if(r.status===401){netLogout();return false;}if(!r.ok)return false;NET.uid=r.j.id;NET.admin=!!r.j.admin;NET.grants=Array.isArray(r.j.grants)?r.j.grants:[];NET.nick=r.j.nick||'';NET.cloud=r.j.save||null;NET.saveT=+r.j.t||0;NET.cloudOk=true;return true;}
 const AUTHERR={exists:'이미 있는 아이디예요',bad_username:'아이디는 2~20자로 해주세요',bad_password:'비밀번호는 6자 이상이어야 해요',bad_login:'아이디 또는 비밀번호가 틀렸어요',locked:'5번 틀려서 5분 동안 잠겼어요',too_many_requests:'잠시 후 다시 시도해 주세요'};
 async function netAuth(kind){const msg=$('lMsg'),u=$('lId').value.trim(),pw=$('lPw').value;if(u.length<2){msg.textContent=AUTHERR.bad_username;return;}if(pw.length<6){msg.textContent=AUTHERR.bad_password;return;}
  msg.style.color='#c9b3ff';msg.textContent='서버에 연결하는 중…';
@@ -3757,13 +3758,14 @@ async function netAuth(kind){const msg=$('lMsg'),u=$('lId').value.trim(),pw=$('l
  }catch(e){msg.style.color='#ff9a9a';msg.textContent='서버에 연결하지 못했어요';}}
 function netStop(why){if(NET.stopped)return;NET.stopped=true;NET.dirty=false;try{if(NET.sock)NET.sock.disconnect();}catch(e){}
  setTimeout(()=>dialog('⚠ 저장 멈춤',[why+'\n\n이 기기의 예전 데이터가 서버의 최신 데이터를 덮어쓰지 않도록 이 기기에서는 저장을 멈췄어요.\n새로고침하면 서버에 있는 최신 데이터로 이어서 할 수 있어요.'],[{t:'🔄 새로고침',c:'gold',f:()=>location.reload()}]),300);}
-async function netFlush(keep){if(NET.busy&&NET.dirty){NET.again=keep?2:Math.max(NET.again||0,1);return;}if(!NET.token||!NET.dirty||NET.busy||!P||NET.stopped)return;NET.busy=true;NET.dirty=false;const d=snap();
+async function netFlush(keep){if(!NET.srv)return;if(NET.busy&&NET.dirty){NET.again=keep?2:Math.max(NET.again||0,1);return;}if(!NET.token||!NET.dirty||NET.busy||!P||NET.stopped)return;NET.busy=true;NET.dirty=false;const d=snap();
  try{const r=await fetch(NET.base+'/api/rpg/save',{method:'POST',keepalive:!!keep,headers:{'Content-Type':'application/json',Authorization:'Bearer '+NET.token},body:JSON.stringify({save:d,base:NET.saveT||0})});
   if(r.ok){NET.cloud=d;NET.fail=0;try{const j=await r.json();if(j&&j.t)NET.saveT=j.t;}catch(e){}}else if(r.status===409){netStop('다른 기기에서 이 계정으로 더 최근에 저장했어요.');}else if(r.status===401){log('⚠ 로그인이 만료됐어요. 타이틀에서 다시 로그인해 주세요');NET.token=null;}else{NET.dirty=true;}
  }catch(e){NET.dirty=true;if(!(NET.fail++%10))log('⚠ 서버 저장에 실패했어요. 다시 시도할게요');}
  NET.busy=false;if(NET.again){const k=NET.again===2;NET.again=0;if(NET.dirty)netFlush(k);}}
 setInterval(()=>netFlush(),4000);
 // 다른 기기에서 이어하기를 누르기 전에: 그 기기에 '저장하고 멈춰'를 보낸 뒤, 서버의 가장 최신 저장을 다시 받는다
+async function netFlushWait(){if(!NET.srv)return;for(let i=0;i<50&&NET.busy;i++)await new Promise(f=>setTimeout(f,100));NET.again=0;if(NET.dirty)await netFlush();for(let i=0;i<50&&NET.busy;i++)await new Promise(f=>setTimeout(f,100));}
 async function netFresh(take){try{if(take){const r=await netApi('/api/rpg/takeover',{});if(r.ok&&r.j&&r.j.n>0)await new Promise(f=>setTimeout(f,2500));}await netCloud();}catch(e){}}
 // 레벨·돈·장비·재료처럼 중요한 게 바뀌면 바로 서버에 저장 (경험치만 바뀐 건 20초마다)
 const SIG={k:'',g:0};
@@ -3839,10 +3841,11 @@ setInterval(()=>{const k=NET.sock;if(!k||!k.connected||!P||!map||!NET.playing)re
 function netTick(dt){plainWrap();if(P){evtTick(dt);bdTick();}for(const o of NET.others.values())if(o.skid>0){o.skT=(o.skT||0)+dt;o.sk=Math.max(.35,1-o.skT/SKID_STOP);const a=o.skA,rx=o.x-Math.cos(a)*11,ry=o.y-1-Math.sin(a)*5;if(!o.lastSk||Math.hypot(rx-o.lastSk.x,ry-o.lastSk.y)>3){skidMark(rx,ry,a);o.lastSk={x:rx,y:ry};}if(Math.random()<.4)parts.push({x:rx,y:ry-2,vx:rnd(-30,30),vy:rnd(-40,-10),life:rnd(.3,.5),color:'#bdbdbd',s:3});}for(const o of NET.others.values()){const k=Math.min(1,dt*12);if(o.spc&&o.spt)o.spc.forEach((c,i)=>{const t=o.spt[i];if(!t)return;c[0]=t[0];c[1]+=(t[1]-c[1])*k;c[2]+=(t[2]-c[2])*k;});if(o.thd!=null&&o.hd!=null){const da=((o.thd-o.hd+Math.PI*3)%(Math.PI*2))-Math.PI;const st=da*Math.min(1,dt*10);o.hd+=st;o.lean=(o.lean||0)*.85+(st/Math.max(dt,.001))*.06;}o.x+=(o.tx-o.x)*k;o.y+=(o.ty-o.y)*k;if(o.w)o.walk+=dt*10;}}
 async function netInit(){
  renderTitle();
- for(let n=0;n<3&&!NET.on;n++){try{const r=await fetch(NET.base+'/api/rpg/ping',{cache:'no-store'});const j=await r.json();NET.on=!!(j&&j.rpg);}catch(e){NET.on=false;}if(!NET.on&&!SERVER)break;}
+ {let hasTok=false;try{hasTok=!!(localStorage.getItem('dobakrpg_session')||localStorage.getItem('rf_auth'));}catch(e){}const t0=Date.now();
+  for(let n=0;!NET.on;n++){try{const ac=new AbortController(),tm=setTimeout(()=>ac.abort(),10000);const r=await fetch(NET.base+'/api/rpg/ping',{cache:'no-store',signal:ac.signal});clearTimeout(tm);const j=await r.json();NET.on=!!(j&&j.rpg);}catch(e){NET.on=false;}if(NET.on||location.protocol==='file:')break;if(Date.now()-t0>(hasTok?90000:20000))break;await new Promise(f=>setTimeout(f,3000));}} // 잠든 서버가 깨어날 때까지 (로그인했던 기기는 90초까지) 기다린다
  NET.checking=false;
  if(NET.on){let t=null;try{t=localStorage.getItem('dobakrpg_session');if(!t){const f=localStorage.getItem('rf_auth');if(f)t=JSON.parse(f);}}catch(e){}
-  if(typeof t==='string'&&t){NET.token=t;try{if(!(await netCloud())&&!NET.token){}}catch(e){NET.token=null;}}}
+  if(typeof t==='string'&&t){NET.token=t;for(let n=0;n<4&&NET.token&&!NET.cloudOk;n++){try{await netCloud();}catch(e){}if(!NET.cloudOk&&NET.token)await new Promise(f=>setTimeout(f,2500));}}}
  if(!$('title').classList.contains('hidden'))renderTitle();
  let rs=null;try{rs=sessionStorage.getItem('dobakrpg_resume');sessionStorage.removeItem('dobakrpg_resume');}catch(e){}
  if(rs&&NET.on&&NET.token)await netFresh(false);
@@ -3854,7 +3857,7 @@ const UPD={base:null,busy:false};
 async function updCheck(){if(UPD.busy||location.protocol==='file:')return;let t=null;try{const r=await fetch(location.pathname+'?v='+Date.now(),{cache:'no-store'});if(r.ok)t=await r.text();}catch(e){}
  if(!t||t.indexOf('<title>도박 RPG</title>')<0)return;if(UPD.base===null){UPD.base=t;return;}if(t===UPD.base)return;
  const typing=document.activeElement&&document.activeElement.tagName==='INPUT';if(typing||gambling)return;
- UPD.busy=true;if(NET.playing&&P&&map){toast('🔄 새 버전이 나왔어요! 저장하고 새로고침할게요');save(true);try{await netFlush();}catch(e){}try{sessionStorage.setItem('dobakrpg_resume','1');}catch(e){}await new Promise(r=>setTimeout(r,1500));}
+ UPD.busy=true;if(NET.playing&&P&&map){toast('🔄 새 버전이 나왔어요! 저장하고 새로고침할게요');save(true);try{await netFlushWait();}catch(e){}try{sessionStorage.setItem('dobakrpg_resume','1');}catch(e){}await new Promise(r=>setTimeout(r,1500));}
  location.reload();}
 updCheck();setInterval(updCheck,45000);
 
