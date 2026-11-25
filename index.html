@@ -252,7 +252,7 @@ const safeHere=()=>!!map&&!evtLocked()&&!admDragon()&&(map['safe']===1||(map.saf
 const isHost=()=>!NET.live||NET.host;
 const VQ=[]; // 다른 사람에게 보낼 내 스킬 연출 (0.1초마다 묶어서 전송)
 function vis(o){if(NET.live&&NET.others.size&&VQ.length<60)VQ.push(o);}
-let ULT=null;const EPICC={swordmaster:'#ff1744',plum:'#ff80ab',godbow:'#29b6f6',boweye:'#b2ff59',gatling:'#ff9f43',headhunter:'#ff1744',dumbledore:'#ff6d00',voldemort:'#00e676',swordemp:'#b388ff',spiritgod:'#ffe066'};
+let ULT=null;const EPICC={swordmaster:'#ff1744',plum:'#ff80ab',godbow:'#29b6f6',boweye:'#b2ff59',gatling:'#ff9f43',headhunter:'#ff1744',dumbledore:'#ff6d00',voldemort:'#00e676',swordemp:'#b388ff',spiritgod:'#ffe066',shadowlord:'#d50000'};
 function burst(x,y,col,n,sp,g){for(let i=0;i<n;i++){const a=rnd(0,6.28),v=rnd(sp*.3,sp);parts.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,life:rnd(.35,.9),color:i%3?col:'#ffffff',s:rnd(2,6)|0,g:g||0});}}
 function epic(name,col){ULT={t:1.25,max:1.25,name,col};vfx({k:'rune',x:P.x,y:P.y,r:64,life:1.1,max:1.1,color:col});vfx({k:'shock',x:P.x,y:P.y-6,r:190,life:.55,max:.55,color:col});vfx({k:'flash',x:P.x,y:P.y-10,r:110,life:.35,max:.35,color:col});burst(P.x,P.y-10,col,36,300);shake=Math.max(shake,.3);sfx('ult');}
 function vfx(o){fx.push(o);const c=Object.assign({},o);if(c.pts)c.pts=c.pts.slice(0,12).map(q=>({x:Math.round(q.x),y:Math.round(q.y)}));vis({t:'f',o:c});}
@@ -370,6 +370,8 @@ SKILLS.ninja=[
   {name:'화둔 · 호화구',ic:'🔥',lv:20,mp:22,cd:7,desc:'커다란 불덩이를 뿜어 폭발시킨다 (화상)'},
   {name:'그림자 분신 난무',ic:'👥',lv:40,mp:34,cd:14,desc:'주변 적에게 6번 순간이동하며 벤다'},
   {name:'천 개의 칼날',ic:'⚔',lv:80,mp:45,cd:18,desc:'하늘에서 칼날 30개를 쏟아붓는다'}];
+SKILLS.ninjutsu=[{name:'풍둔 · 질풍참',ic:'🌬',lv:20,mp:24,cd:6,desc:'바람처럼 앞으로 달리며 지나가는 길의 적을 모두 벤다'},{name:'뇌둔 · 낙뢰',ic:'⚡',lv:23,mp:40,cd:14,desc:'주변 적 5명에게 연달아 번개를 떨어뜨린다'}];
+SKILLS.shadowlord=[{name:'십자 대수리검',ic:'✴',lv:100,mp:45,cd:9,desc:'거대한 수리검 8개를 사방으로 던진다 (관통)'},{name:'그림자 칼날 폭풍',ic:'🌑',lv:100,mp:45,cd:10,desc:'지정한 곳에 그림자 칼날이 두 번에 걸쳐 쏟아진다'},{name:'그림자 은신',ic:'🫥',lv:100,mp:30,cd:22,desc:'5초간 무적 · 8초간 빨라지고 피해 2배'}];
 SKILLS.msword=[
   {name:'마력 베기',ic:'🔮',lv:1,mp:8,cd:2,desc:'베면서 마력 검기를 날린다'},
   {name:'화염검',ic:'🔥',lv:4,mp:12,cd:4,desc:'불타는 검으로 크게 벤다 (화상)'},
@@ -422,6 +424,7 @@ const JOBS={
  peak:{cls:'sword',name:'절정의 경지',color:'#e8e8f0',hat:'#d4af37',desc:'최대 체력 +25% · 방어 +10 · 벨 때마다 검기 발사'},
  sniper:{cls:'ranger',name:'저격수',color:'#3d4a3a',hat:'#2a3328',desc:'한 발이 1.6배 강하지만 느림 · 사거리·치명타 피해 증가'},
  msorder:{cls:'msword',name:'매직소드너',color:'#5b2bd6',hat:'#2a1560',desc:'공격력 +20% · 최대 체력 +15% · 벨 때마다 마력 검기 발사'},
+ ninjutsu:{cls:'ninja',name:'인술사',color:'#37474f',hat:'#b71c1c',desc:'공격력 +15% · 이동 속도 증가 · 수리검이 더 자주, 적을 관통'},
  spiritking:{cls:'spirit',name:'정령의 왕',color:'#1b5e20',hat:'#ffd740',desc:'정령을 1마리 더 부림 · 정령 공격력 +25% · 철·바람 정령 소환'},
  assault:{cls:'ranger',name:'돌격대장',color:'#a0522d',hat:'#5a2d16',desc:'최대 체력 +20% · 이동 속도 증가 · 기본 공격 2연발'}};
 const JOBS3={
@@ -434,10 +437,11 @@ const JOBS3={
  dumbledore:{from:'white',name:'대현자',color:'#ede7f6',hat:'#7e57c2',desc:'화염 장벽 · 수호 사슴 · 불사조의 가호'},
  voldemort:{from:'dark',name:'어둠의 군주',color:'#0b1a0b',hat:'#00e676',desc:'죽음의 주문 · 죽음을 먹는 자 · 영혼 그릇'},
  swordemp:{from:'msorder',name:'마도검제',color:'#311b92',hat:'#ffd740',desc:'마도검 · 차원 붕괴 · 마검제 각성'},
+ shadowlord:{from:'ninjutsu',name:'그림자 군주',color:'#0d0d0d',hat:'#d50000',desc:'십자 대수리검 · 그림자 칼날 폭풍 · 그림자 은신'},
  spiritgod:{from:'spiritking',name:'정령신',color:'#004d40',hat:'#ffd740',desc:'정령을 5마리까지 · 마그마·번개 정령 · 정령신의 축복'}};
 const JOB3OF={};for(const k in JOBS3)JOB3OF[JOBS3[k].from]=k;
 const jobName=o=>o.job3&&JOBS3[o.job3]?JOBS3[o.job3].name:o.job&&JOBS[o.job]?JOBS[o.job].name:CLASSES[o.cls].name;
-const SELF=new Set(['swordmaster1','swordmaster2','plum0','plum2','godbow2','boweye2','gatling1','headhunter2','dumbledore2','voldemort2','swordemp0','swordemp2','spiritgod0','spiritgod1','spiritgod2','spirit0','spirit1','spirit2','spirit3','spirit4','spirit5','spirit6','spiritking0','spiritking1','special3','sword2','sword6','archer6','u0','u2','u3','ranger0','ranger2','ranger5','ranger6','white0','white1','tradbow0','expert1','peak1','msword3','msword6','msorder1','special1']);
+const SELF=new Set(['swordmaster1','swordmaster2','plum0','plum2','godbow2','boweye2','gatling1','headhunter2','dumbledore2','voldemort2','swordemp0','swordemp2','spiritgod0','spiritgod1','spiritgod2','spirit0','spirit1','spirit2','spirit3','spirit4','spirit5','spirit6','spiritking0','spiritking1','special3','sword2','sword6','archer6','u0','u2','u3','ranger0','ranger2','ranger5','ranger6','white0','white1','tradbow0','expert1','peak1','msword3','msword6','msorder1','special1','ninjutsu1','shadowlord2']);
 const SK={};for(const c in SKILLS)SKILLS[c].forEach((x,i)=>{x.id=(c==='common'?'u':c)+i;SK[x.id]=x;});
 // 기본 스킬은 Lv1, 4, 7, 9, 11 에 하나씩 / 스킬북은 Lv5, 8, 12
 for(const c of ['mage','sword','archer','ranger']){const a=SKILLS[c];delete a[4].book;SKILLS[c]=[a[0],a[1],a[2],a[4],a[3],a[5],a[6],a[7]];[1,4,7,9,11].forEach((lv,i)=>SKILLS[c][i].lv=lv);[5,8,12].forEach((lv,i)=>SKILLS[c][5+i].lv=lv);}
@@ -550,7 +554,7 @@ gslime0:{name:'거대 슬라임',hp:422400,atk:1,def:20,spd:.7,r:96,exp:0,gold:[
  mosq:{name:'모기',hp:18000,atk:220,def:40,spd:2.7,r:10,exp:7000,gold:[1300,1700],aggro:360,ai:'mosq'},
  hopper:{name:'메뚜기',hp:26000,atk:290,def:58,spd:1.7,r:13,exp:9000,gold:[1600,2100],aggro:320,ai:'hopper'},
  spiderling:{name:'새끼 거미',hp:30000,atk:240,def:40,spd:2.4,r:11,exp:5000,gold:[0,0],aggro:600,summonOnly:1,ai:'mummy'},
- spider:{name:'거대 거미 아라크네',hp:1100000,atk:800,def:85,spd:2.1,r:40,exp:450000,split:1,gold:[250000,250000],aggro:800,boss:1,ai:'spider'},
+ spider:{name:'거대 거미 아라크네',hp:1100000,atk:800,def:85,spd:2.1,r:40,exp:135000,split:1,gold:[250000,250000],aggro:800,boss:1,ai:'spider'},
  raidboss:{name:'심연의 군주',hp:5000000,atk:2000,def:60,spd:2.7,r:30,exp:3000000,split:1,gold:[0,0],aggro:900,boss:1,noCC:1,ai:'raid'},
  dummy:{name:'허수아비',hp:1e15,atk:0,def:0,spd:0,r:14,exp:0,gold:[0,0],aggro:0,noCC:1,ai:'dummy'},
  yeti:{name:'예티',hp:200000,atk:420,def:55,spd:1.6,r:40,exp:400000,split:1,gold:[120000,120000],aggro:800,boss:1,ai:'yeti'}
@@ -1351,7 +1355,7 @@ function calc(){
  const r=RACES[P.race],c=CLASSES[P.cls],L=P.lv-1;
  const s={hp:r.hp+c.hp+L*12,mp:r.mp+c.mp+L*6,atk:r.atk+c.atk+L*2,def:r.def+c.def+L,spd:r.spd+c.spd,hpr:r.hpr+L*.1,mpr:r.mpr+L*.08,luck:0,gold:0};
  for(const k in P.eq){const e=P.eq[k];if(!e)continue;const it=ITEMS[e.id];const m=1+.15*e.plus;for(const st in STATNAME)if(it[st])s[st]+=st==='spd'?it[st]:it[st]*m;}
- const j=P.job;if(j==='dark')s.atk*=1.25;if(j==='white'){s.hp*=1.25;s.hpr+=3;s.mpr+=2;}if(j==='magicbow'){s.mp+=50;s.mpr+=1;}if(j==='expert')s.atk*=1.2;if(j==='peak'){s.hp*=1.25;s.def+=10;}if(j==='assault'){s.hp*=1.2;s.spd+=.3;}if(j==='msorder'){s.atk*=1.2;s.hp*=1.15;}
+ const j=P.job;if(j==='dark')s.atk*=1.25;if(j==='white'){s.hp*=1.25;s.hpr+=3;s.mpr+=2;}if(j==='magicbow'){s.mp+=50;s.mpr+=1;}if(j==='expert')s.atk*=1.2;if(j==='peak'){s.hp*=1.25;s.def+=10;}if(j==='assault'){s.hp*=1.2;s.spd+=.3;}if(j==='msorder'){s.atk*=1.2;s.hp*=1.15;}if(j==='ninjutsu'){s.atk*=1.15;s.spd+=.3;}
  if(P.job3){s.atk*=1.15;s.hp*=1.15;}
  {const F=foodOn();if(F){if(F.atk)s.atk*=1+F.atk;if(F.def)s.def*=1+F.def;if(F.spd)s.spd*=1+F.spd;}}
  if(P.monN)s.hp*=Math.pow(.995,P.monN);if((P.smU||0)>Date.now())s.atk*=1.1;
@@ -1884,7 +1888,7 @@ function basicAttack(){
  if(P.cls==='spirit')shoot({vx:d.x*400,vy:d.y*400,dmg:dmgOf(1),life:.75,r:6,color:'#9ccc65',kind:'orb'});
  else if(P.cls==='mage')shoot({vx:d.x*420,vy:d.y*420,dmg:dmgOf(1.05),life:.7,r:6,color:j==='dark'?'#7b3fd1':j==='white'?'#fff3a8':'#a98bff',kind:'orb'});
  else if(P.cls==='novice'){slash(Math.atan2(d.y,d.x),58,dmgOf(1));}
- else if(P.cls==='ninja'){slash(Math.atan2(d.y,d.x),66,dmgOf(.95));P.njk=(P.njk||0)+1;if(P.njk%3===0)shoot({vx:d.x*640,vy:d.y*640,dmg:dmgOf(.6),life:.5,r:5,color:'#cfd8dc',kind:'bolt'});}
+ else if(P.cls==='ninja'){slash(Math.atan2(d.y,d.x),66,dmgOf(.95));P.njk=(P.njk||0)+1;if(P.njk%(j==='ninjutsu'?2:3)===0)shoot({vx:d.x*640,vy:d.y*640,dmg:dmgOf(.6),life:.5,r:5,color:'#cfd8dc',kind:'bolt',pierce:j==='ninjutsu'?2:0});}
  else if(P.cls==='msword'){slash(Math.atan2(d.y,d.x),70,dmgOf(1.2));if(j==='msorder')shoot({vx:d.x*420,vy:d.y*420,dmg:dmgOf(.6),pierce:2,life:.4,r:12,color:'#b388ff',kind:'wave'});}
  else if(P.cls==='sword'){slash(Math.atan2(d.y,d.x),j==='expert'?86:66,dmgOf(1.15));if(j==='peak')shoot({vx:d.x*400,vy:d.y*400,dmg:dmgOf(.6),pierce:2,life:.4,r:12,color:'#dfe6ee',kind:'wave'});}
  else if(P.cls==='archer'){if(j==='magicbow')shoot({vx:d.x*660,vy:d.y*660,dmg:dmgOf(1.2),pierce:2,life:.6,r:5,color:'#8ab4ff',kind:'arrow',glow:1});else shoot({vx:d.x*620,vy:d.y*620,dmg:dmgOf(1.1),life:.6,r:5,color:'#e8d39a',kind:'arrow'});}
@@ -2024,6 +2028,15 @@ function castInner(id,pt){if(CUT.t>0)return;if(map&&map.pvp&&(gameT<(P.pvStart||
   case 'ninja0':fan(3,.35,{sp:640,dmg:dmgOf(1.15,lv),pierce:1,life:.6,r:6,color:'#cfd8dc',kind:'bolt'});break;
   case 'ninja1':{let tx=a.px,ty=a.py;const L=Math.hypot(tx-P.x,ty-P.y);if(L>220){tx=P.x+d.x*220;ty=P.y+d.y*220;}if(blocked(tx,ty,8)){refund();log('그곳으로는 갈 수 없어요');return;}puff(P.x,P.y,'#424242');P.x=tx;P.y=ty;P.inv=Math.max(P.inv,.5);puff(tx,ty,'#424242');for(const e of enemies.slice())if(Math.hypot(e.x-tx,e.y-ty)<90)hurtEnemy(e,dmgOf(2.2,lv),{});vfx({k:'gash',x:tx,y:ty-8,ang,len:110,life:.25,max:.25,color:'#eceff1'});break;}
   case 'ninja2':{zone({x:a.px,y:a.py,r:110,dur:4,tick:.5,dmg:dmgOf(.4,lv),color:'#9e9e9e',eff:{slow:1.5}});for(let i=0;i<30;i++)parts.push({x:a.px+rnd(-90,90),y:a.py+rnd(-60,40),vx:rnd(-20,20),vy:rnd(-30,-5),life:rnd(1,2),color:'#bdbdbd',s:rnd(5,9)});P.inv=Math.max(P.inv,1.2);P.haste=Math.max(P.haste||0,4);break;}
+  case 'ninjutsu0':{const dm=dmgOf(1.6,lv);const sx=P.x,sy=P.y;let ex=sx,ey=sy;for(let t=1;t<=12;t++){const nx=sx+d.x*t*22,ny=sy+d.y*t*22;if(blocked(nx,ny,8))break;ex=nx;ey=ny;}
+   for(const e of enemies.slice()){const px0=e.x-sx,py0=e.y-sy,L=Math.hypot(ex-sx,ey-sy)||1,u=(px0*(ex-sx)+py0*(ey-sy))/L;if(u>-20&&u<L+20&&Math.abs(px0*(ey-sy)-py0*(ex-sx))/L<60)hurtEnemy(e,dm,{});}
+   for(let i=0;i<8;i++)puff(sx+(ex-sx)*i/7,sy+(ey-sy)*i/7,'#b0bec5');vfx({k:'gash',x:(sx+ex)/2,y:(sy+ey)/2-8,ang,len:Math.hypot(ex-sx,ey-sy)+40,w:16,life:.3,max:.3,color:'#eceff1'});P.x=ex;P.y=ey;P.inv=Math.max(P.inv,.5);shake=.2;break;}
+  case 'ninjutsu1':{const dm=dmgOf(2.6,lv);const ts=enemies.filter(e=>dist(e,P)<340).sort((a,b)=>dist(a,P)-dist(b,P)).slice(0,5);if(!ts.length){refund();log('주변에 적이 없어요');return;}
+   ts.forEach((e,i)=>timers.push({t:i*.18,f:()=>{if(P.dead||!enemies.includes(e))return;vfx({k:'bolt',pts:[{x:e.x+rnd(-30,30),y:e.y-260},{x:e.x+rnd(-20,20),y:e.y-150},{x:e.x+rnd(-10,10),y:e.y-60},{x:e.x,y:e.y}],life:.4,max:.4,color:'#fff59d'});hurtEnemy(e,dm,{});explode(e.x,e.y,50,dm*.4,'#fff59d',{});sfx('boom');}}));shake=.25;break;}
+  case 'shadowlord0':{const dm=dmgOf(2.4,lv);for(let k=0;k<8;k++){const t=ang+k*Math.PI/4;shoot({vx:Math.cos(t)*520,vy:Math.sin(t)*520,dmg:dm,pierce:99,life:.9,r:14,color:'#cfd8dc',kind:'bolt',big:1,glow:1});}vfx({k:'shock',x:P.x,y:P.y-6,r:140,life:.4,max:.4,color:'#d50000'});shake=.3;break;}
+  case 'shadowlord1':{const cx=a.px,cy=a.py,dm=dmgOf(1.1,lv);vfx({k:'warn',x:cx,y:cy,r:170,life:.7,max:.7,color:'#d50000'});vfx({k:'rune',x:cx,y:cy,r:170,life:1.6,max:1.6,color:'#d50000'});
+   for(const ph of[.4,1.2])for(let k=0;k<22;k++)timers.push({t:ph+k*.03,f:()=>{const x=cx+rnd(-160,160),y=cy+rnd(-110,110);explode(x,y,48,dm,'#eceff1',{});if(k%4===0)vfx({k:'gash',x,y:y-8,ang:rnd(0,6.28),len:90,life:.25,max:.25,color:'#d50000'});}});shake=.45;break;}
+  case 'shadowlord2':{P.inv=Math.max(P.inv,5);P.haste=Math.max(P.haste||0,8);P.dbl=8;for(let i=0;i<30;i++)parts.push({x:P.x+rnd(-20,20),y:P.y-rnd(0,30),vx:rnd(-60,60),vy:rnd(-80,-10),life:rnd(.6,1.4),color:'#212121',s:rnd(4,8)});vfx({k:'pillar',x:P.x,y:P.y,w:22,life:1,max:1,color:'#d50000'});toast('🫥 그림자 은신!');break;}
   case 'ninja3':shoot({vx:d.x*420,vy:d.y*420,dmg:dmgOf(3.2,lv),aoe:90,life:.8,r:16,color:'#ff7043',kind:'fire',eff:{burn:3}});break;
   case 'ninja4':{const dm=dmgOf(1.8,lv);for(let k=0;k<6;k++)timers.push({t:k*.16,f:()=>{if(P.dead)return;const e=nearest(P,300);if(!e)return;const ox=P.x,oy=P.y;puff(ox,oy,'#424242');P.x=e.x-Math.sign(e.x-ox||1)*24;P.y=e.y;if(blocked(P.x,P.y,8)){P.x=ox;P.y=oy;}P.inv=Math.max(P.inv,.3);hurtEnemy(e,dm,{});vfx({k:'gash',x:e.x,y:e.y-10,ang:rnd(0,6.28),len:80,life:.2,max:.2,color:'#ffffff'});}});break;}
   case 'ninja5':{const cx=a.px,cy=a.py,dm=dmgOf(.9,lv);vfx({k:'warn',x:cx,y:cy,r:150,life:.6,max:.6,color:'#cfd8dc'});for(let k=0;k<30;k++)timers.push({t:.3+k*.04,f:()=>{const x=cx+rnd(-140,140),y=cy+rnd(-100,100);explode(x,y,40,dm,'#eceff1',{});}});shake=.4;break;}
@@ -3050,6 +3063,14 @@ function hud(){
   $('bGuide').textContent=guideActive(true)?(P.flags.guideOff?'🧭 길안내 끔':'🧭 길안내'):'🧭';
  if(PT.id)for(const a of PT.st){if(a[0]===NET.uid)continue;q+=`<div style="border-left-color:#e1bee7;color:#f3e5f5;min-width:150px">👥 ${esc(String(a[1]))} Lv${+a[2]||1} · ${a[3]?mapName(a[3]):'끊김'}<div style="height:5px;background:#300;margin-top:2px"><div style="height:5px;width:${clamp(+a[6]||0,0,100)}%;background:#ff5252"></div></div></div>`;}
  if(spirits.length)q+=`<div style="color:#9ccc65">🧚 ${spirits.map(x=>SPT[x.t].n.replace(' 정령','')+' '+Math.ceil(x.life)+'초').join(' · ')}${P.spBoost>0?' · ✨축복':''}</div>`;
+ {const ST=[],T=(v,ic,t,c)=>{if(v>0)ST.push(`<span style="color:${c}">${ic} ${t} ${Math.ceil(v)}초</span>`);};
+  T(P.rage,'😡','공격력 +50%','#ff8a80');T(P.dbl,'💥','공격력 2배','#ff8a80');T(P.burger,'🍔','공격력 +10%','#ffcc80');T(P.haste,'💨','신속','#80deea');T(P.hawk,'🦅','치명타 +30%','#80deea');
+  T(P.guard,'🛡','받는 피해 -65%','#ffe082');T(P.shieldT>0&&P.shield>0?P.shieldT:0,'🔮','보호막 '+Math.round(P.shield||0),'#b39ddb');T(P.inv>.8?P.inv:0,'✨','무적','#fff59d');T(P.horcrux,'🐍','부활 대기','#a5d6a7');T(P.gatBoost,'🔥','연사 2배','#ffab91');T(P.storm,'🌪','칼날 폭풍','#cfd8dc');
+  T(P.poison,'☠','중독','#ce93d8');T(P.frz,'🧊','빙결 · 이동 느림','#81d4fa');T(P.webS,'🕸','거미줄 · 느려짐','#e0e0e0');if(P.webN>0)ST.push(`<span style="color:#ff8a80">🕸 꼼짝 못함 · 화면을 ${P.webN}번 더 누르세요</span>`);
+  if((P.monU||0)>Date.now())ST.push(`<span style="color:#80deea">⚡ 몬스터 속도 +50% ${Math.ceil((P.monU-Date.now())/1000)}초</span>`);
+  if((P.smU||0)>Date.now())ST.push(`<span style="color:#ffcc80">🍓 공격력 +10% ${Math.ceil((P.smU-Date.now())/1000)}초</span>`);
+  if(P.monN>0)ST.push(`<span style="color:#ef9a9a">🥤 최대 체력 -${(100-Math.pow(.995,P.monN)*100).toFixed(1)}% (영구)</span>`);
+  if(ST.length)q+=`<div style="border-left-color:#90caf9;line-height:1.5">${ST.join('<br>')}</div>`;}
  {const F=foodOn();if(F)q+=`<div style="color:#ffd740">${CONS[P.food.id][3]} ${CONS[P.food.id][0]} · ${Math.ceil((P.food.until-Date.now())/1000)}초</div>`;else if(P.food&&P.food.id){P.food=null;calc();toast('🍽 음식 효과가 끝났어요');}}
  const el=$('qtrack');if(el._q!==q){el._q=q;el.innerHTML=q;}}
  const oc=NET.others.size,mk='📍 '+map.name+(NET.live?(NET.ch?' · 서버'+NET.ch:'')+' · 👥 '+(oc+1)+'/'+Math.max(NET.total||0,oc+1):'');if($('mapname').textContent!==mk)$('mapname').textContent=mk;
@@ -3097,7 +3118,6 @@ function interact(){
  if(n.type==='book')dialog(n.name,['어서 오게. 이곳은 온갖 마법과 기술이 잠든 도서관일세.','스킬북을 읽으면 새로운 스킬을 바로 익힐 수 있지.'],[{t:'📚 스킬북 보기',c:'gold',f:()=>openMenu('book')},{t:'나가기'}]);
  if(n.type==='job'&&P.cls==='novice'){const C4=['mage','sword','archer','ranger'];
   dialog(n.name,['이곳은 전직의 전당. 모험가여, 어떤 길을 걸을 텐가?',C4.map(k=>`· ${CLASSES[k].name} — ${CLASSES[k].desc}`).join('\n')+'\n\n한번 고르면 바꿀 수 없네. 🎫 직업 변경권이 있다면 모를까. (직업을 고르면 히든 직업의 길은 닫힌다네)'],C4.map(k=>({t:CLASSES[k].name,c:'gold',f:()=>dialog(n.name,[`정말 「${CLASSES[k].name}」의 길을 걷겠나?`],[{t:'그래!',c:'gold',f:()=>firstJob(k)},{t:'다시 생각할래'}])})).concat([{t:'나중에'}]));return;}
- if(n.type==='job'&&P.cls==='ninja'){dialog(n.name,['…자네에게선 그림자 냄새가 나는군. 내가 가르칠 길은 없네.']);return;}
  if(n.type==='job'){const ks=Object.keys(JOBS).filter(k=>JOBS[k].cls===P.cls);const list=ks.map(k=>`· ${JOBS[k].name} — ${JOBS[k].desc}`);
   if(P.job)dialog(n.name,[`자네는 이미 「${JOBS[P.job].name}」의 길을 걷고 있네. 그 길의 끝을 보게나.`]);
   else if(P.lv<20)dialog(n.name,['이곳은 전직의 전당. 2차 전직은 Lv20부터 가능하네.',`${CLASSES[P.cls].name}의 길${ks.length>1?'은 둘로 나뉘지':'은 하나뿐이지'}.\n\n${list.join('\n')}`,`지금은 Lv${P.lv}… 더 강해져서 다시 오게.`]);
@@ -3834,10 +3854,10 @@ $('tutPrev').onclick=()=>{if(TS2.i>0){TS2.i--;tutShow();}};
 $('tutSkip').onclick=()=>tutEnd();
 addEventListener('resize',()=>{if(!$('tut').classList.contains('hidden'))tutShow();});
 // 📜 패치노트: 새 패치가 나오면 처음 한 번만 띄운다 (이 기기 기준)
-const PATCH={v:'2026-11-25e',title:'📜 패치노트 · 11월 25일 (5)',lines:[
+const PATCH={v:'2026-11-25f',title:'📜 패치노트 · 11월 25일 (6)',lines:[
  '⭐ 레벨 제한이 200으로 올랐어요!',
  '🎵 음악이 없던 모든 지역에 배경음악이 생겼어요 (던전·폐허·산·동굴·집·카페·카지노·은행·파출소·레이드·결투장 등)',
- '🕷 거대 거미 아라크네의 공격력이 조금 올랐어요','🕷 아라크네가 주는 경험치가 줄었어요 (150만 → 45만)'].join('\n\n')};
+ '🕷 거대 거미 아라크네의 공격력이 조금 올랐어요','🕷 아라크네가 주는 경험치가 줄었어요 (190레벨에서 잡으면 약 1레벨)','🧾 지금 나에게 걸린 효과(버프·디버프)가 화면 왼쪽에 표시돼요'].join('\n\n')};
 function patchNote(){let seen='';try{seen=localStorage.getItem('dpm_patch')||'';}catch(e){}if(seen===PATCH.v)return;try{localStorage.setItem('dpm_patch',PATCH.v);}catch(e){}setTimeout(()=>{if(!P)return;if(dlgState){setTimeout(patchNote2,4000);return;}patchNote2();},1800);}
 function patchNote2(){if(!P||dlgState)return;dialog(PATCH.title,[PATCH.lines]);}
 function startGame(isNew){
