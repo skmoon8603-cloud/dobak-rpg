@@ -7,7 +7,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
-<title>도박 RPG</title>
+<title>도파민 RPG</title><!-- <title>도박 RPG</title> (예전 화면 자동 업데이트용) -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/galmuri@latest/dist/galmuri.css">
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
@@ -179,7 +179,7 @@ input[type=text],input[type=password]{font-family:inherit;background:#120a24;bor
 
 <div id="title">
   <div class="dice">🎲</div>
-  <h1>도박 RPG</h1>
+  <h1>도파민 RPG</h1>
   <div class="sub">운명을 건 마법세계 모험</div>
   <div id="tArea"></div>
   <div style="font-size:11px;color:#8d7bb3;margin-top:10px;text-align:center;line-height:1.6">PC: WASD/방향키 이동 · Space/클릭 공격 · 1~3 스킬 · Shift 대쉬 · E 대화 · Z/X 물약<br>폰: 왼쪽 화면 드래그 이동 · 스킬 버튼을 누른 뒤 화면을 터치하면 그곳으로 발사</div>
@@ -716,7 +716,7 @@ house(20,38,6,'B');house(38,38,6,'R');house(48,38,6,'U');
   {x:24.5*TS,y:18.7*TS,name:'의뢰 게시판',type:'board',color:'#795548',hat:'#5d4037',hatType:'',board:1},
   {x:33.5*TS,y:18.7*TS,name:'결투 심판 바론',type:'duel',color:'#4e342e',hat:'#b71c1c',hatType:'helm'},
   {x:28.2*TS,y:51.9*TS,type:'prop',w:62,h:26,stand:12,bg:'#8f7118',edge:'#5d4037',lines:[['↑ 은행 입구',10,'#fffde7']]},
-  {x:14.8*TS,y:34.3*TS,type:'prop',w:84,h:46,stand:16,bg:'#7f0000',edge:'#ffd740',blink:1,lines:[['🎰 카지노',11,'#ffd740'],['어서 들어오세요!',9,'#ffffff'],['◀ 입구는 여기',8,'#ffecb3']]},
+  {x:14.8*TS,y:34.3*TS,type:'prop',w:84,h:46,stand:16,bg:'#7f0000',edge:'#ffd740',blink:1,lines:[['🎰 카지노',11,'#ffd740'],['어서 들어오세요!',9,'#ffffff']]},
   {x:40.5*TS,y:33.4*TS,name:'요리사 쿡',type:'cook',color:'#fafafa',hat:'#fff',hatType:'cap'},
   {x:33.5*TS,y:24.6*TS,name:'작명가 렌',type:'nick',color:'#00838f',hat:'#004d56',hatType:'wiz'},
   {x:27.5*TS,y:17.7*TS,name:'소식통 할아범',type:'rank',color:'#455a64',hat:'#263238',hatType:'cap',sit:1},
@@ -727,13 +727,13 @@ house(20,38,6,'B');house(38,38,6,'R');house(48,38,6,'U');
   {x:8.6*TS,y:40.4*TS,name:'제단지기 모르',type:'raid',color:'#311b92',hat:'#d500f9',hatType:'wiz'},
   {x:17*TS,y:23.7*TS,name:'꽃집 할머니',granny:1,type:'talk',color:'#8e6bbf',hat:'#eee',hatType:'hood',lines:['이 꽃밭은 내가 평생 가꾼 거라우.','북쪽 도서관의 아르카 님은 못 가르치는 기술이 없다더구먼.']},
   {x:47*TS,y:23.5*TS,name:'낚시꾼',fisher:1,type:'fisher2',color:'#00695c',hat:'#c9a66b',hatType:'cow',lines:['쉿… 물고기 도망간다.','…행운의 부적이 있으면 도박장에서 운이 좋아진다던데. 낚시엔 안 통하더군.']},
-  {x:23.5*TS,y:33.6*TS,name:'주민',type:'talk',color:'#6d4c41',hat:'#444',hatType:'',lines:()=>P.flags.boss?['모르간이 사라져서 살맛 나네요!','그런데… 누가 모르간을 부활시키고 다시 죽인대요. 대체 누가 그런 짓을 하는 걸까요?']:['모르간이 깨어난 뒤로 밤마다 무서워서 잠을 못 자요…']}];
+  {x:26*TS,y:33.6*TS,name:'주민',type:'talk',color:'#6d4c41',hat:'#444',hatType:'',lines:()=>P.flags.boss?['모르간이 사라져서 살맛 나네요!','그런데… 누가 모르간을 부활시키고 다시 죽인대요. 대체 누가 그런 짓을 하는 걸까요?']:['모르간이 깨어난 뒤로 밤마다 무서워서 잠을 못 자요…']}];
  npcs.forEach(n=>{const tx=Math.floor(n.x/TS),ty=Math.floor((n.y-4)/TS);if(['#','r'].includes(t[ty][tx]))t[ty][tx]='.';});
  t[21][0]=t[22][0]='M';
  return{name:'평화의 마을',key:'village',w,h,t,safe:1,
-  portals:[{look:'gate',x:59*TS+8,y:22*TS,to:'field',tx:2*TS,ty:16*TS+16,label:'들판'},{x:41.5*TS,y:41.9*TS,to:'house',tx:5.5*TS,ty:6.2*TS,door:1},{x:51.5*TS,y:19.9*TS,to:'police',tx:7*TS,ty:7.4*TS,door:1},{x:23.5*TS,y:41.9*TS,to:'plain',tx:1500*TS,ty:1500*TS,door:1},{x:11.5*TS,y:32.9*TS,to:'casino',tx:8*TS,ty:8*TS,door:1},{x:30.5*TS,y:48.9*TS,to:'bank',tx:7*TS,ty:7.4*TS,door:1},{look:'mine',x:TS+6,y:22*TS,to:'mine',tx:22*TS,ty:26.6*TS,label:'⛏ 광산'}],
+  portals:[{look:'gate',x:59*TS+8,y:22*TS,to:'field',tx:2*TS,ty:16*TS+16,label:'들판'},{x:41.5*TS,y:41.9*TS,to:'house',tx:5.5*TS,ty:6.2*TS,door:1},{x:51.5*TS,y:19.9*TS,to:'police',tx:7*TS,ty:7.4*TS,door:1},{x:23.5*TS,y:32.9*TS,to:'cafe',tx:6*TS,ty:7.4*TS,door:1},{x:23.5*TS,y:41.9*TS,to:'plain',tx:1500*TS,ty:1500*TS,door:1},{x:11.5*TS,y:32.9*TS,to:'casino',tx:8*TS,ty:8*TS,door:1},{x:30.5*TS,y:48.9*TS,to:'bank',tx:7*TS,ty:7.4*TS,door:1},{look:'mine',x:TS+6,y:22*TS,to:'mine',tx:22*TS,ty:26.6*TS,label:'⛏ 광산'}],
   npcs,
-  labels:[{x:10*TS,y:6*TS-4,t:'촌장의 집'},{x:22*TS,y:6*TS-4,t:'📚 마법 도서관'},{x:38*TS,y:6*TS-4,t:'🛒 상점'},{x:49*TS,y:6*TS-4,t:'⚒ 대장간'},{x:11.5*TS,y:16*TS-4,t:'🛏 여관'},{x:11*TS,y:29*TS-4,t:'🎲 도박장'},{x:45*TS,y:16*TS-4,t:'⚜ 전직의 전당'},{x:51.5*TS,y:16*TS-4,t:'🚓 파출소'},{x:39*TS,y:29*TS-4,t:'🍳 요리점'},{x:30.5*TS,y:45*TS-4,t:'🏦 은행 (입구는 아래)'},{x:23*TS,y:38*TS-4,t:'🌾 바람이 새어 나오는 집'}],
+  labels:[{x:10*TS,y:6*TS-4,t:'촌장의 집'},{x:22*TS,y:6*TS-4,t:'📚 마법 도서관'},{x:38*TS,y:6*TS-4,t:'🛒 상점'},{x:49*TS,y:6*TS-4,t:'⚒ 대장간'},{x:11.5*TS,y:16*TS-4,t:'🛏 여관'},{x:11*TS,y:29*TS-4,t:'🎲 도박장'},{x:45*TS,y:16*TS-4,t:'⚜ 전직의 전당'},{x:51.5*TS,y:16*TS-4,t:'🚓 파출소'},{x:39*TS,y:29*TS-4,t:'🍳 요리점'},{x:23*TS,y:29*TS-4,t:'☕ 카페'},{x:30.5*TS,y:45*TS-4,t:'🏦 은행 (입구는 아래)'},{x:23*TS,y:38*TS-4,t:'🌾 바람이 새어 나오는 집'}],
   spawns:[],start:{x:30*TS,y:25*TS}};
 }
 function makeField(){
@@ -1041,6 +1041,21 @@ function raidAI(e,dt,d,sp,T){
  else if(pat==='meteor'){const pts=allTargets().map(q=>({x:q.x,y:q.y}));for(const p of pts)bfx({k:'warn',x:p.x,y:p.y,r:130,life:1.2,max:1.2,color:'#aa00ff'});e.st={k:'meteor',t:1.2,pts};addText(e.x,e.y-130,'별의 낙하!','#ea80fc',13);}
  else if(pat==='cross'){const ls=allTargets().flatMap(q=>{const a=rnd(0,3.14);return[{x:q.x,y:q.y,a},{x:q.x,y:q.y,a:a+1.5708}]});for(const L of ls)bfx({k:'line',x:L.x-Math.cos(L.a)*340,y:L.y-Math.sin(L.a)*340,ang:L.a,len:680,life:.8,max:.8,color:'#ea80fc'});e.st={k:'cross',t:.8,ls,n:3};addText(e.x,e.y-110,'그림자 십자참!','#ea80fc',13);}
  else if(pat==='nova'){e.st={k:'nova',t:1};bfx({k:'warn',x:e.x,y:e.y,r:400,life:1,max:1,color:'#ea80fc'});addText(e.x,e.y-130,'멀리 떨어져라…','#ea80fc',13);}}
+function makeCafe(){const w=12,h=10,t=grid(w,h,'H');rect(t,0,0,w,2,'U');rect(t,1,2,w-2,h-3,'o');rect(t,2,3,8,1,'H'); // 카운터
+ return{name:'☕ 카페 「도파민」',key:'cafe',w,h,t,safe:1,
+  portals:[{x:6*TS,y:8.7*TS,to:'village',tx:23.5*TS,ty:33.78*TS,label:'나가기'}],
+  npcs:[{x:6*TS,y:2.6*TS,name:'바리스타 모카',type:'cafe',color:'#6d4c41',hat:'#3e2723',hatType:'cap'},{x:2.5*TS,y:6*TS,name:'손님',type:'talk',color:'#ad1457',hat:'#fff',hatType:'',lines:['여기 몬스터 마시면 엄청 빨라지는데… 마실수록 몸이 약해지는 느낌이야.','그래도 마감 사냥 땐 한 캔 해야지!']}],
+  labels:[{x:6*TS,y:2*TS-4,t:'☕ 오늘의 메뉴'}],spawns:[],start:{x:6*TS,y:7.4*TS}};}
+// 카페 음료: 바로 마신다
+const CAFE=[['americano','☕ 아메리카노',500,'마나 50% 회복'],['latte','🥛 카페라떼',600,'체력 40% 회복'],['smoothie','🍓 딸기 스무디',800,'3분 동안 공격력 +10%'],['monster','⚡ 몬스터',1700,'5분 동안 이동 속도 +50% · 대신 최대 체력이 영구히 0.5% 줄어든다']];
+function cafeTalk(n){const mon=P.monN||0;dialog(n.name,['어서 오세요, 카페 「도파민」이에요! 뭐 드릴까요?'+(mon?`\n\n(지금까지 몬스터 ${mon}캔 · 최대 체력 -${Math.round((1-Math.pow(.995,mon))*1000)/10}%)`:'')],
+ CAFE.map(([k,nm,pr,ds])=>({t:`${nm} ${pr.toLocaleString()}G`,c:k==='monster'?'gold':'',f:()=>{cafeBuy(k);setTimeout(()=>{if(!dlgState)interact();},30);}})).concat([{t:'메뉴 설명',f:()=>dialog(n.name,[CAFE.map(c=>c[1]+' — '+c[3]).join('\n')])},{t:'나가기'}]));}
+function cafeBuy(k){const c=CAFE.find(x=>x[0]===k);if(!c)return;if(P.gold<c[2]){toast('골드가 부족해요');return;}P.gold-=c[2];sfx('coin');
+ if(k==='americano'){P.mp=Math.min(P.st.mp,P.mp+P.st.mp*.5);toast('☕ 쌉싸름하다… 마나 회복!');}
+ else if(k==='latte'){P.hp=Math.min(P.st.hp,P.hp+P.st.hp*.4);toast('🥛 부드럽다… 체력 회복!');}
+ else if(k==='smoothie'){P.smU=Date.now()+180000;calc();toast('🍓 상큼하다! 3분 동안 공격력 +10%');}
+ else if(k==='monster'){P.monN=(P.monN||0)+1;P.monU=Date.now()+300000;calc();P.hp=Math.min(P.hp,P.st.hp);toast('⚡ 으아아아! 5분 동안 이동 속도 +50% (최대 체력 영구 -0.5%)');log('⚡ 몬스터를 마셨다 — 지금까지 '+P.monN+'캔, 최대 체력 '+Math.round(Math.pow(.995,P.monN)*1000)/10+'%');}
+ save(true);}
 function makeCloneArena(){const w=20,h=14,t=grid(w,h,'.');border(t,'D');rect(t,0,0,w,2,'D');
  return{name:'🪞 분신의 시련',key:'clonearena',w,h,t,tier:4,pal:['#5d4a3a','#62503f','#4e3d30','#7a6450'],
   portals:[{x:10*TS,y:12.6*TS,to:'desert',tx:14*TS,ty:22.6*TS,label:'나가기'}],npcs:[],labels:[{x:10*TS,y:2.6*TS,t:'— 자기 자신을 이겨라 —'}],spawns:[],start:{x:10*TS,y:10*TS}};}
@@ -1297,6 +1312,7 @@ function calc(){
  const j=P.job;if(j==='dark')s.atk*=1.25;if(j==='white'){s.hp*=1.25;s.hpr+=3;s.mpr+=2;}if(j==='magicbow'){s.mp+=50;s.mpr+=1;}if(j==='expert')s.atk*=1.2;if(j==='peak'){s.hp*=1.25;s.def+=10;}if(j==='assault'){s.hp*=1.2;s.spd+=.3;}if(j==='msorder'){s.atk*=1.2;s.hp*=1.15;}
  if(P.job3){s.atk*=1.15;s.hp*=1.15;}
  {const F=foodOn();if(F){if(F.atk)s.atk*=1+F.atk;if(F.def)s.def*=1+F.def;if(F.spd)s.spd*=1+F.spd;}}
+ if(P.monN)s.hp*=Math.pow(.995,P.monN);if((P.smU||0)>Date.now())s.atk*=1.1;
  s.hp=Math.round(s.hp);s.mp=Math.round(s.mp);s.atk=Math.round(s.atk);s.def=Math.round(s.def);
  s.hpr*=.5;s.mpr*=.5; // 회복 속도 절반 (2배 느리게)
  const pt=P.pts||{def:0,patk:0,matk:0};s.def+=pt.def;s.patk=s.atk+pt.patk;s.matk=s.atk+pt.matk;s.hatk=s.atk+2*Math.min(pt.patk,pt.matk)+Math.round(Math.abs(pt.patk-pt.matk)/3); // 반반 직업: 물리·마법을 고르게 찍어야 강하다
@@ -1343,7 +1359,7 @@ function sealRoom(){const[rx,ry,rw,rh]=map.bossRoom,m=map;m.seal=[];const put=(x
  m.sealed=true;toast('⛓ 모르간의 결계가 길을 막았다!');sfx('boom');shake=.3;}
 function unseal(m){if(!m||!m.sealed)return;m.seal.forEach(([x,y,c])=>m.t[y][x]=c);m.sealed=false;m.seal=[];}
 function inRoom(x,y,pad){const[rx,ry,rw,rh]=map.bossRoom;return x>(rx+pad)*TS&&x<(rx+rw-pad)*TS&&y>(ry+pad)*TS&&y<(ry+rh-pad)*TS;}
-function getMap(k){if(!MAPS[k]){MAPS[k]=k.startsWith('raid')?makeRaid(k):k==='snowvil'?makeSnowVil():k==='snowfield'?makeSnowField():k==='yetilair'?makeYetiLair():k==='clonearena'?makeCloneArena():k==='desert'?makeDesert():k==='palace'?makePalace():k==='dunes'?makeDunes():k==='sandstorm'?makeSandstorm():k==='anubislair'?makeAnubisLair():k==='shaft1'?makeShaft():k==='mine'?makeMine():k==='bank'?makeBank():k==='casino'?makeCasino():k==='plain'?makePlain():k==='police'?makePolice():k==='volcano'?makeVolcano():k==='lair'?makeLair():k==='grotto'?makeGrotto():k.startsWith('arena')?makeArena(k):k==='sea'?makeSea():k==='abyss'?makeAbyss():k==='house'?makeHouse():k==='village'?makeVillage():k==='field'?makeField():k==='ruins'?makeRuins():makeDungeon();if(!MAPS[k].inf)prerender(MAPS[k]);}return MAPS[k];}
+function getMap(k){if(!MAPS[k]){MAPS[k]=k==='cafe'?makeCafe():k.startsWith('raid')?makeRaid(k):k==='snowvil'?makeSnowVil():k==='snowfield'?makeSnowField():k==='yetilair'?makeYetiLair():k==='clonearena'?makeCloneArena():k==='desert'?makeDesert():k==='palace'?makePalace():k==='dunes'?makeDunes():k==='sandstorm'?makeSandstorm():k==='anubislair'?makeAnubisLair():k==='shaft1'?makeShaft():k==='mine'?makeMine():k==='bank'?makeBank():k==='casino'?makeCasino():k==='plain'?makePlain():k==='police'?makePolice():k==='volcano'?makeVolcano():k==='lair'?makeLair():k==='grotto'?makeGrotto():k.startsWith('arena')?makeArena(k):k==='sea'?makeSea():k==='abyss'?makeAbyss():k==='house'?makeHouse():k==='village'?makeVillage():k==='field'?makeField():k==='ruins'?makeRuins():makeDungeon();if(!MAPS[k].inf)prerender(MAPS[k]);}return MAPS[k];}
 function spawnBoss(){if(!map.boss)return;const isDragon=map.boss.type==='dragon';const mk=map.key,wait=10-(Date.now()-(map.bossDeadAt||0))/1000;
  const go=()=>{if(map&&map.key===mk&&isHost()&&!enemies.some(e=>e.b.boss)){const b=spawnEnemy(map.boss.type,map.boss.x,map.boss.y);if(isDragon){b.intro=4;b.face=1;dragonIntro();}else if(map.boss.type==='anubis'){b.intro=3.5;b.face=-1;anubisIntro();}else if(map.boss.type==='yeti'){b.intro=3.6;b.face=-1;yetiIntro();}else if(map.boss.type==='raidboss'){raidBoss(b);b.intro=3.6;b.face=1;raidIntro();}}};
  if(wait>0){enemies=enemies.filter(e=>!e.b.boss||e.mirror);timers.push({t:wait,f:go});}else go();}
@@ -2063,7 +2079,7 @@ function update(dt){
  if(P.dash){SKTAG=P.dash.sk||null;P.dash.t-=dt;moveEnt(P,P.dash.x*720*dt,P.dash.y*720*dt);parts.push({x:P.x,y:P.y,vx:0,vy:0,life:.25,color:'#ffffff',s:4});if(P.dash.dmg)for(const e of enemies.slice())if(!P.dash.hit.has(e)&&Math.hypot(e.x-P.x,e.y-P.y)<e.r+20){P.dash.hit.add(e);hurtEnemy(e,P.dash.dmg,{kb:{x:P.dash.x,y:P.dash.y}});}if(P.dash.t<=0)P.dash=null;}
  else if(P.skid&&onFixie()&&!paused){skidTick(dt);}
  else if(P.skid&&(!onFixie()||paused)){stopSkid();}
- else if(ml>0){const n=ml>1?ml:1;const sp=P.st.spd*60*dt*(P.haste>0?1.4:1)*vehMul()*(P.frz>0?.45:1);P.moving=1;
+ else if(ml>0){const n=ml>1?ml:1;const sp=P.st.spd*60*dt*(P.haste>0?1.4:1)*((P.monU||0)>Date.now()?1.5:1)*vehMul()*(P.frz>0?.45:1);P.moving=1;
   if(P.ride==='fixie'&&vehMul()>1){const want=Math.atan2(my,mx);if(P.hd==null||!P.hdT||gameT-P.hdT>.4)P.hd=want;let da=((want-P.hd+Math.PI*3)%(Math.PI*2))-Math.PI;const turn=2.6*dt;{const step=clamp(da,-turn,turn);P.hd+=step;P.lean=(P.lean||0)*.85+(step/dt)*.06;}P.hdT=gameT;const slow=Math.abs(da)>1.2?.55:1;moveEnt(P,Math.cos(P.hd)*sp*slow,Math.sin(P.hd)*sp*slow);P.fx=Math.cos(P.hd);P.fy=Math.sin(P.hd);}
   else{moveEnt(P,mx/n*sp,my/n*sp);P.fx=mx/ml;P.fy=my/ml;}P.walk+=dt*10;}
  // 공격
@@ -2979,6 +2995,7 @@ function interact(){
  if(n.type==='torch'){dialog('모래사장의 횃불',P.flags.beachtorch?['불이 활활 타오르고 있다.','다시 드래곤의 뿔을 불면 사막으로 갈 수 있다.']:['꺼져 있는 횃불이다.','드래곤의 뿔(📯)을 불면 불이 붙을 것 같다. (인벤토리 → 재료)']);return;}
  if(n.type==='master3'){master3Talk(n);return;}
  if(n.type==='raid'){raidTalk(n);return;}
+ if(n.type==='cafe'){cafeTalk(n);return;}
  if(n.type==='dshop'){dialog(n.name,['어서 오게, 사막은 호락호락하지 않아.','사막 로브가 없으면 모래 열기에 초당 5%씩 타들어 간다네.'],[{t:'🧥 사막 로브 사기 (8,000G)',c:'gold',f:()=>buyDesert('a_desert',8000)},{t:'🏜 사막마을 귀환권 (150G)',f:()=>{buyDesert('desertscroll',150);setTimeout(()=>{if(!dlgState)interact();},30);}},{t:'판매하기',f:()=>openMenu('sell')},{t:'나가기'}]);return;}
  if(n.type==='princess'){princessTalk(n);return;}
  if(n.type==='snowshop'){dialog(n.name,['어서 와요! 여긴 세상에서 제일 추운 마을이라오.','방한복 없이 마을을 돌아다니면 초당 5%씩 몸이 얼어 버려요. 모닥불 곁에서만 버틸 수 있지.'],[{t:'🧥 방한복 사기 (50,000G)',c:'gold',f:()=>buyDesert('a_snow',50000)},{t:'❄ 설산마을 귀환권 (300G)',f:()=>{buyDesert('snowscroll',300);setTimeout(()=>{if(!dlgState)interact();},30);}},{t:'판매하기',f:()=>openMenu('sell')},{t:'나가기'}]);return;}
@@ -3681,7 +3698,7 @@ function applyGrants(){const list=NET.grants;NET.grants=[];P.gotG=Array.isArray(
  setTimeout(()=>{save(true);netFlush();},1200);}
 // ================= UI 설명 (처음 시작할 때) =================
 const TUT=[
- [null,'👋 어서 와요!','도박 RPG 화면을 하나씩 설명해 줄게요.\n노란 테두리가 가리키는 곳을 보면서 「다음」을 눌러요.'],
+ [null,'👋 어서 와요!','도파민 RPG 화면을 하나씩 설명해 줄게요.\n노란 테두리가 가리키는 곳을 보면서 「다음」을 눌러요.'],
  ['#stat','📋 내 정보','이름 · 종족 · 직업과 레벨이에요.\n❤ 빨간 줄 = 체력(HP), 0이 되면 쓰러져요.\n💧 파란 줄 = 마나(MP), 스킬을 쓰면 줄어요.\n✨ 주황 줄 = 경험치(EXP), 꽉 차면 레벨 업!\n💰 아래는 가진 골드, ⭐SP는 남은 스킬 포인트예요.'],
  ['#mapname','📍 지금 있는 곳','지금 있는 맵 이름, 서버 번호, 같은 맵 사람 수/서버 전체 접속자 수예요.'],
  ['#bFold','☰ 버튼 접기','오른쪽 위 메뉴 버튼들을 접었다 폈다 해요. 화면이 좁을 때 쓰세요.'],
@@ -3722,6 +3739,19 @@ $('tutNext').onclick=()=>{if(TS2.i>=TUT.length-1){tutEnd();return;}TS2.i++;tutSh
 $('tutPrev').onclick=()=>{if(TS2.i>0){TS2.i--;tutShow();}};
 $('tutSkip').onclick=()=>tutEnd();
 addEventListener('resize',()=>{if(!$('tut').classList.contains('hidden'))tutShow();});
+// 📜 패치노트: 새 패치가 나오면 처음 한 번만 띄운다 (이 기기 기준)
+const PATCH={v:'2026-11-25',title:'📜 패치노트 · 11월 25일',lines:[
+ '🎉 게임 이름이 「도파민 RPG」로 바뀌었어요!',
+ '☕ 평화의 마을에 카페 「도파민」이 열렸어요. 아메리카노·카페라떼·딸기 스무디, 그리고 ⚡몬스터(5분 동안 이동 속도 +50%, 대신 최대 체력 영구 -0.5%)',
+ '🌑 주간 레이드 「심연의 제단」: 꼭 3명 파티로, 세 사람이 강할수록 보스도 강해져요. 매주 한 번 큰 보상 (보스 체력·공격력 하향)',
+ '⚒ 강화 최대 +20, 강화 비용 절반 (+10부터는 희귀 재료 필요)',
+ '⭐ 레벨 제한 180 · 내 레벨과 10 이상 차이 나는 몹은 경험치 절반',
+ '🗡 마검사 공격 스킬: 쿨타임 30% 감소, 피해 절반',
+ '🎯 평화의 마을 왼쪽 아래 허수아비: 때리면 DPS가 떠요',
+ '💾 나갔다 들어오면 레벨·돈이 되돌아가던 버그를 고쳤어요. 저장·통신 데이터도 줄였어요'
+].join('\n\n')};
+function patchNote(){let seen='';try{seen=localStorage.getItem('dpm_patch')||'';}catch(e){}if(seen===PATCH.v)return;try{localStorage.setItem('dpm_patch',PATCH.v);}catch(e){}setTimeout(()=>{if(!P)return;if(dlgState){setTimeout(patchNote2,4000);return;}patchNote2();},1800);}
+function patchNote2(){if(!P||dlgState)return;dialog(PATCH.title,[PATCH.lines]);}
 function startGame(isNew){
  $('title').classList.add('hidden');$('hud').classList.remove('hidden');$('ctrl').classList.remove('hidden');
  if(String(P.map).startsWith('arena')){P.map='village';P.x=33.5*TS;P.y=19.6*TS;}
@@ -3732,6 +3762,7 @@ function startGame(isNew){
  if(NET.admin&&NET.token&&!(P.eq.weapon&&P.eq.weapon.id==='dalkong')&&!P.bag.some(x=>x.id==='dalkong')){P.bag.push({id:'dalkong',plus:0});setTimeout(()=>{toast('🐶 관리자의 달콩빔 지급! (인벤토리에서 장착)');},1500);}
  checkTitles();
  if(NET.token&&NET.grants&&NET.grants.length)applyGrants();
+ patchNote();
  enterMap('village',30*TS,25*TS); // 새로고침하면 항상 마을에서 시작
  if(P.dead||!(P.hp>0)){P.dead=false;calc();P.hp=P.st.hp;P.mp=P.st.mp;} // 죽은 채로 저장됐으면 마을에서 살려서 시작
  if(!P.flags.bankFix1){P.flags.bankFix1=1;const B=P.bank;if(B&&(B.loan>0||P.labor)){B.loan=0;B.prin=0;delete B.lt;P.labor=0;$('laborBox')&&$('laborBox').classList.add('hidden');setTimeout(()=>dialog('🏦 은행 오류 복구',['대출 이자 계산에 문제가 있어서, 지금 남아 있던 빚을 모두 정리했어요.','강제 노동 중이었다면 풀려났어요. 불편을 드려 미안해요!']),1800);}}
@@ -3759,8 +3790,9 @@ async function netAuth(kind){const msg=$('lMsg'),u=$('lId').value.trim(),pw=$('l
 function netStop(why){if(NET.stopped)return;NET.stopped=true;NET.dirty=false;try{if(NET.sock)NET.sock.disconnect();}catch(e){}
  setTimeout(()=>dialog('⚠ 저장 멈춤',[why+'\n\n이 기기의 예전 데이터가 서버의 최신 데이터를 덮어쓰지 않도록 이 기기에서는 저장을 멈췄어요.\n새로고침하면 서버에 있는 최신 데이터로 이어서 할 수 있어요.'],[{t:'🔄 새로고침',c:'gold',f:()=>location.reload()}]),300);}
 async function netFlush(keep){if(!NET.srv)return;if(NET.busy&&NET.dirty){NET.again=keep?2:Math.max(NET.again||0,1);return;}if(!NET.token||!NET.dirty||NET.busy||!P||NET.stopped)return;NET.busy=true;NET.dirty=false;const d=snap();
+ {const ky=JSON.stringify(Object.assign({},d,{x:0,y:0,hp:0,mp:0,fx:0,fy:0}));if(!keep&&ky===NET.lastKey&&Date.now()-(NET.lastT||0)<120000){NET.busy=false;return;}NET.pendKey=ky;}
  try{const r=await fetch(NET.base+'/api/rpg/save',{method:'POST',keepalive:!!keep,headers:{'Content-Type':'application/json',Authorization:'Bearer '+NET.token},body:JSON.stringify({save:d,base:NET.saveT||0})});
-  if(r.ok){NET.cloud=d;NET.fail=0;try{const j=await r.json();if(j&&j.t)NET.saveT=j.t;}catch(e){}}else if(r.status===409){netStop('다른 기기에서 이 계정으로 더 최근에 저장했어요.');}else if(r.status===401){log('⚠ 로그인이 만료됐어요. 타이틀에서 다시 로그인해 주세요');NET.token=null;}else{NET.dirty=true;if(gameT-(NET.warnT||-99)>30){NET.warnT=gameT;log('⚠ 서버 저장이 안 되고 있어요 ('+r.status+'). 계속 다시 시도할게요');toast('⚠ 서버 저장 실패 — 다시 시도 중');}}
+  if(r.ok){NET.cloud=d;NET.fail=0;NET.lastKey=NET.pendKey;NET.lastT=Date.now();try{const j=await r.json();if(j&&j.t)NET.saveT=j.t;}catch(e){}}else if(r.status===409){netStop('다른 기기에서 이 계정으로 더 최근에 저장했어요.');}else if(r.status===401){log('⚠ 로그인이 만료됐어요. 타이틀에서 다시 로그인해 주세요');NET.token=null;}else{NET.dirty=true;if(gameT-(NET.warnT||-99)>30){NET.warnT=gameT;log('⚠ 서버 저장이 안 되고 있어요 ('+r.status+'). 계속 다시 시도할게요');toast('⚠ 서버 저장 실패 — 다시 시도 중');}}
  }catch(e){NET.dirty=true;if(!(NET.fail++%10))log('⚠ 서버 저장에 실패했어요. 다시 시도할게요');}
  NET.busy=false;if(NET.again){const k=NET.again===2;NET.again=0;if(NET.dirty)netFlush(k);}}
 setInterval(()=>netFlush(),4000);
@@ -3831,7 +3863,7 @@ function netConnect(){if(!NET.token||NET.sock)return;
  if(window.io)go();else{const sc=document.createElement('script');sc.src=NET.base+'/socket.io/socket.io.js';sc.onload=go;document.head.appendChild(sc);}}
 let netLastMove=0;
 setInterval(()=>{const k=NET.sock;if(!k||!k.connected||!P||!map||!NET.playing)return;const mv=getMove();
- k.volatile.emit('s',{m:map.key,n:P.name,r:P.race,c:P.cls,j:P.job||'',l:P.lv,x:P.x,y:P.y,f:P.fx<0?-1:1,a:P.atkAnim>0?1:0,w:mv.l>0&&!paused?1:0,wp:P.eq.weapon?P.eq.weapon.id:'',ar:P.eq.armor?P.eq.armor.id:'',t:P.title||'',hp:Math.round(clamp(P.hp/P.st.hp*100,0,100)),v:P.rideOn||rideBan()?'':P.ride||'',hd:P.ride==='fixie'&&P.hd!=null?Math.round(P.hd*100)/100:0,sp:spirits.map(x=>[SPI.indexOf(x.t),Math.round(x.x),Math.round(x.y)]),wl:P.eq.weapon?P.eq.weapon.plus||0:0});
+ const SO={m:map.key,n:P.name,r:P.race,c:P.cls,j:P.job||'',l:P.lv,x:P.x,y:P.y,f:P.fx<0?-1:1,a:P.atkAnim>0?1:0,w:mv.l>0&&!paused?1:0,wp:P.eq.weapon?P.eq.weapon.id:'',ar:P.eq.armor?P.eq.armor.id:'',t:P.title||'',hp:Math.round(clamp(P.hp/P.st.hp*100,0,100)),v:P.rideOn||rideBan()?'':P.ride||'',hd:P.ride==='fixie'&&P.hd!=null?Math.round(P.hd*100)/100:0,sp:spirits.map(x=>[SPI.indexOf(x.t),Math.round(x.x),Math.round(x.y)]),wl:P.eq.weapon?P.eq.weapon.plus||0:0};SO.x=Math.round(SO.x);SO.y=Math.round(SO.y);{const sg=JSON.stringify(SO),now=Date.now();if(sg!==NET.sLast||now-(NET.sT||0)>2000){NET.sLast=sg;NET.sT=now;k.volatile.emit('s',SO);}} // 그대로면 안 보냄 (2초마다 한 번은 보냄)
  if(VQ.length){const v=VQ.splice(0,30);VQ.length=0;k.emit('ev',{k:'sk',v});}
  if(NET.host&&NET.hostMap===map.key){const L=enemies.filter(e=>!e.mirror&&!e.dead&&!e.pv&&!e.dummy).map(e=>[e.id,e.type,Math.round(e.x),Math.round(e.y),Math.round(e.hp),e.max,(e.strong?1:0)|(e.summon?2:0)|(e.slow>0?4:0)|(e.root>0?8:0)|(e.burn>0?16:0)|(e.aggroed?32:0)|(e.tel?64:0)|(e.fly>0?128:0)|(e.intro>0?256:0),Math.round(e.atk)]);
   // 전송량 줄이기: 1.5초마다 전체, 그 사이엔 바뀐 몬스터만
@@ -3855,7 +3887,7 @@ netInit();
 // 새 버전이 올라오면 저장하고 자동으로 새로고침한 뒤 이어서 시작한다
 const UPD={base:null,busy:false};
 async function updCheck(){if(UPD.busy||location.protocol==='file:')return;let t=null;try{const r=await fetch(location.pathname+'?v='+Date.now(),{cache:'no-store'});if(r.ok)t=await r.text();}catch(e){}
- if(!t||t.indexOf('<title>도박 RPG</title>')<0)return;if(UPD.base===null){UPD.base=t;return;}if(t===UPD.base)return;
+ if(!t||t.indexOf('<title>도파민 RPG</title>')<0)return;if(UPD.base===null){UPD.base=t;return;}if(t===UPD.base)return;
  const typing=document.activeElement&&document.activeElement.tagName==='INPUT';if(typing||gambling)return;
  UPD.busy=true;if(NET.playing&&P&&map){toast('🔄 새 버전이 나왔어요! 저장하고 새로고침할게요');save(true);try{await netFlushWait();}catch(e){}try{sessionStorage.setItem('dobakrpg_resume','1');}catch(e){}await new Promise(r=>setTimeout(r,1500));}
  location.reload();}
@@ -3873,7 +3905,8 @@ function loop(now){
  requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
-setInterval(()=>{if(P&&map&&!paused&&!P.dead)save(true);},20000);
+setInterval(()=>{if(P&&map&&!paused&&!P.dead)save(true);},60000); // 중요한 변화는 바로 저장되고, 나머지(경험치·위치)는 1분마다
+setInterval(()=>{if(P&&P.smU&&P.smU<Date.now()){delete P.smU;calc();}},3000);
 setInterval(()=>{if(!P||!map||!NET.playing)return;save(true);if(NET.token&&!NET.stopped)netFlush();log('💾 자동 저장 (5분마다)');},300000);
 </script>
 <script>
