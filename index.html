@@ -550,7 +550,7 @@ gslime0:{name:'거대 슬라임',hp:422400,atk:1,def:20,spd:.7,r:96,exp:0,gold:[
  mosq:{name:'모기',hp:18000,atk:220,def:40,spd:2.7,r:10,exp:7000,gold:[1300,1700],aggro:360,ai:'mosq'},
  hopper:{name:'메뚜기',hp:26000,atk:290,def:58,spd:1.7,r:13,exp:9000,gold:[1600,2100],aggro:320,ai:'hopper'},
  spiderling:{name:'새끼 거미',hp:30000,atk:240,def:40,spd:2.4,r:11,exp:5000,gold:[0,0],aggro:600,summonOnly:1,ai:'mummy'},
- spider:{name:'거대 거미 아라크네',hp:1100000,atk:800,def:85,spd:2.1,r:40,exp:1500000,split:1,gold:[250000,250000],aggro:800,boss:1,ai:'spider'},
+ spider:{name:'거대 거미 아라크네',hp:1100000,atk:800,def:85,spd:2.1,r:40,exp:450000,split:1,gold:[250000,250000],aggro:800,boss:1,ai:'spider'},
  raidboss:{name:'심연의 군주',hp:5000000,atk:2000,def:60,spd:2.7,r:30,exp:3000000,split:1,gold:[0,0],aggro:900,boss:1,noCC:1,ai:'raid'},
  dummy:{name:'허수아비',hp:1e15,atk:0,def:0,spd:0,r:14,exp:0,gold:[0,0],aggro:0,noCC:1,ai:'dummy'},
  yeti:{name:'예티',hp:200000,atk:420,def:55,spd:1.6,r:40,exp:400000,split:1,gold:[120000,120000],aggro:800,boss:1,ai:'yeti'}
@@ -3834,10 +3834,10 @@ $('tutPrev').onclick=()=>{if(TS2.i>0){TS2.i--;tutShow();}};
 $('tutSkip').onclick=()=>tutEnd();
 addEventListener('resize',()=>{if(!$('tut').classList.contains('hidden'))tutShow();});
 // 📜 패치노트: 새 패치가 나오면 처음 한 번만 띄운다 (이 기기 기준)
-const PATCH={v:'2026-11-25d',title:'📜 패치노트 · 11월 25일 (4)',lines:[
+const PATCH={v:'2026-11-25e',title:'📜 패치노트 · 11월 25일 (5)',lines:[
  '⭐ 레벨 제한이 200으로 올랐어요!',
  '🎵 음악이 없던 모든 지역에 배경음악이 생겼어요 (던전·폐허·산·동굴·집·카페·카지노·은행·파출소·레이드·결투장 등)',
- '🕷 거대 거미 아라크네의 공격력이 조금 올랐어요'].join('\n\n')};
+ '🕷 거대 거미 아라크네의 공격력이 조금 올랐어요','🕷 아라크네가 주는 경험치가 줄었어요 (150만 → 45만)'].join('\n\n')};
 function patchNote(){let seen='';try{seen=localStorage.getItem('dpm_patch')||'';}catch(e){}if(seen===PATCH.v)return;try{localStorage.setItem('dpm_patch',PATCH.v);}catch(e){}setTimeout(()=>{if(!P)return;if(dlgState){setTimeout(patchNote2,4000);return;}patchNote2();},1800);}
 function patchNote2(){if(!P||dlgState)return;dialog(PATCH.title,[PATCH.lines]);}
 function startGame(isNew){
