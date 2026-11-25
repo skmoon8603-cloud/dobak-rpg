@@ -261,7 +261,11 @@ const NET={host:true,hostMap:null,dead:new Set(),checking:true,on:false,base:SER
 const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 // ================= 배경음악 =================
 // 지역별 배경음악 파일
-const TRACKS={village:'village2.mp3',field:'field.mp3',plain:'field.mp3',sea:'sea.mp3',abyss:'levi.mp3',volcano:'dragon.mp3',lair:'dragon.mp3',desert:'desvillage.mp3',palace:'desvillage.mp3',dunes:'desertmid.mp3',sandstorm:'desertmid.mp3',anubislair:'anubisboss.mp3',snowvil:'village2.mp3',snowfield:'field.mp3'};
+const TRACKS={village:'village2.mp3',field:'field.mp3',plain:'field.mp3',sea:'sea.mp3',abyss:'levi.mp3',volcano:'dragon.mp3',lair:'dragon.mp3',desert:'desvillage.mp3',palace:'desvillage.mp3',dunes:'desertmid.mp3',sandstorm:'desertmid.mp3',anubislair:'anubisboss.mp3',snowvil:'village2.mp3',snowfield:'field.mp3',
+ dungeon:'castle.mp3',ruins:'history.mp3',grotto:'sea.mp3',mount:'castle.mp3',spiderden:'drums.mp3',clonearena:'drums.mp3',yetilair:'drums.mp3',
+ house:'history.mp3',bank:'history.mp3',casino:'history.mp3',cafe:'history.mp3',police:'history.mp3'};
+// 목록에 없는 지역도 항상 음악이 나오게: 레이드·결투장은 전투 북소리, 나머지는 성의 역사
+const trackOf=k=>TRACKS[k]||(/^raid|^arena/.test(k)?'drums.mp3':'castle.mp3');
 const BGM=new Audio();BGM.loop=true;BGM.volume=.75;BGM.preload='auto';let bgmSrc=''; // 모든 곡은 같은 크기(-18 LUFS)로 맞춰 둠
 let muted=false;try{muted=localStorage.getItem('dobakrpg_mute')==='1';}catch(e){}
 // 들판·보스전 음악은 직접 만든 8비트 연주 (웹 오디오)
@@ -285,10 +289,11 @@ function musPlay(name){if(MUS.name===name)return;MUS.name=name;MUS.step=0;MUS.ne
 let winAway=false; // 다른 창·탭을 보고 있으면 음악을 멈춘다
 addEventListener('blur',()=>{winAway=true;bgmUpdate();});addEventListener('focus',()=>{winAway=false;bgmUpdate();});
 document.addEventListener('visibilitychange',()=>{winAway=document.hidden;bgmUpdate();if(NET.sock&&NET.sock.connected)NET.sock.emit('idle',document.hidden);});
-function bgmUpdate(){const k=P&&map&&NET.playing&&!winAway?map.key:null;const tr=!muted&&k?(k==='village'&&EVT.on?'dragon.mp3':map.mine?(P.labor?'minejail.mp3':'mine.mp3'):TRACKS[k]):null;
+const bossMus=k=>!!k&&((k==='dungeon'&&(map.sealed||enemies.some(e=>e.b.boss&&e.aggroed)))||(k==='yetilair'&&enemies.some(e=>e.b.boss&&!e.dead)));
+function bgmUpdate(){const k=P&&map&&NET.playing&&!winAway?map.key:null;const tr=!muted&&k&&!bossMus(k)?(k==='village'&&EVT.on?'dragon.mp3':map.mine?(P.labor?'minejail.mp3':'mine.mp3'):trackOf(k)):null;
  if(tr&&tr!==bgmSrc){bgmSrc=tr;BGM.src=tr;BGM.currentTime=0;}
  if(tr&&BGM.paused)BGM.play().catch(()=>{});else if(!tr&&!BGM.paused)BGM.pause();
- const boss=(k==='dungeon'&&(map.sealed||enemies.some(e=>e.b.boss&&e.aggroed)))||k==='yetilair'; // 모르간·예티 전투는 직접 만든 8비트 곡
+ const boss=bossMus(k); // 모르간·예티 전투는 직접 만든 8비트 곡
  musPlay(muted||!k?null:boss?'boss':null);
  const b=document.getElementById('bMute');if(b){const t=muted?'🔇':'🔊';if(b.textContent!==t)b.textContent=t;}}
 addEventListener('pointerdown',()=>{winAway=false;if(AC&&AC.state==='suspended')AC.resume();bgmUpdate();},true);addEventListener('keydown',()=>bgmUpdate(),true);
@@ -545,7 +550,7 @@ gslime0:{name:'거대 슬라임',hp:422400,atk:1,def:20,spd:.7,r:96,exp:0,gold:[
  mosq:{name:'모기',hp:18000,atk:220,def:40,spd:2.7,r:10,exp:7000,gold:[1300,1700],aggro:360,ai:'mosq'},
  hopper:{name:'메뚜기',hp:26000,atk:290,def:58,spd:1.7,r:13,exp:9000,gold:[1600,2100],aggro:320,ai:'hopper'},
  spiderling:{name:'새끼 거미',hp:30000,atk:240,def:40,spd:2.4,r:11,exp:5000,gold:[0,0],aggro:600,summonOnly:1,ai:'mummy'},
- spider:{name:'거대 거미 아라크네',hp:1100000,atk:720,def:85,spd:2.1,r:40,exp:1500000,split:1,gold:[250000,250000],aggro:800,boss:1,ai:'spider'},
+ spider:{name:'거대 거미 아라크네',hp:1100000,atk:800,def:85,spd:2.1,r:40,exp:1500000,split:1,gold:[250000,250000],aggro:800,boss:1,ai:'spider'},
  raidboss:{name:'심연의 군주',hp:5000000,atk:2000,def:60,spd:2.7,r:30,exp:3000000,split:1,gold:[0,0],aggro:900,boss:1,noCC:1,ai:'raid'},
  dummy:{name:'허수아비',hp:1e15,atk:0,def:0,spd:0,r:14,exp:0,gold:[0,0],aggro:0,noCC:1,ai:'dummy'},
  yeti:{name:'예티',hp:200000,atk:420,def:55,spd:1.6,r:40,exp:400000,split:1,gold:[120000,120000],aggro:800,boss:1,ai:'yeti'}
@@ -671,7 +676,7 @@ const TITLES={
  goldfish:['황금 손','#ffd740','황금 잉어 낚기',()=>(P.mats.goldfish||0)>0||!!P.flags.gf],
  smith2:['장인','#bcaaa4','장비 5개 제작',()=>(P.crafted||0)>=5],
  daily:['성실한 모험가','#aed581','일일 의뢰 10개 완료',()=>(P.dqn||0)>=10],
- maxlv:['정점에 선 자','#ffd740','최고 레벨 Lv180 달성',()=>P.lv>=CAP],
+ maxlv:['정점에 선 자','#ffd740','최고 레벨 Lv200 달성',()=>P.lv>=CAP],
  cloak:['망토의 주인','#e040fb','모르간의 망토 획득',()=>!!(P.eq.armor&&P.eq.armor.id==='cloak')||P.bag.some(e=>e.id==='cloak')]};
 function checkTitles(){if(!P||!P.titles)return;
  if(!NET.admin){const i=P.titles.indexOf('admin');if(i>=0)P.titles.splice(i,1);if(P.title==='admin')P.title='newbie';}
@@ -1355,7 +1360,7 @@ function calc(){
  const pt=P.pts||{def:0,patk:0,matk:0};s.def+=pt.def;s.patk=s.atk+pt.patk;s.matk=s.atk+pt.matk;s.hatk=s.atk+2*Math.min(pt.patk,pt.matk)+Math.round(Math.abs(pt.patk-pt.matk)/3); // 반반 직업: 물리·마법을 고르게 찍어야 강하다
  P.st=s;P.wf=wFacOf(P.eq.weapon&&P.eq.weapon.id,P.lv);P.hp=Math.min(P.hp,s.hp);P.mp=Math.min(P.mp,s.mp);
 }
-const CAP=180; // 레벨 제한 (관리자 제외)
+const CAP=200; // 레벨 제한 (관리자 제외)
 const atCap=()=>P.lv>=CAP&&!P.flags.admin;
 const need=lv=>Math.floor(30*Math.pow(lv,1.6));
 
@@ -3829,13 +3834,10 @@ $('tutPrev').onclick=()=>{if(TS2.i>0){TS2.i--;tutShow();}};
 $('tutSkip').onclick=()=>tutEnd();
 addEventListener('resize',()=>{if(!$('tut').classList.contains('hidden'))tutShow();});
 // 📜 패치노트: 새 패치가 나오면 처음 한 번만 띄운다 (이 기기 기준)
-const PATCH={v:'2026-11-25c',title:'📜 패치노트 · 11월 25일 (3)',lines:[
- '⛰ 산이 더 험해졌어요: 모기 Lv170 · 메뚜기 Lv175 (Lv170+ 지역)',
- '🕷 거대 거미 아라크네 Lv190으로 강화! 새 패턴 「독침 비」(독 웅덩이), 「알 부화」(새끼 거미 소환)',
- '🩸 모기는 모기 피, 🦗 메뚜기는 작은 다리를 떨어뜨려요. 거미는 작은 다리와 30% 확률로 거미 눈을 줘요',
- '🍳 요리사 쿡 새 요리: 바삭 다리 튀김(이동 속도), 모기 피 선지국(공격력), 거미 눈 젤리(방어·속도), 산의 진수성찬(모두 크게)',
- '🏅 새 칭호 5개: 피 수집가 · 다리가 많은 자 · 거미의 눈을 가진 자 · 거미줄의 지배자 · 산의 미식가',
- '🎰 카지노 간판 정리'].join('\n\n')};
+const PATCH={v:'2026-11-25d',title:'📜 패치노트 · 11월 25일 (4)',lines:[
+ '⭐ 레벨 제한이 200으로 올랐어요!',
+ '🎵 음악이 없던 모든 지역에 배경음악이 생겼어요 (던전·폐허·산·동굴·집·카페·카지노·은행·파출소·레이드·결투장 등)',
+ '🕷 거대 거미 아라크네의 공격력이 조금 올랐어요'].join('\n\n')};
 function patchNote(){let seen='';try{seen=localStorage.getItem('dpm_patch')||'';}catch(e){}if(seen===PATCH.v)return;try{localStorage.setItem('dpm_patch',PATCH.v);}catch(e){}setTimeout(()=>{if(!P)return;if(dlgState){setTimeout(patchNote2,4000);return;}patchNote2();},1800);}
 function patchNote2(){if(!P||dlgState)return;dialog(PATCH.title,[PATCH.lines]);}
 function startGame(isNew){
