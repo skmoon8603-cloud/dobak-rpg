@@ -542,19 +542,20 @@ gslime0:{name:'거대 슬라임',hp:422400,atk:1,def:20,spd:.7,r:96,exp:0,gold:[
  anubis:{name:'아누비스',hp:220000,atk:460,def:52,spd:1.5,r:42,exp:300000,split:1,gold:[100000,100000],aggro:800,boss:1,ai:'anubis'},
  clone:{name:'분신',hp:100,atk:1,def:0,spd:1,r:12,exp:0,gold:[0,0],aggro:3000,ai:'clone',summonOnly:1,noCC:1,lv:1},
  snowman:{name:'눈사람',hp:7000,atk:100,def:30,spd:1.4,r:14,exp:2500,gold:[0,0],aggro:500,summonOnly:1,ai:'snowman'},
- mosq:{name:'모기',hp:9000,atk:120,def:20,spd:2.6,r:10,exp:3200,gold:[600,900],aggro:360,ai:'mosq'},
- hopper:{name:'메뚜기',hp:14000,atk:170,def:34,spd:1.6,r:13,exp:4200,gold:[800,1100],aggro:320,ai:'hopper'},
- spider:{name:'거대 거미 아라크네',hp:260000,atk:380,def:50,spd:1.8,r:40,exp:350000,split:1,gold:[90000,90000],aggro:800,boss:1,ai:'spider'},
+ mosq:{name:'모기',hp:18000,atk:220,def:40,spd:2.7,r:10,exp:7000,gold:[1300,1700],aggro:360,ai:'mosq'},
+ hopper:{name:'메뚜기',hp:26000,atk:290,def:58,spd:1.7,r:13,exp:9000,gold:[1600,2100],aggro:320,ai:'hopper'},
+ spiderling:{name:'새끼 거미',hp:30000,atk:240,def:40,spd:2.4,r:11,exp:5000,gold:[0,0],aggro:600,summonOnly:1,ai:'mummy'},
+ spider:{name:'거대 거미 아라크네',hp:1100000,atk:720,def:85,spd:2.1,r:40,exp:1500000,split:1,gold:[250000,250000],aggro:800,boss:1,ai:'spider'},
  raidboss:{name:'심연의 군주',hp:5000000,atk:2000,def:60,spd:2.7,r:30,exp:3000000,split:1,gold:[0,0],aggro:900,boss:1,noCC:1,ai:'raid'},
  dummy:{name:'허수아비',hp:1e15,atk:0,def:0,spd:0,r:14,exp:0,gold:[0,0],aggro:0,noCC:1,ai:'dummy'},
  yeti:{name:'예티',hp:200000,atk:420,def:55,spd:1.6,r:40,exp:400000,split:1,gold:[120000,120000],aggro:800,boss:1,ai:'yeti'}
 };
-const ELV={raidboss:200,mosq:140,hopper:145,spider:150,snowman:150,yeti:160,gslime0:150,gslime1:150,gslime2:150,gslime3:150,gslime4:150,gslime5:150,gslime6:150,firespirit:58,firelizard:62,lavacrab:66,golem:72,dragon:80,slime:1,wolf:3,goblin:5,skeleton:8,darkmage:9,lich:12,orc:13,direwolf:14,wraith:16,marlin:28,crab:35,leviathan:42,scorpion:100,centipede:110,mummy:120,anubis:130};for(const k in ELV)ENEMIES[k].lv=ELV[k];
+const ELV={raidboss:200,mosq:170,hopper:175,spider:190,spiderling:185,snowman:150,yeti:160,gslime0:150,gslime1:150,gslime2:150,gslime3:150,gslime4:150,gslime5:150,gslime6:150,firespirit:58,firelizard:62,lavacrab:66,golem:72,dragon:80,slime:1,wolf:3,goblin:5,skeleton:8,darkmage:9,lich:12,orc:13,direwolf:14,wraith:16,marlin:28,crab:35,leviathan:42,scorpion:100,centipede:110,mummy:120,anubis:130};for(const k in ELV)ENEMIES[k].lv=ELV[k];
 const ATK_MUL=1.4; // 몬스터 공격력 전체 배율
-const MATS={silk:['거미줄','🕸','산의 거대 거미가 뿜는 질긴 줄'],sfang:['거미 독니','🦷','거대 거미 아라크네의 독니'],aheart2:['아라크네의 심장','💜','거대 거미의 심장. 아주 드물다'],dhorn:['레드 드래곤의 뿔','📯','화염 드래곤을 쓰러뜨린 증표. 불면 깊은 소리가 울린다… (아직 아무 일도 일어나지 않는다)'],dscale:['드래곤 비늘','🔴','화염 드래곤의 단단한 비늘'],dtooth:['드래곤 이빨','🦷','용암도 씹어 먹는 이빨'],dheart:['드래곤 하트','❤️‍🔥','아직도 뜨겁게 뛰고 있다'],conch:['수상한 고동','🐚','어디에 쓰는 걸까… 귀에 대면 노랫소리가 들린다'],fish:['물고기','🐟','낚시로 잡았다'],bigfish:['큰 물고기','🐠','팔면 꽤 값이 나간다'],goldfish:['황금 잉어','🎏','전설의 물고기!'],bone:['모르간의 뼈','🦴','리치 모르간이 남긴 뼈'],slime:['슬라임의 점액','🟢','끈적끈적하다'],hide:['가죽','🟫','늑대의 가죽'],bone2:['뼈','🦴','평범한 뼈'],heart:['고블린의 심장','💗','아주 드물게 나온다'],flesh:['고블린의 살점','🥩','…먹을 수 있을까?'],scale:['비늘','🐟','바다 생물의 반짝이는 비늘'],horn:['청새치 뿔','📯','단단하고 뾰족하다'],ltooth:['큰 이빨','🦷','레비아탄의 이빨'],poisongland:['독샘','🟣','사막 전갈의 독주머니'],centleg:['지네 다리','🦿','사막 지네의 날카로운 다리'],ahide:['아누비스의 가죽','🟫','검게 빛나는 자칼의 가죽'],aheart:['아누비스의 심장','🖤','아직도 차갑게 뛰고 있다'],aspear:['아누비스의 창','🔱','황금빛 창. 너무 무거워 아무도 들 수 없다… 대장장이라면 무기로 다시 벼려 줄지도?'],yhand:['예티의 손','🖐','얼음처럼 차갑고 커다란 손'],yfur:['예티의 털','🤍','눈보다 하얀 털. 아무리 추워도 따뜻하다'],yeye:['예티의 눈','👁','푸르게 빛나는 눈. 아주 드물게 나온다'],ytalis:['예티의 부적','🧿','설산마을 이장이 준 부적. 잠든 예티 앞에 들이대면 예티가 깨어난다 (팔 수 없다)']};
+const MATS={mblood:['모기 피','🩸','산 모기가 빨아 둔 피. 요리 재료'],sleg:['작은 다리','🦵','메뚜기·거미의 작은 다리. 바삭하게 튀기면 별미'],seye:['거미 눈','👁','거대 거미 아라크네의 눈. 아주 귀하다'],silk:['거미줄','🕸','산의 거대 거미가 뿜는 질긴 줄'],sfang:['거미 독니','🦷','거대 거미 아라크네의 독니'],aheart2:['아라크네의 심장','💜','거대 거미의 심장. 아주 드물다'],dhorn:['레드 드래곤의 뿔','📯','화염 드래곤을 쓰러뜨린 증표. 불면 깊은 소리가 울린다… (아직 아무 일도 일어나지 않는다)'],dscale:['드래곤 비늘','🔴','화염 드래곤의 단단한 비늘'],dtooth:['드래곤 이빨','🦷','용암도 씹어 먹는 이빨'],dheart:['드래곤 하트','❤️‍🔥','아직도 뜨겁게 뛰고 있다'],conch:['수상한 고동','🐚','어디에 쓰는 걸까… 귀에 대면 노랫소리가 들린다'],fish:['물고기','🐟','낚시로 잡았다'],bigfish:['큰 물고기','🐠','팔면 꽤 값이 나간다'],goldfish:['황금 잉어','🎏','전설의 물고기!'],bone:['모르간의 뼈','🦴','리치 모르간이 남긴 뼈'],slime:['슬라임의 점액','🟢','끈적끈적하다'],hide:['가죽','🟫','늑대의 가죽'],bone2:['뼈','🦴','평범한 뼈'],heart:['고블린의 심장','💗','아주 드물게 나온다'],flesh:['고블린의 살점','🥩','…먹을 수 있을까?'],scale:['비늘','🐟','바다 생물의 반짝이는 비늘'],horn:['청새치 뿔','📯','단단하고 뾰족하다'],ltooth:['큰 이빨','🦷','레비아탄의 이빨'],poisongland:['독샘','🟣','사막 전갈의 독주머니'],centleg:['지네 다리','🦿','사막 지네의 날카로운 다리'],ahide:['아누비스의 가죽','🟫','검게 빛나는 자칼의 가죽'],aheart:['아누비스의 심장','🖤','아직도 차갑게 뛰고 있다'],aspear:['아누비스의 창','🔱','황금빛 창. 너무 무거워 아무도 들 수 없다… 대장장이라면 무기로 다시 벼려 줄지도?'],yhand:['예티의 손','🖐','얼음처럼 차갑고 커다란 손'],yfur:['예티의 털','🤍','눈보다 하얀 털. 아무리 추워도 따뜻하다'],yeye:['예티의 눈','👁','푸르게 빛나는 눈. 아주 드물게 나온다'],ytalis:['예티의 부적','🧿','설산마을 이장이 준 부적. 잠든 예티 앞에 들이대면 예티가 깨어난다 (팔 수 없다)']};
 const MATC={dscale:'#d32f2f',dtooth:'#fff8e1',dheart:'#ff1744',bone:'#f1ede0',slime:'#5fd35f',hide:'#8a5a2b',bone2:'#f1ede0',heart:'#ff5c8a',flesh:'#d9534f',scale:'#6fd3ff',horn:'#cfd8dc',ltooth:'#fffde7',burger:'#e0a030',yhand:'#b3e5fc',yfur:'#ffffff',yeye:'#00e5ff',ytalis:'#4fc3f7',ahide:'#3e2723',aheart:'#455a64',aspear:'#ffca28'};
 // 몬스터별 드랍: [재료, 최소, 최대, 확률]
-const DROPS={spider:[['silk',3,6,1],['sfang',1,2,1],['aheart2',1,1,.1]],mosq:[['silk',1,1,.05]],yeti:[['yfur',2,5,1],['yhand',1,2,1],['yeye',1,1,.1]],anubis:[['ahide',1,5,1],['aspear',1,1,.2],['aheart',1,1,.1]],scorpion:[['poisongland',1,2,.6]],centipede:[['centleg',1,2,.6]],dragon:[['dscale',5,10,1],['dtooth',1,2,1],['dheart',1,1,.3]],firespirit:[['scale',1,2,.3]],golem:[['bone2',3,5,1]],slime:[['slime',5,5,1]],wolf:[['hide',2,3,1],['bone2',1,1,1]],goblin:[['heart',1,1,.1],['flesh',3,3,1]],skeleton:[['bone2',5,5,1]],marlin:[['horn',1,1,.2],['scale',1,3,1]],crab:[['burger',1,1,1]],leviathan:[['scale',10,13,1],['ltooth',3,4,1]]};
+const DROPS={spider:[['silk',3,6,1],['sfang',1,2,1],['sleg',4,8,1],['seye',1,1,.3],['aheart2',1,1,.1]],mosq:[['mblood',1,2,.6]],hopper:[['sleg',1,2,.6]],yeti:[['yfur',2,5,1],['yhand',1,2,1],['yeye',1,1,.1]],anubis:[['ahide',1,5,1],['aspear',1,1,.2],['aheart',1,1,.1]],scorpion:[['poisongland',1,2,.6]],centipede:[['centleg',1,2,.6]],dragon:[['dscale',5,10,1],['dtooth',1,2,1],['dheart',1,1,.3]],firespirit:[['scale',1,2,.3]],golem:[['bone2',3,5,1]],slime:[['slime',5,5,1]],wolf:[['hide',2,3,1],['bone2',1,1,1]],goblin:[['heart',1,1,.1],['flesh',3,3,1]],skeleton:[['bone2',5,5,1]],marlin:[['horn',1,1,.2],['scale',1,3,1]],crab:[['burger',1,1,1]],leviathan:[['scale',10,13,1],['ltooth',3,4,1]]};
 // 대장장이 제작법: [만들 장비, {재료:개수}, 골드]
 const RECIPES=[['a_hide',{hide:8,bone2:4},200],['r_slime',{slime:30},150],['a_bone',{bone2:20,hide:5},500],['r_heart',{heart:3,flesh:10},800],
  ['r_lich',{bone:6},1500],['r_horn',{horn:4,scale:6},1500],['w_{cls}5',{dscale:50,dtooth:13,dheart:3},0],['a_dragon',{dscale:100,dheart:5},0],['a_scale',{scale:35,hide:20,horn:3,ltooth:2},4000],['w_{cls}4',{ltooth:12,scale:45,horn:8,bone:4},9000],['w_{cls}6',{ahide:40,aheart:2,aspear:1},50000],['w_{cls}7',{yfur:60,yhand:15,yeye:2},100000],['a_anubis',{ahide:60,aheart:2},80000],['a_yeti',{yfur:80,yhand:20,yeye:1},150000]];
@@ -573,6 +574,7 @@ const CONS={hp:['체력 물약','❤ 최대 체력의 35% 회복 · 쿨타임 10
  scalesoup:['비늘 수프','🥣 2분 30초간 방어 +30% · 음식 버프 1개만 · 요리사 쿡',0,'🥣'],
  hornsoup:['청새치 뿔 탕','🥘 3분간 공격력 +35% · 방어 +10% · 음식 버프 1개만 · 요리사 쿡',0,'🥘'],
  goldcarp:['황금 잉어찜','🍱 4분간 공격력 +30% · 방어 +30% · 이동 속도 +15% · 음식 버프 1개만 · 요리사 쿡',0,'🍱'],
+ legfry:['바삭 다리 튀김','🍤 4분간 이동 속도 +30% · 음식 버프 1개만 · 요리사 쿡',0,'🍤'],bloodsoup:['모기 피 선지국','🍲 4분간 공격력 +45% · 음식 버프 1개만 · 요리사 쿡',0,'🍲'],eyejelly:['거미 눈 젤리','🟣 5분간 방어 +50% · 이동 속도 +15% · 음식 버프 1개만 · 요리사 쿡',0,'🟣'],mountfeast:['산의 진수성찬','🍱 6분간 공격력 +55% · 방어 +45% · 이동 속도 +30% · 음식 버프 1개만 · 요리사 쿡',0,'🍱'],
  dragonelix:['드래곤 하트 엘릭서','🔥 5분간 공격력 +60% · 방어 +40% · 이동 속도 +25% · 음식 버프 1개만 · 요리사 쿡',0,'🔥'],
  protect:['강화 방지권','🛡 강화하다 깨질 때 딱 1번 막아 준다 (대장장이에서 자동으로 쓰임)',100000,'🛡'],
  statreset:['스탯 초기화권','🔄 찍은 능력치 포인트(방어·물리 공격·마법 공격)를 전부 돌려받아 다시 찍을 수 있다 · 레벨·스킬은 그대로',500,'🔄'],
@@ -586,6 +588,11 @@ const TITLES={
  morgan:['모르간 처치자','#c58bff','리치 모르간 처치',()=>!!P.flags.boss],
  sandmaze:['🌪 모래폭풍 돌파자','#e0c080','모래폭풍 미로를 빠져나왔다',()=>!!P.flags.sandmaze],
  mummy:['🧻 미라 사냥꾼','#d7ccc8','미라 200마리 처치',()=>(P.kc.mummy||0)>=200],
+ mblood:['🩸 피 수집가','#ef5350','모기 피 30개 모으기',()=>(P.mats.mblood||0)>=30],
+ legs:['🦵 다리가 많은 자','#a1887f','작은 다리 50개 모으기',()=>(P.mats.sleg||0)>=50],
+ seye:['👁 거미의 눈을 가진 자','#ba68c8','거미 눈 얻기',()=>(P.mats.seye||0)>=1||!!P.flags.seye],
+ spider10:['🕸 거미줄의 지배자','#ce93d8','거대 거미 아라크네 10번 처치',()=>(P.kc.spider||0)>=10],
+ mfeast:['🍱 산의 미식가','#ffcc80','산의 진수성찬 먹기',()=>!!P.flags.mfeast],
  spider:['🕷 거미 사냥꾼','#ce93d8','거대 거미 아라크네 처치',()=>(P.kc.spider||0)>=1],
  mosq100:['🦟 모기 퇴치 전문가','#a1887f','모기 100마리 처치',()=>(P.kc.mosq||0)>=100],
  anubis:['🐺 아누비스 사냥꾼','#ffd54f','아누비스 처치',()=>(P.kc.anubis||0)>=1],
@@ -731,7 +738,7 @@ house(20,38,6,'B');house(38,38,6,'R');house(48,38,6,'U');
   {x:24.5*TS,y:18.7*TS,name:'의뢰 게시판',type:'board',color:'#795548',hat:'#5d4037',hatType:'',board:1},
   {x:33.5*TS,y:18.7*TS,name:'결투 심판 바론',type:'duel',color:'#4e342e',hat:'#b71c1c',hatType:'helm'},
   {x:28.2*TS,y:51.9*TS,type:'prop',w:62,h:26,stand:12,bg:'#8f7118',edge:'#5d4037',lines:[['↑ 은행 입구',10,'#fffde7']]},
-  {x:14.8*TS,y:34.3*TS,type:'prop',w:84,h:46,stand:16,bg:'#7f0000',edge:'#ffd740',blink:1,lines:[['🎰 카지노',11,'#ffd740'],['어서 들어오세요!',9,'#ffffff']]},
+  {x:14.8*TS,y:34.3*TS,type:'prop',w:84,h:46,stand:16,bg:'#7f0000',edge:'#ffd740',blink:1,lines:[['🎰',13,'#ffd740'],['어서 들어오세요!',9,'#ffffff']]},
   {x:40.5*TS,y:33.4*TS,name:'요리사 쿡',type:'cook',color:'#fafafa',hat:'#fff',hatType:'cap'},
   {x:33.5*TS,y:24.6*TS,name:'작명가 렌',type:'nick',color:'#00838f',hat:'#004d56',hatType:'wiz'},
   {x:27.5*TS,y:17.7*TS,name:'소식통 할아범',type:'rank',color:'#455a64',hat:'#263238',hatType:'cap',sit:1},
@@ -764,7 +771,7 @@ function makeField(){
  t[3][41]='.';t[4][41]='.';t[5][41]=',';t[4][42]='.';
  rect(t,37,26,6,5,'.');rect(t,0,27,5,4,'.'); // 왼쪽 아래: 산으로 가는 길
  return{name:'바람의 들판',key:'field',w,h,t,labels:[{x:24*TS,y:15.6*TS,t:'🌊 호수 속 해저마을 (Lv23+)'}],
-  portals:[{look:'gate',x:6,y:16*TS+16,to:'village',tx:57*TS,ty:22*TS,label:'마을'},{look:'cave',x:41.5*TS,y:4*TS,to:'dungeon',tx:5*TS,ty:5*TS+16,label:'던전'},{look:'tomb',x:41.5*TS,y:28.5*TS,to:'ruins',tx:4.5*TS,ty:15.5*TS,label:'폐허 Lv12+'},{look:'gate',x:.4*TS,y:28.5*TS,to:'mount',tx:3*TS,ty:37*TS,label:'⛰ 산 Lv140+'}],
+  portals:[{look:'gate',x:6,y:16*TS+16,to:'village',tx:57*TS,ty:22*TS,label:'마을'},{look:'cave',x:41.5*TS,y:4*TS,to:'dungeon',tx:5*TS,ty:5*TS+16,label:'던전'},{look:'tomb',x:41.5*TS,y:28.5*TS,to:'ruins',tx:4.5*TS,ty:15.5*TS,label:'폐허 Lv12+'},{look:'gate',x:.4*TS,y:28.5*TS,to:'mount',tx:3*TS,ty:37*TS,label:'⛰ 산 Lv170+'}],
   npcs:[],
   spawns:[{type:'slime',zone:[3,8,18,30],max:7},{type:'wolf',zone:[16,8,34,30],max:5},{type:'goblin',zone:[30,8,42,30],max:9,pack:3},{type:'slime',zone:[18,2,40,8],max:3}],
   start:{x:2*TS,y:16*TS+16}};
@@ -1062,7 +1069,7 @@ function makeMount(){const w=60,h=42,t=grid(w,h,'.');const R=mulberry(2611);
  border(t,'#');rect(t,0,0,w,2,'#');rect(t,1,36,6,4,'.');rect(t,26,2,8,5,'.');
  return{name:'⛰ 산 (모기·메뚜기)',key:'mount',w,h,t,tier:4,pal:['#7c9a5a','#7a9656','#6f8a4e','#86a564'],
   portals:[{x:1.6*TS,y:38*TS,to:'field',tx:3*TS,ty:28.5*TS,label:'바람의 들판',look:'gate'},{x:30*TS,y:3.4*TS,to:'spiderden',tx:15*TS,ty:19*TS,label:'🕸 거미 동굴 (보스)',look:'cave'}],
-  npcs:[],labels:[{x:30*TS,y:8*TS,t:'— 모기 Lv140 · 메뚜기 Lv145 —'}],
+  npcs:[],labels:[{x:30*TS,y:8*TS,t:'— 모기 Lv170 · 메뚜기 Lv175 —'}],
   spawns:[{type:'mosq',zone:[4,6,56,38],max:8},{type:'hopper',zone:[8,8,54,36],max:6}],start:{x:3*TS,y:38*TS}};}
 function makeSpiderDen(){const w=30,h=24,t=grid(w,h,'.');border(t,'#');rect(t,0,0,w,2,'#');rect(t,13,h-3,4,3,'.');rect(t,13,h-1,4,1,'#');
  return{name:'🕸 거미 동굴',key:'spiderden',w,h,t,tier:4,deep:1,pal:['#4e4a3e','#524e42','#47433a','#5d5848'],
@@ -1075,7 +1082,7 @@ function makeCafe(){const w=12,h=10,t=grid(w,h,'H');rect(t,0,0,w,2,'U');rect(t,1
 // 카페 음료: 바로 마신다
 const CAFE=[['americano','☕ 아메리카노',500,'마나 50% 회복'],['latte','🥛 카페라떼',600,'체력 40% 회복'],['smoothie','🍓 딸기 스무디',800,'3분 동안 공격력 +10%'],['monster','⚡ 몬스터',1700,'5분 동안 이동 속도 +50% · 대신 최대 체력이 영구히 0.5% 줄어든다']];
 const NJ={t0:0,n:0};
-function cafeTalk(n){if(n.type==='cafe'){const now=Date.now();if(now-NJ.t0>120000){NJ.t0=now;NJ.n=0;}NJ.n++;if(NJ.n>=100&&P.cls!=='ninja'){NJ.n=0;NJ.t0=0;ninjaReveal(n);return;}}const mon=P.monN||0;dialog(n.name,['어서 오세요, 카페 「도파민」이에요! 뭐 드릴까요?'+(mon?`\n\n(지금까지 몬스터 ${mon}캔 · 최대 체력 -${Math.round((1-Math.pow(.995,mon))*1000)/10}%)`:'')],
+function cafeTalk(n){if(n.type==='cafe'){const now=Date.now();if(now-NJ.t0>120000){NJ.t0=now;NJ.n=0;}NJ.n++;if(NJ.n>=100&&P.cls==='novice'){NJ.n=0;NJ.t0=0;ninjaReveal(n);return;}}const mon=P.monN||0;dialog(n.name,['어서 오세요, 카페 「도파민」이에요! 뭐 드릴까요?'+(mon?`\n\n(지금까지 몬스터 ${mon}캔 · 최대 체력 -${Math.round((1-Math.pow(.995,mon))*1000)/10}%)`:'')],
  CAFE.map(([k,nm,pr,ds])=>({t:`${nm} ${pr.toLocaleString()}G`,c:k==='monster'?'gold':'',f:()=>{if(k==='monster'){setTimeout(()=>dialog('⚠ 몬스터 주의사항',['⚡ 마시면 5분 동안 이동 속도가 50% 빨라져요.\n\n❗ 대신 최대 체력이 영구히 0.5% 줄어들어요. 마실수록 계속 쌓이고, 다시 되돌릴 방법은 없어요.\n'+(P.monN?`(지금까지 ${P.monN}캔 · 최대 체력 ${Math.round(Math.pow(.995,P.monN)*1000)/10}%)\n`:'')+'\n그래도 마실까요?'],[{t:'⚡ 마시기 (1,700G)',c:'gold',f:()=>{cafeBuy('monster');setTimeout(()=>{if(!dlgState)interact();},30);}},{t:'안 마실래요'}]),30);return;}cafeBuy(k);setTimeout(()=>{if(!dlgState)interact();},30);}})).concat([{t:'메뉴 설명',f:()=>dialog(n.name,[CAFE.map(c=>c[1]+' — '+c[3]).join('\n')])},{t:'나가기'}]));}
 function ninjaReveal(n){shake=.4;flashA=.4;sfx('lvl');
  dialog(n.name,['……','…끈질기군. 이렇게까지 나를 부른 손님은 처음이야.','사실 나는 바리스타가 되기 전, 그림자 속에서 살던 닌자였다.\n커피 향 뒤에 칼날 냄새를 숨기고 살아왔지.','그 집념이라면… 그림자의 길을 걸을 자격이 있다.\n\n닌자가 되겠나? (지금 직업과 스킬은 사라지고, 쓴 스킬 포인트는 돌려받아요)'],
@@ -1391,7 +1398,7 @@ function unseal(m){if(!m||!m.sealed)return;m.seal.forEach(([x,y,c])=>m.t[y][x]=c
 function inRoom(x,y,pad){const[rx,ry,rw,rh]=map.bossRoom;return x>(rx+pad)*TS&&x<(rx+rw-pad)*TS&&y>(ry+pad)*TS&&y<(ry+rh-pad)*TS;}
 function getMap(k){if(!MAPS[k]){MAPS[k]=k==='cafe'?makeCafe():k==='mount'?makeMount():k==='spiderden'?makeSpiderDen():k.startsWith('raid')?makeRaid(k):k==='snowvil'?makeSnowVil():k==='snowfield'?makeSnowField():k==='yetilair'?makeYetiLair():k==='clonearena'?makeCloneArena():k==='desert'?makeDesert():k==='palace'?makePalace():k==='dunes'?makeDunes():k==='sandstorm'?makeSandstorm():k==='anubislair'?makeAnubisLair():k==='shaft1'?makeShaft():k==='mine'?makeMine():k==='bank'?makeBank():k==='casino'?makeCasino():k==='plain'?makePlain():k==='police'?makePolice():k==='volcano'?makeVolcano():k==='lair'?makeLair():k==='grotto'?makeGrotto():k.startsWith('arena')?makeArena(k):k==='sea'?makeSea():k==='abyss'?makeAbyss():k==='house'?makeHouse():k==='village'?makeVillage():k==='field'?makeField():k==='ruins'?makeRuins():makeDungeon();if(!MAPS[k].inf)prerender(MAPS[k]);}return MAPS[k];}
 function spawnBoss(){if(!map.boss)return;const isDragon=map.boss.type==='dragon';const mk=map.key,wait=10-(Date.now()-(map.bossDeadAt||0))/1000;
- const go=()=>{if(map&&map.key===mk&&isHost()&&!enemies.some(e=>e.b.boss)){const b=spawnEnemy(map.boss.type,map.boss.x,map.boss.y);if(isDragon){b.intro=4;b.face=1;dragonIntro();}else if(map.boss.type==='anubis'){b.intro=3.5;b.face=-1;anubisIntro();}else if(map.boss.type==='yeti'){b.intro=3.6;b.face=-1;yetiIntro();}else if(map.boss.type==='spider'){b.intro=3.2;b.face=-1;CUT.t=CUT.max=3.4;CUT.name='Lv150 거대 거미 아라크네';CUT.sub='산 꼭대기 동굴의 주인';shake=.8;}else if(map.boss.type==='raidboss'){raidBoss(b);b.intro=3.6;b.face=1;raidIntro();}}};
+ const go=()=>{if(map&&map.key===mk&&isHost()&&!enemies.some(e=>e.b.boss)){const b=spawnEnemy(map.boss.type,map.boss.x,map.boss.y);if(isDragon){b.intro=4;b.face=1;dragonIntro();}else if(map.boss.type==='anubis'){b.intro=3.5;b.face=-1;anubisIntro();}else if(map.boss.type==='yeti'){b.intro=3.6;b.face=-1;yetiIntro();}else if(map.boss.type==='spider'){b.intro=3.2;b.face=-1;CUT.t=CUT.max=3.4;CUT.name='Lv190 거대 거미 아라크네';CUT.sub='산 꼭대기 동굴의 주인';shake=.8;}else if(map.boss.type==='raidboss'){raidBoss(b);b.intro=3.6;b.face=1;raidIntro();}}};
  if(wait>0){enemies=enemies.filter(e=>!e.b.boss||e.mirror);timers.push({t:wait,f:go});}else go();}
 function yetiIntro(){CUT.t=CUT.max=3.9;CUT.name='Lv160 예티';CUT.sub='만년설에 잠들어 있던 설산의 주인';shake=1;setTimeout(()=>{if(typeof playRoar==='function')playRoar();},700);setTimeout(()=>{flashA=.4;shake=.9;},2500);}
 function anubisIntro(){CUT.t=CUT.max=3.8;CUT.name='Lv130 아누비스';CUT.sub='망자를 다스리는 무덤의 지배자';shake=1;setTimeout(()=>{flashA=.4;shake=.8;},2400);}
@@ -1556,7 +1563,7 @@ function killEnemy(e){ // 방장(또는 혼자일 때)만 부른다
  netEv(info);rewardKill(info);
 }
 // 몬스터가 죽으면 근처에 있던 모두가 경험치·골드·퀘스트를 받는다
-const BOSSDROP={spider:'드랍: 🕸 거미줄 3~6개 · 🦷 거미 독니 1~2개 · 💜 아라크네의 심장 10%',raidboss:'주간 보상 (한 주에 한 번): 💰 1,000만 G · ❤️‍🔥 드래곤 하트·🖤 아누비스의 심장·👁 예티의 눈 3개씩 · 칭호',dragon:'드랍: 🔴 드래곤 비늘 5~10개 · 🦷 드래곤 이빨 1~2개 · ❤️‍🔥 드래곤 하트 30%',lich:'드랍: 🦴 모르간의 뼈 2~3개 · 🧥 모르간의 망토 10% · 내 직업 무기 · 행운의 부적',leviathan:'드랍: 🐟 비늘 10~13개 · 🦷 큰 이빨 3~4개 · 💧 스킬 「물방울 쏘기」 30%',anubis:'드랍: 🟫 아누비스의 가죽 1~5개 · 🔱 아누비스의 창 20% · 🖤 아누비스의 심장 10%',yeti:'드랍: 🤍 예티의 털 2~5개 · 🖐 예티의 손 1~2개 · 👁 예티의 눈 10%'};
+const BOSSDROP={spider:'드랍: 🕸 거미줄 3~6개 · 🦷 거미 독니 1~2개 · 🦵 작은 다리 4~8개 · 👁 거미 눈 30% · 💜 아라크네의 심장 10%',raidboss:'주간 보상 (한 주에 한 번): 💰 1,000만 G · ❤️‍🔥 드래곤 하트·🖤 아누비스의 심장·👁 예티의 눈 3개씩 · 칭호',dragon:'드랍: 🔴 드래곤 비늘 5~10개 · 🦷 드래곤 이빨 1~2개 · ❤️‍🔥 드래곤 하트 30%',lich:'드랍: 🦴 모르간의 뼈 2~3개 · 🧥 모르간의 망토 10% · 내 직업 무기 · 행운의 부적',leviathan:'드랍: 🐟 비늘 10~13개 · 🦷 큰 이빨 3~4개 · 💧 스킬 「물방울 쏘기」 30%',anubis:'드랍: 🟫 아누비스의 가죽 1~5개 · 🔱 아누비스의 창 20% · 🖤 아누비스의 심장 10%',yeti:'드랍: 🤍 예티의 털 2~5개 · 🖐 예티의 손 1~2개 · 👁 예티의 눈 10%'};
 // 몬스터 레벨이 내 레벨보다 낮을수록 경험치·골드가 줄어든다 (2레벨 차이까지는 100%, 그 뒤로 1레벨마다 -10%, 최소 10%)
 const lvMul=mobLv=>{const d=P.lv-mobLv;return d<=2?1:Math.max(.1,1-(d-2)*.1);};
 function rewardKill(i){
@@ -1720,10 +1727,10 @@ function goJail(by,sec){P.flags.jailed=1;P.jailUntil=Date.now()+sec*1000;P.rideO
 function jailTick(){if(!P||!map)return;const j=$('jailBox');if(inJail()){if(map.key!=='police')enterMap('police',11.5*TS,4*TS);P.x=clamp(P.x,JAIL.x0,JAIL.x1);P.y=clamp(P.y,JAIL.y0,JAIL.y1);j.classList.remove('hidden');j.textContent='🔒 감옥 · '+Math.ceil((P.jailUntil-Date.now())/1000)+'초 남음';}
  else{if(P.jailUntil){P.jailUntil=0;if(map.key==='police'){P.x=7*TS;P.y=7.4*TS;}toast('🔓 풀려났다! 착하게 살자');save(true);}j.classList.add('hidden');}}
 // 요리: 비싼 재료일수록 효과가 좋다 [결과, 재료, 수수료]
-const COOK=[['slimejelly',{slime:5},50],['grillfish',{fish:2},100],['skewer',{flesh:4,hide:2},100],['lifepot',{heart:1,slime:10},300],['manapot',{scale:2,slime:10},300],['heartstew',{heart:2,flesh:3},300],['sashimi',{bigfish:2},300],['scalesoup',{scale:3,bone2:5},500],['hornsoup',{horn:2,ltooth:1},1000],['goldcarp',{goldfish:1,fish:3},2000],['dragonelix',{dheart:1,dscale:5},5000]];
-const FOOD={slimejelly:{hp:.25,cd:'hp'},grillfish:{hp:.4,mp:.3,cd:'hp'},lifepot:{hp:.7,cd:'hp'},manapot:{mp:.7,cd:'mp'},skewer:{atk:.1,dur:90},heartstew:{atk:.2,dur:120},sashimi:{spd:.2,dur:120},scalesoup:{def:.3,dur:150},hornsoup:{atk:.35,def:.1,dur:180},goldcarp:{atk:.3,def:.3,spd:.15,dur:240},dragonelix:{atk:.6,def:.4,spd:.25,dur:300}};
+const COOK=[['slimejelly',{slime:5},50],['grillfish',{fish:2},100],['skewer',{flesh:4,hide:2},100],['lifepot',{heart:1,slime:10},300],['manapot',{scale:2,slime:10},300],['heartstew',{heart:2,flesh:3},300],['sashimi',{bigfish:2},300],['scalesoup',{scale:3,bone2:5},500],['hornsoup',{horn:2,ltooth:1},1000],['goldcarp',{goldfish:1,fish:3},2000],['dragonelix',{dheart:1,dscale:5},5000],['legfry',{sleg:6},3000],['bloodsoup',{mblood:5,flesh:3},4000],['eyejelly',{seye:1,slime:20},8000],['mountfeast',{mblood:4,sleg:6,seye:1},15000]];
+const FOOD={slimejelly:{hp:.25,cd:'hp'},grillfish:{hp:.4,mp:.3,cd:'hp'},lifepot:{hp:.7,cd:'hp'},manapot:{mp:.7,cd:'mp'},skewer:{atk:.1,dur:90},heartstew:{atk:.2,dur:120},sashimi:{spd:.2,dur:120},scalesoup:{def:.3,dur:150},hornsoup:{atk:.35,def:.1,dur:180},goldcarp:{atk:.3,def:.3,spd:.15,dur:240},dragonelix:{atk:.6,def:.4,spd:.25,dur:300},legfry:{spd:.3,dur:240},bloodsoup:{atk:.45,dur:240},eyejelly:{def:.5,spd:.15,dur:300},mountfeast:{atk:.55,def:.45,spd:.3,dur:360}};
 const foodOn=()=>P&&P.food&&P.food.until>Date.now()&&FOOD[P.food.id];
-function eatFood(k){const F=FOOD[k];if(!F||!(P.pots[k]>0))return;
+function eatFood(k){const F=FOOD[k];if(!F||!(P.pots[k]>0))return;if(k==='mountfeast')P.flags.mfeast=1;
  if(F.cd){if(POTCD[F.cd]>0){toast(`⏳ ${Math.ceil(POTCD[F.cd])}초 뒤에 먹을 수 있어요`);return;}POTCD[F.cd]=10;}
  P.pots[k]--;if(F.hp){const v=Math.round(P.st.hp*F.hp);P.hp=Math.min(P.st.hp,P.hp+v);addText(P.x,P.y-24,'+'+v,'#7dff7d',12);}if(F.mp){const v=Math.round(P.st.mp*F.mp);P.mp=Math.min(P.st.mp,P.mp+v);addText(P.x,P.y-36,'+'+v,'#7dbfff',12);}
  if(F.dur){P.food={id:k,until:Date.now()+F.dur*1000};calc();toast(`${CONS[k][3]} ${CONS[k][0]}! ${F.dur>=120?Math.round(F.dur/60)+'분':F.dur+'초'}간 힘이 난다`);}else toast(`${CONS[k][3]} 냠냠!`);
@@ -2238,11 +2245,13 @@ function spiderAI(e,dt,d,sp,T){bossBar(e);
  if(d<e.r+26&&e.acd<=0){e.acd=1;hitTarget(T,e.atk);}
  if(d>240)moveEnt(e,n.x*sp,n.y*sp);else if(d<150)moveEnt(e,-n.x*sp*.6,-n.y*sp*.6);else moveEnt(e,-n.y*sp*.7,n.x*sp*.7);
  e.pt=(e.pt==null?1.4:e.pt)-dt;if(e.pt>0)return;
- const pat=half?['sticky','web','leap','web','sticky','fan'][(e.ph=(e.ph||0)+1)%6]:['web','fan','leap','web'][(e.ph=(e.ph||0)+1)%4];
+ const pat=half?['sticky','web','poison','leap','brood','sticky','fan','poison'][(e.ph=(e.ph||0)+1)%8]:['web','fan','poison','leap','web','brood'][(e.ph=(e.ph||0)+1)%6];
  const ang=Math.atan2(T.y-e.y,T.x-e.x);
  if(pat==='web'){for(let k=0;k<3;k++)timers.push({t:k*.25,f:()=>{if(e.dead)return;const t2=pickTarget(e)||T,a2=Math.atan2(t2.y-e.y,t2.x-e.x);eShot({x:e.x,y:e.y-20,vx:Math.cos(a2)*380,vy:Math.sin(a2)*380,r:12,life:1.6,dmg:e.atk*.6,color:'#eeeeee',wb:1});}});addText(e.x,e.y-80,'거미줄 발사!','#eeeeee',12);e.pt=1.5;}
  else if(pat==='fan'){for(let k=0;k<9;k++){const a2=ang+(k-4)*.17;eShot({x:e.x,y:e.y-20,vx:Math.cos(a2)*300,vy:Math.sin(a2)*300,r:10,life:1.8,dmg:e.atk*.5,color:'#eeeeee',wb:1});}e.pt=1.6;}
  else if(pat==='leap'){e.st={k:'leap',t:.7,x:T.x,y:T.y};bfx({k:'warn',x:T.x,y:T.y,r:110,life:.7,max:.7,color:'#ce93d8'});addText(e.x,e.y-80,'덮치기!','#ce93d8',12);}
+ else if(pat==='poison'){const pts=[];for(const q of allTargets())pts.push({x:q.x,y:q.y});for(let k=0;k<(half?7:5);k++)pts.push({x:e.x+rnd(-260,260),y:e.y+rnd(-180,200)});for(const p of pts)bfx({k:'warn',x:p.x,y:p.y,r:70,life:1,max:1,color:'#76ff03'});timers.push({t:1,f:()=>{if(e.dead)return;for(const p of pts){addHz(p.x,p.y,70,4,e.atk*.35);explodeFx(p.x,p.y,60,'#76ff03');}}});addText(e.x,e.y-80,'독침 비!','#b2ff59',13);e.pt=1.4;}
+ else if(pat==='brood'){const c=enemies.filter(q=>q.type==='spiderling').length;if(c<8){for(let k=0;k<4&&c+k<8;k++){const a2=k/4*6.28,mx=e.x+Math.cos(a2)*80,my=e.y+Math.sin(a2)*60;if(blocked(mx,my,11))continue;const m=spawnEnemy('spiderling',mx,my);m.summon=1;m.aggroed=true;puff(mx,my,'#eeeeee');}addText(e.x,e.y-80,'알이 부화한다…!','#eeeeee',13);}e.pt=1.2;}
  else if(pat==='sticky'){for(const q of allTargets()){const a2=Math.atan2(q.y-e.y,q.x-e.x);eShot({x:e.x,y:e.y-20,vx:Math.cos(a2)*330,vy:Math.sin(a2)*330,r:15,life:2,dmg:e.atk*.4,color:'#ff80ab',wb:2});}addText(e.x,e.y-80,'끈끈이 거미줄!','#ff80ab',13);e.pt=1.8;}}
 // 거미줄에 맞았을 때
 function webHit(k){if(k===1){P.webS=Math.max(P.webS||0,2.5);addText(P.x,P.y-40,'🕸 느려졌다!','#eeeeee',11);}else if(k===2&&!(P.webN>0)){P.webN=15;addText(P.x,P.y-44,'🕸 거미줄에 묶였다!','#ff80ab',13);toast('🕸 거미줄에 묶였다! 화면을 15번 눌러서 풀어요');}}
@@ -2929,6 +2938,7 @@ function drawEnemy(e){
  const C=(c)=>hit?'#ffffff':c;const T=e.b.spr||e.type,col=e.b.col;
  if(T==='mosq'){const f=Math.sin(t*40)*3,fl=P.x<x?-1:1,yy=y-18+Math.sin(t*5)*4;ctx.globalAlpha=.5;px(x-12,yy-8+f*.3,10,5,'#e0f7fa');px(x+2,yy-8-f*.3,10,5,'#e0f7fa');ctx.globalAlpha=1;px(x-6,yy-2,12,6,C('#5d4037'));px(x-3,yy-3,6,3,'#8d6e63');px(x+fl*6-(fl<0?4:0),yy-4,5,5,C('#3e2723'));px(x+fl*10-(fl<0?6:0),yy-1,7,1,'#bdbdbd');px(x+fl*7-(fl<0?1:0),yy-3,1,1,'#ff1744');for(const k of[-4,0,4])px(x+k,yy+4,1,6,'#4e342e');}
  else if(T==='hopper'){const z=e.z||0,fl=e.face||(P.x<x?-1:1),yy=y-z;ctx.globalAlpha=.25;ctx.fillStyle='#000';ctx.beginPath();ctx.ellipse(x,y,12,4,0,0,7);ctx.fill();ctx.globalAlpha=1;px(x-12,yy-14,22,8,C('#7cb342'));px(x-10,yy-17,16,4,C('#9ccc65'));px(x+fl*9-(fl<0?6:0),yy-18,7,8,C('#689f38'));px(x+fl*13-(fl<0?2:0),yy-16,2,2,'#212121');px(x+fl*12-(fl<0?1:0),yy-25,1,8,'#33691e');px(x+fl*14-(fl<0?1:0),yy-27,1,9,'#33691e');const lg=z>4?6:0;px(x-fl*8-(fl>0?2:0),yy-12-lg,3,10+lg,'#558b2f');px(x-fl*12-(fl>0?2:0),yy-4,3,6,'#558b2f');px(x+fl*2,yy-6,2,6,'#558b2f');}
+ else if(T==='spiderling'){const fl=P.x<x?-1:1;ctx.strokeStyle=C('#5d4037');ctx.lineWidth=2;for(let i=0;i<3;i++)for(const sd of[-1,1]){const ph=Math.sin(t*14+i)*2;ctx.beginPath();ctx.moveTo(x+sd*5,y-10+i*2);ctx.lineTo(x+sd*13,y-16+i*3+ph);ctx.lineTo(x+sd*16,y-2);ctx.stroke();}ctx.fillStyle=C('#4e342e');ctx.beginPath();ctx.ellipse(x-fl*5,y-11,9,7,0,0,7);ctx.fill();ctx.beginPath();ctx.ellipse(x+fl*6,y-10,5,5,0,0,7);ctx.fill();px(x+fl*7-1,y-12,2,2,'#ff5252');}
  else if(T==='spider'){const fl=e.face||1,hf=e.halfOn,lc=C(hf?'#4a148c':'#3e2723');ctx.strokeStyle=lc;ctx.lineWidth=4;for(let i=0;i<4;i++)for(const sd of[-1,1]){const ph=Math.sin(t*8+i*1.3+(sd>0?1:0))*4;ctx.beginPath();ctx.moveTo(x+sd*14,y-24+i*5);ctx.lineTo(x+sd*(34+i*3),y-40+i*8+ph);ctx.lineTo(x+sd*(44+i*4),y-2+i*2-ph*.5);ctx.stroke();}
   ctx.fillStyle=lc;ctx.beginPath();ctx.ellipse(x-fl*18,y-30,26,22,0,0,7);ctx.fill();ctx.fillStyle=C(hf?'#6a1b9a':'#4e342e');ctx.beginPath();ctx.ellipse(x+fl*16,y-26,16,14,0,0,7);ctx.fill();px(x-fl*24-6,y-42,12,4,hf?'#ff80ab':'#d7ccc8');px(x-fl*22-3,y-34,6,10,hf?'#ff80ab':'#d7ccc8');for(let i=0;i<4;i++)px(x+fl*(20+(i%2)*6)-2,y-32+Math.floor(i/2)*5,3,3,hf?'#ff1744':'#ff5252');px(x+fl*28-3,y-16,3,6,'#eeeeee');px(x+fl*22-3,y-16,3,6,'#eeeeee');}
  else if(T==='dummy'){const w=hit?Math.sin(gameT*60)*2:0;px(x-2,y-34,4,34,'#6d4c41');px(x-14+w,y-30,28,4,'#8d6e63');px(x-9+w,y-38,18,24,C('#d7b56d'));px(x-9+w,y-38,18,2,'#b8924a');for(let i=0;i<4;i++)px(x-8+w+i*5,y-16,2,4,'#c9a35a');px(x-7+w,y-50,14,13,C('#e6c98a'));px(x-4+w,y-46,2,2,'#3e2723');px(x+2+w,y-46,2,2,'#3e2723');px(x-3+w,y-42,6,1,'#3e2723');px(x-9+w,y-52,18,3,'#795548');
@@ -3269,6 +3279,7 @@ function renderMenu(){
    h+='</div>';});};
   if(P.job3&&JOBS3[P.job3])sec('🌟 '+JOBS3[P.job3].name+' 스킬 (3차)',SKILLS[P.job3]);
   if(P.job)sec('⚜ '+JOBS[P.job].name+' 스킬',SKILLS[P.job]);sec(CLASSES[P.cls].name+' 스킬',SKILLS[P.cls]);sec('공용 스킬',SKILLS.common);sec('✨ 깨달음 스킬',SKILLS.special);
+  if(P.flags&&P.flags.admin)for(const k in SKILLS){if(['common','special',P.cls,P.job,P.job3].includes(k))continue;const nm=(CLASSES[k]||JOBS[k]||JOBS3[k]||{}).name||k;sec('👑 '+nm+' 스킬 (관리자)',SKILLS[k]);}
   h+='<div style="color:#b7a6d9;font-size:11px;margin-top:10px">새 스킬은 레벨업(Lv4·7·9·11)과 마을의 마법 도서관에서 얻어요</div>';
  }else if(menuTab==='map'){
   h=`<div style="font-size:12px;margin-bottom:6px">📍 ${map.name} · <span style="color:#ffe066">● 나</span> · <span style="color:#ea80fc">● 파티원</span> · <span style="color:#7dff7d">● 다른 사람</span> · <span style="color:#4fc3f7">■ NPC</span> · <span style="color:#ff5252">■ 몬스터</span> · <span style="color:#c9b3ff">◆ 포탈</span> · 빨간 구역 = 나보다 강한 사냥터</div><canvas id="mapCv" style="position:static;width:100%;border:2px solid #4d3880;border-radius:8px;background:#0d0818;image-rendering:pixelated"></canvas><div id="mapList" style="font-size:12px;margin-top:8px;line-height:1.7"></div>${mapGuideHtml()}`;
@@ -3311,7 +3322,7 @@ function renderMenu(){
   if(P.hq&&P.hq.s!=='none'&&P.hq.s!=='done'&&P.cls==='novice')h+=`<div class="row"><div class="t"><b style="color:#c58bff">🕯 히든: 슬라임 100마리</b><small>보상: 히든 직업 「마검사」 · 마을 남서쪽 끝 집의 수상한 자</small></div><div>${P.hq.s==='clear'?'✅ 보고하기':P.hq.c+'/100'}</div></div>`;
   h+=`<br><div style="color:#b7a6d9;font-size:12px">진행: ${Math.min(q.i,QUESTS.length)}/${QUESTS.length}<br>마을 동쪽 → 바람의 들판 → 북동쪽 끝 → 모르간의 던전</div>`;
  }else if(menuTab==='sys'){
-  h=(NET.admin&&NET.live?`<div style="margin-bottom:10px;padding:8px;border:1px solid #ffd740;border-radius:8px"><div style="color:#ffd740;margin-bottom:6px">📢 관리자 공지 (모두의 화면 위에 5초 동안 크게 떠요)</div><input id="annIn" maxlength="60" placeholder="공지 내용 (최대 60자) · 채팅에서 /공지 내용 으로도 가능" style="width:100%;box-sizing:border-box;padding:8px;margin-bottom:6px"><button class="btn gold" id="annGo">📢 공지 보내기</button><div style="margin-top:10px;border-top:1px solid #4a3a6a;padding-top:8px"><div style="color:#ffd740;margin-bottom:6px">🔎 계정 관리</div><div style="font-size:11px;color:#b7a6d9;margin-bottom:6px">아이디·닉네임·캐릭터 이름으로 찾기. 비밀번호는 암호화돼 있어 볼 수 없고, 필요하면 새 임시 비번으로 바꿔 줄 수 있어요.</div><div style="display:flex;gap:4px"><input id="admQ" maxlength="40" placeholder="검색어" style="flex:1;box-sizing:border-box;padding:6px"><button class="btn gold" id="admGo">찾기</button></div><div id="admList" style="margin-top:6px"></div></div></div>`:'')+`<div style="margin-bottom:8px;font-size:12px;color:${NET.token?'#7dff7d':'#b7a6d9'}">${NET.token?'👤 '+esc(NET.nick)+' 계정 · 서버에 저장돼요'+(NET.live?' · 실시간 접속 중':''):'이 기기에만 저장돼요'}</div><button class="btn gold" id="mSave">💾 저장하기</button> <span style="font-size:11px;color:#b7a6d9">(5분마다, 그리고 맵을 옮길 때도 자동 저장돼요)</span><br><br><button class="btn" id="mTut">📖 화면 설명 다시 보기</button><br><br><button class="btn red" id="mTitleBtn">타이틀로</button>
+  h=(NET.admin&&NET.live?`<div style="margin-bottom:10px;padding:8px;border:1px solid #ffd740;border-radius:8px"><div style="color:#ffd740;margin-bottom:6px">📢 관리자 공지 (모두의 화면 위에 5초 동안 크게 떠요)</div><input id="annIn" maxlength="60" placeholder="공지 내용 (최대 60자) · 채팅에서 /공지 내용 으로도 가능" style="width:100%;box-sizing:border-box;padding:8px;margin-bottom:6px"><button class="btn gold" id="annGo">📢 공지 보내기</button><div style="margin-top:10px;border-top:1px solid #4a3a6a;padding-top:8px"><div style="color:#ffd740;margin-bottom:6px">🔎 계정 관리</div><div style="font-size:11px;color:#b7a6d9;margin-bottom:6px">아이디·닉네임·캐릭터 이름으로 찾기. 비밀번호는 암호화돼 있어 볼 수 없고, 필요하면 새 임시 비번으로 바꿔 줄 수 있어요.</div><div style="display:flex;gap:4px"><input id="admQ" maxlength="40" placeholder="검색어" style="flex:1;box-sizing:border-box;padding:6px"><button class="btn gold" id="admGo">찾기</button></div><div id="admList" style="margin-top:6px"></div></div><div style="margin-top:10px;border-top:1px solid #4a3a6a;padding-top:8px"><button class="btn gold" id="admWho">👥 오늘 접속자 · 지금 플레이 중인 사람</button><div id="admWhoBox" style="margin-top:6px;font-size:12px"></div></div></div>`:'')+`<div style="margin-bottom:8px;font-size:12px;color:${NET.token?'#7dff7d':'#b7a6d9'}">${NET.token?'👤 '+esc(NET.nick)+' 계정 · 서버에 저장돼요'+(NET.live?' · 실시간 접속 중':''):'이 기기에만 저장돼요'}</div><button class="btn gold" id="mSave">💾 저장하기</button> <span style="font-size:11px;color:#b7a6d9">(5분마다, 그리고 맵을 옮길 때도 자동 저장돼요)</span><br><br><button class="btn" id="mTut">📖 화면 설명 다시 보기</button><br><br><button class="btn red" id="mTitleBtn">타이틀로</button>
   <br><br><div style="font-size:12px;color:#b7a6d9;line-height:1.7">PC: WASD/방향키 이동 · Space/클릭 공격(마우스 방향 조준) · 1~3 스킬 · Shift 대쉬 · E 대화 · Z/X 물약 · I 인벤토리 · M 메뉴 · Enter 채팅<br>폰: 왼쪽 화면을 누르고 드래그해서 이동 · 오른쪽 버튼으로 공격/스킬 (가까운 적 자동 조준)</div>`;
  }else if(menuTab==='shop'){
   h=`<div>💰 ${P.gold.toLocaleString()} G</div>`;
@@ -3359,6 +3370,7 @@ function renderMenu(){
  if(menuTab==='slot')slotBind(B);if(menuTab==='roul')roulBind(B);if(menuTab==='bank')bankBind(B);
  const ag=$('annGo');if(ag)ag.onclick=()=>{const v=($('annIn').value||'').trim();if(!v)return;if(NET.sock)NET.sock.emit('ann',v.slice(0,60));$('annIn').value='';toast('📢 공지를 보냈어요');};
 
+ {const w=$('admWho');if(w)w.onclick=()=>{if(NET.sock)NET.sock.emit('adm:who');$('admWhoBox').textContent='불러오는 중…';};}
  {const qi=$('admQ'),go=$('admGo'),box=$('admList');
   const esc2=t=>String(t==null?'':t).replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
   const run=async()=>{const q=(qi&&qi.value||'').trim();box.innerHTML='<div style="color:#b7a6d9;font-size:12px">찾는 중…</div>';
@@ -3817,13 +3829,13 @@ $('tutPrev').onclick=()=>{if(TS2.i>0){TS2.i--;tutShow();}};
 $('tutSkip').onclick=()=>tutEnd();
 addEventListener('resize',()=>{if(!$('tut').classList.contains('hidden'))tutShow();});
 // 📜 패치노트: 새 패치가 나오면 처음 한 번만 띄운다 (이 기기 기준)
-const PATCH={v:'2026-11-25b',title:'📜 패치노트 · 11월 25일 (2)',lines:[
- '⛰ 새 지역 「산」! 바람의 들판 왼쪽 아래 길로 가요 (Lv140+)',
- '🦟 모기: 이리저리 날아다니고, 물면 그만큼 체력을 회복해요',
- '🦗 메뚜기: 폴짝폴짝 뛰어서 덮쳐요',
- '🕷 산 꼭대기 동굴의 보스 「거대 거미 아라크네」 (Lv150): 거미줄에 맞으면 느려지고, 체력이 절반 아래로 떨어지면 끈끈이 거미줄을 쏴요. 끈끈이 거미줄에 묶이면 화면을 15번 눌러야 풀려요!',
- '🕸 새 재료: 거미줄 · 거미 독니 · 아라크네의 심장 / 새 칭호 2개',
- '⚡ 카페의 몬스터는 마시기 전에 주의사항을 한 번 더 보여줘요'].join('\n\n')};
+const PATCH={v:'2026-11-25c',title:'📜 패치노트 · 11월 25일 (3)',lines:[
+ '⛰ 산이 더 험해졌어요: 모기 Lv170 · 메뚜기 Lv175 (Lv170+ 지역)',
+ '🕷 거대 거미 아라크네 Lv190으로 강화! 새 패턴 「독침 비」(독 웅덩이), 「알 부화」(새끼 거미 소환)',
+ '🩸 모기는 모기 피, 🦗 메뚜기는 작은 다리를 떨어뜨려요. 거미는 작은 다리와 30% 확률로 거미 눈을 줘요',
+ '🍳 요리사 쿡 새 요리: 바삭 다리 튀김(이동 속도), 모기 피 선지국(공격력), 거미 눈 젤리(방어·속도), 산의 진수성찬(모두 크게)',
+ '🏅 새 칭호 5개: 피 수집가 · 다리가 많은 자 · 거미의 눈을 가진 자 · 거미줄의 지배자 · 산의 미식가',
+ '🎰 카지노 간판 정리'].join('\n\n')};
 function patchNote(){let seen='';try{seen=localStorage.getItem('dpm_patch')||'';}catch(e){}if(seen===PATCH.v)return;try{localStorage.setItem('dpm_patch',PATCH.v);}catch(e){}setTimeout(()=>{if(!P)return;if(dlgState){setTimeout(patchNote2,4000);return;}patchNote2();},1800);}
 function patchNote2(){if(!P||dlgState)return;dialog(PATCH.title,[PATCH.lines]);}
 function startGame(isNew){
@@ -3888,6 +3900,10 @@ function netConnect(){if(!NET.token||NET.sock)return;
   k.on('raid:go',d=>{if(!d||typeof d.k!=='string'||!/^raid[a-z0-9]{4,8}$/.test(d.k)||!P||P.dead)return;NET.raid={k:d.k,hp:+d.hp||5e6,atk:+d.atk||2000,def:+d.def||60};if(dlgState)closeDlg();$('menu').classList.add('hidden');P.ride&&(P.rideOn=null);enterMap(d.k,17*TS+rnd(-40,40),21*TS);toast('🌑 심연의 제단에 들어왔다! (난이도 점수 '+(+d.p||0).toLocaleString()+')');});
   k.on('ch:list',d=>{if(d&&Array.isArray(d.c))chRender(d);});
   k.on('full',()=>{dialog('📡 접속 인원 초과',['모든 서버(14개 × 12명)가 꽉 찼어요.\n잠시 뒤에 다시 접속해 주세요. 그동안은 혼자 플레이할 수 있어요.']);});
+  k.on('adm:who',d=>{const b=$('admWhoBox');if(!b||!d)return;const on=Array.isArray(d.online)?d.online:[];const MN=k2=>{try{return getMap(k2).name}catch(e){return k2}};
+   b.innerHTML=`<div style="color:#ffd740">📅 오늘 접속한 계정: <b>${(+d.today||0).toLocaleString()}명</b> · 지금 접속 중: <b>${on.length}명</b></div><div style="color:#b7a6d9;font-size:11px">(오늘 접속 수는 서버가 다시 켜진 뒤부터 세요)</div>`+
+    on.map(o=>`<div class="row"><div class="t">${esc(o.name||'(타이틀 화면)')} <span style="color:#ffe066">Lv${o.lv||'-'}</span> <span style="color:#b7a6d9">${esc((CLASSES[o.cls]||{}).name||'')}</span><small>${esc(o.nick)} · 서버${o.ch} · ${esc(o.map?MN(o.map):'-')}${o.idle?' · 💤 자리 비움':''}</small></div></div>`).join('')+
+    (Array.isArray(d.todayList)&&d.todayList.length?`<div style="margin-top:6px;color:#b7a6d9">오늘 접속한 아이디: ${d.todayList.map(esc).join(', ')}</div>`:'');});
   k.on('adm:reps',d=>{if(d&&Array.isArray(d.list))admRender({list:d.list,sanc:Array.isArray(d.sanc)?d.sanc:[]});});
   const banShow=(left,why)=>{NET.banned=1;try{k.io.opts.reconnection=false;}catch(e){}dialog('⛔ 이용 정지',['운영 정책 위반으로 이 계정의 온라인 이용이 정지됐어요.\n남은 기간: '+left+(why?'\n사유: '+why:'')+'\n\n이의가 있으면 개인정보처리방침의 문의처로 연락해 주세요.']);};
   k.on('banned',d=>banShow(d&&d.left||'?',d&&d.why||''));
