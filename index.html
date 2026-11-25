@@ -103,9 +103,9 @@ button{font-family:inherit;cursor:pointer}
 .invT{color:#7fe3ff;font-weight:bold;margin:8px 2px 6px}.eqg{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:6px}
 .eqc{background:#1b1236;border:2px solid #3b2d66;border-radius:8px;padding:6px;cursor:pointer;min-height:62px;position:relative}.eqc.on{border-color:#4dd0e1;background:#16263d}.eqc.sel{box-shadow:0 0 0 2px #ffe066}
 .eqc .k{font-size:10px;color:#9a8cc4}.eqc .i{font-size:22px;line-height:26px}.eqc .n{font-size:11px;line-height:1.25;word-break:keep-all}.eqc .z{font-size:10px;color:#666}.eqc .on2{position:absolute;right:5px;top:4px;font-size:9px;color:#4dd0e1}
-.invg{display:grid;grid-template-columns:repeat(6,1fr);gap:4px}.ivc{aspect-ratio:1;background:#1b1236;border:2px solid #3b2d66;border-radius:7px;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden}
+.invg{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}.ivc{min-height:54px;padding:3px 1px 2px;background:#1b1236;border:2px solid #3b2d66;border-radius:7px;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden}
 .ivc .i{font-size:22px;line-height:24px}.ivc .n{font-size:8.5px;line-height:1.1;text-align:center;padding:0 2px;max-height:19px;overflow:hidden}.ivc .c{position:absolute;right:3px;bottom:1px;font-size:10px;color:#ffe066;font-weight:bold;text-shadow:0 0 2px #000}.ivc .p{position:absolute;left:3px;top:1px;font-size:9px;color:#ffe066}
-.ivc.sel{border-color:#ffe066;box-shadow:0 0 6px #ffe066}.ivc.empty{opacity:.35;cursor:default}.ivc.t2{border-color:#2f6c9c}.ivc.t3{border-color:#6b3fa0}.ivc.t4{border-color:#a8682a}.ivc.t5{border-color:#b71c1c}.ivc.t6{border-color:#c79a00}.ivc.t7{border-color:#00acc1}
+.ivc .nm{font-size:8px;line-height:9px;text-align:center;color:#d8cff0;max-height:18px;overflow:hidden;word-break:break-all;margin-top:1px;width:100%}.ivc .c{bottom:auto;top:1px}.ivc.sel{border-color:#ffe066;box-shadow:0 0 6px #ffe066}.ivc.empty{opacity:.35;cursor:default}.ivc.t2{border-color:#2f6c9c}.ivc.t3{border-color:#6b3fa0}.ivc.t4{border-color:#a8682a}.ivc.t5{border-color:#b71c1c}.ivc.t6{border-color:#c79a00}.ivc.t7{border-color:#00acc1}
 .invD{background:#120c26;border:2px solid #ffe066;border-radius:8px;padding:8px;margin:8px 0}.invD .btn{margin:6px 6px 0 0}
 .r1{color:#e8e8e8}.r2{color:#6fc3ff}.r3{color:#c58bff}.r5{color:#ff5252;text-shadow:0 0 6px #ff1744,0 0 2px #ffd740;font-weight:bold}
 .r4{color:#ffb84d}.r6{color:#ffd740;text-shadow:0 0 6px #ffab00,0 0 2px #fff8e1;font-weight:bold}.r7{color:#b3f5ff;text-shadow:0 0 7px #00e5ff,0 0 2px #ffffff;font-weight:bold}
@@ -1650,7 +1650,7 @@ function respawnTown(){const k=map&&map.key;const DES=new Set(['desert','palace'
  if(SEA.has(k)||P.map&&SEA.has(P.map))return{k:'sea',x:9*TS,y:15*TS,name:'해저마을'};
  const SNOW=new Set(['snowvil','snowfield','yetilair']);if(SNOW.has(k)||P.map&&SNOW.has(P.map))return{k:'snowvil',x:8*TS,y:10*TS,name:'설산마을 (모닥불 앞)'};
  return{k:'village',x:30*TS,y:25*TS,name:'평화의 마을'};}
-function useItem(k){if(map&&map.pvp){toast('결투 중에는 쓸 수 없어요');return;}if(P.dead||!(P.pots[k]>0))return;
+function useItem(k){if(/scroll$/.test(k)&&P&&gameT-(P.pkHit||-99)<10){toast('⚔ 공격받은 뒤 10초 동안은 귀환서를 쓸 수 없어요 ('+Math.ceil(10-(gameT-P.pkHit))+'초)');return;}if(map&&map.pvp){toast('결투 중에는 쓸 수 없어요');return;}if(P.dead||!(P.pots[k]>0))return;
  if(k==='jobticket'){useJobTicket();return;}
  if(k==='xp2'||k==='gold2'){P.pots[k]--;const f=k==='xp2'?'x2u':'g2u';P[f]=Math.max(Date.now(),P[f]||0)+60000;toast(k==='xp2'?'⭐ 1분 동안 경험치 2배!':'💰 1분 동안 골드 2배! (도박·은행 제외)');sfx('lvl');save(true);renderMenu();return;}
  if(k==='protect'){toast('🛡 강화 방지권은 대장장이에게 강화할 때 깨지려 하면 자동으로 쓰여요');return;}
@@ -2246,11 +2246,11 @@ const safeAt=x=>!!map&&(map.safe===1||(map.safeX!=null&&x<map.safeX*TS));
 const pkOn=()=>!!P&&!!P.pk&&!!map&&!map.pvp&&!safeHere()&&!P.dead;
 function openPk(){const seen=new Set();if(pkOn())for(const[uid,o]of NET.others){if(!o.pk||safeAt(o.x)||(typeof inParty==='function'&&inParty(uid)))continue;seen.add(uid);let e=enemies.find(q=>q.pv&&q.uid===uid);if(!e){e={pv:1,uid,id:'pv'+uid,type:'slime',b:PVB,x:o.x,y:o.y,r:12,hp:1e9,max:1e9,def:0,atk:0,spd:0,slow:0,root:0,burn:0,hitT:0,anim:0,wander:{x:0,y:0,t:0}};enemies.push(e);}e.x=o.x;e.y=o.y;}
  enemies=enemies.filter(e=>!e.pv||seen.has(e.uid));}
-function pkToggle(){if(!P)return;if(map&&map.pvp){toast('결투장에서는 바꿀 수 없어요');return;}if(gameT-(P.pkT||-99)<5&&P.pk){toast('방금 공격을 주고받아서 5초 뒤에 끌 수 있어요');return;}P.pk=!P.pk;toast(P.pk?'⚔ PvP 켬 · PvP를 켠 사람끼리 서로 공격할 수 있어요 (마을 안은 안전)':'🕊 PvP 끔');sfx('coin');pkBtn();}
+function pkToggle(){if(!P)return;if(map&&map.pvp){toast('결투장에서는 바꿀 수 없어요');return;}if(gameT-(P.pkHit||-99)<10&&P.pk){toast('⚔ 공격받은 뒤 10초 동안은 PvP를 끌 수 없어요 ('+Math.ceil(10-(gameT-P.pkHit))+'초)');return;}P.pk=!P.pk;toast(P.pk?'⚔ PvP 켬 · PvP를 켠 사람끼리 서로 공격할 수 있어요 (마을 안은 안전)':'🕊 PvP 끔');sfx('coin');pkBtn();}
 function pkBtn(){const b=$('bPk');if(!b)return;b.textContent=P&&P.pk?'⚔ PvP 켬':'🕊 PvP 끔';b.style.background=P&&P.pk?'#8b1a1a':'';}
 function pkHurt(v,from){if(!pkOn())return;if(P.inv>0||P.dash||P.holy>0)return;const o=NET.others.get(from);if(!o||!o.pk)return;
  if(P.guard>0)v=Math.max(1,Math.round(v*.35));if(P.shield>0){const ab=Math.min(P.shield,v);P.shield-=ab;v-=ab;if(v<=0)return;}
- P.pkT=gameT;P.hp-=v;P.inv=.15;addText(P.x,P.y-24,'-'+v,'#ff6b6b',12);sfx('hurt');shake=.12;if(P.hp<=0){P.pkDie=1;toast('⚔ '+(o.name||'상대')+' 님에게 쓰러졌어요');die();}}
+ P.pkT=gameT;P.pkHit=gameT;P.hp-=v;P.inv=.15;addText(P.x,P.y-24,'-'+v,'#ff6b6b',12);sfx('hurt');shake=.12;if(P.hp<=0){P.pkDie=1;toast('⚔ '+(o.name||'상대')+' 님에게 쓰러졌어요');die();}}
 function pvSync(dt){if(!map.pvp){openPk();return;}const seen=new Set();const mate=u=>P.pvSides&&P.pvSides[u]===P.pvSide;for(const[uid,o]of NET.others){if(mate(uid)||(P.pvOut&&P.pvOut.has(uid)))continue;seen.add(uid);let e=enemies.find(q=>q.pv&&q.uid===uid);if(!e){e={pv:1,uid,id:'pv'+uid,type:'slime',b:PVB,x:o.x,y:o.y,r:12,hp:1e9,max:1e9,def:0,atk:0,spd:0,slow:0,root:0,burn:0,hitT:0,anim:0,wander:{x:0,y:0,t:0}};enemies.push(e);}e.x=o.x;e.y=o.y;}
  enemies=enemies.filter(e=>!e.pv||seen.has(e.uid));
  if(!P.pvOver&&gameT>(P.pvStart||0)+2){if(!seen.size){P.pvGone=(P.pvGone||0)+dt;if(P.pvGone>4)pvWin('상대가 결투장을 떠났어요');}else P.pvGone=0;}}
@@ -3390,7 +3390,7 @@ const vehIcon=(k,sz)=>{const[s,c]=vehSpr(k);return pxImg(s,c,sz);};
 let INVSEL='',INVTAB='gear';
 const EDIBLE=k=>!!FOOD[k]||['hp','mp','haste','lifepot','manapot','dragonelix','burger'].includes(k)||['fish','meat','bowl','jelly','burger','cup','potion'].includes(consSpr(k)[0]);
 function invHtml(){const sel=INVSEL;let d='';
- const cell=(key,img,cnt,cls,pl)=>`<div class="ivc ${cls||''}${sel===key?' sel':''}" data-sel="${key}">${img}${pl?`<div class="p">+${pl}</div>`:''}${cnt>1?`<div class="c">${cnt}</div>`:''}</div>`;
+ const cell=(key,img,cnt,cls,pl,nm)=>`<div class="ivc ${cls||''}${sel===key?' sel':''}" data-sel="${key}">${img}<div class="nm">${nm||''}</div>${pl?`<div class="p">+${pl}</div>`:''}${cnt>1?`<div class="c">${cnt}</div>`:''}</div>`;
  const slot=(key,lab,img,nm,on,tag)=>`<div class="eqs${on?' on':''}${sel===key?' sel':''}" data-sel="${key}"><div class="k">${lab}${tag?` <span class="tg">${tag}</span>`:''}</div><div class="b">${img||''}</div><div class="n">${nm||'<span class="z">비어 있음</span>'}</div></div>`;
  let L='';
  const eqd=(k,lab)=>{const e=P.eq[k],it=e&&ITEMS[e.id];L+=slot('eq:'+k,lab,e?itIcon(e.id,34):'',e?itemName(e,1):'',!!e,e?'착용':'');
@@ -3402,16 +3402,16 @@ function invHtml(){const sel=INVSEL;let d='';
  const st=bagStacks().filter(e=>ITEMS[e.id]),cons=Object.keys(CONS).filter(k=>P.pots[k]>0),food=cons.filter(EDIBLE),items=cons.filter(k=>!EDIBLE(k)),mats=Object.keys(MATS).filter(k=>P.mats[k]>0);
  const tabs=[['gear','장비',st.length],['item','아이템',items.length+mats.length],['veh','탈것',P.veh.length],['food','먹을것',food.length]];
  let g='',n=0;
- if(INVTAB==='gear')st.forEach(e=>{const it=ITEMS[e.id],key='g:'+e.id+':'+e.plus;n++;g+=cell(key,itIcon(e.id,30),e.n,'t'+it.tier,e.plus);
+ if(INVTAB==='gear')st.forEach(e=>{const it=ITEMS[e.id],key='g:'+e.id+':'+e.plus;n++;g+=cell(key,itIcon(e.id,28),e.n,'t'+it.tier,e.plus,it.name);
   if(sel===key){const ok=!it.cls||it.cls===P.cls;d=`<div class="dh">${itIcon(e.id,30)}<div><b>${itemName(e,1)}</b>${e.n>1?` ×${e.n}`:''}<br><small style="color:#cfc3ee">${itemDesc(it,e.plus)}${it.cls&&!ok?' · '+CLASSES[it.cls].name+' 전용':''}</small></div></div><div>${ok?`<button class="btn gold" data-eq="${e.i}">장착</button>`:''}</div>`;}});
- const consCell=k=>{const c=CONS[k],key='c:'+k;n++;g+=cell(key,consIcon(k,30),P.pots[k],P.quick===k?'t7':'');
+ const consCell=k=>{const c=CONS[k],key='c:'+k;n++;g+=cell(key,consIcon(k,28),P.pots[k],P.quick===k?'t7':'',0,c[0]);
   if(sel===key)d=`<div class="dh">${consIcon(k,30)}<div><b>${c[0]}</b> ×${P.pots[k]}${P.quick===k?' <span style="color:#4dd0e1">빠른 장비</span>':''}<br><small style="color:#cfc3ee">${c[1]}</small></div></div><div><button class="btn gold" data-use="${k}">사용</button>${EDIBLE(k)?`<button class="btn" data-quick="${k}">${P.quick===k?'빠른 장비에서 빼기':'빠른 장비에 두기'}</button>`:''}</div>`;};
- if(INVTAB==='item'){items.forEach(consCell);mats.forEach(k=>{const M=MATS[k],key='m:'+k;n++;g+=cell(key,matIcon(k,30),P.mats[k],'');
+ if(INVTAB==='item'){items.forEach(consCell);mats.forEach(k=>{const M=MATS[k],key='m:'+k;n++;g+=cell(key,matIcon(k,28),P.mats[k],'',0,M[0]);
   if(sel===key)d=`<div class="dh">${matIcon(k,30)}<div><b>${M[0]}</b> ×${P.mats[k]}<br><small style="color:#cfc3ee">${M[2]}</small></div></div>${k==='conch'?'<div><button class="btn gold" id="useConch">불어 보기</button></div>':k==='dhorn'?'<div><button class="btn gold" id="useHorn">불어 보기</button></div>':''}`;});}
  if(INVTAB==='food')food.forEach(consCell);
- if(INVTAB==='veh')P.veh.forEach(k=>{const W=VEH[k];if(!W)return;const key='v:'+k,on=P.ride===k;n++;g+=cell(key,vehIcon(k,30),0,on?'t7':'');
+ if(INVTAB==='veh')P.veh.forEach(k=>{const W=VEH[k];if(!W)return;const key='v:'+k,on=P.ride===k;n++;g+=cell(key,vehIcon(k,28),0,on?'t7':'',0,W.name);
   if(sel===key||(sel==='veh'&&on))d=`<div class="dh">${vehIcon(k,30)}<div><b>${W.name}</b>${on?' <span style="color:#4dd0e1">탑승 중</span>':''}<br><small style="color:#cfc3ee">이동 속도 +${Math.round(W.spd*100)}%${W.seats?` · 뒤에 ${W.seats}명`:''}</small></div></div><div><button class="btn ${on?'':'gold'}" data-mount="${k}">${on?'내리기':'타기'}</button></div>`;});
- const pad=Math.max(0,Math.ceil(Math.max(n,24)/6)*6-n);for(let i=0;i<pad;i++)g+='<div class="ivc empty"></div>';
+ const pad=Math.max(0,Math.ceil(Math.max(n,20)/5)*5-n);for(let i=0;i<pad;i++)g+='<div class="ivc empty"></div>';
  const R=`<div class="ivtabs">${tabs.map(([k,t,c])=>`<button class="ivt${INVTAB===k?' on':''}" data-ivt="${k}">${t}${c?` <small>${c}</small>`:''}</button>`).join('')}</div><div class="invg">${g}</div>`+(INVTAB==='gear'?`<div style="font-size:10px;color:#9a8cc4;margin-top:4px">장비 ${st.length}/24칸</div>`:'')+(n?'':`<div style="color:#777;font-size:11px;margin-top:4px">${INVTAB==='veh'?'탈것이 없어요 · 탈것 가게에서 살 수 있어요':'비어 있음'}</div>`);
  return `<div class="inv2"><div class="invL">${L}</div><div class="invR">${R}</div></div>`+(d?`<div class="invD">${d}</div>`:'');}
 function bagStacks(){const m=new Map();P.bag.forEach((e,i)=>{const k=e.id+':'+(e.plus||0);let st=m.get(k);if(!st){st={id:e.id,plus:e.plus||0,n:0,i};m.set(k,st);}st.n++;});return [...m.values()];}
@@ -3723,7 +3723,7 @@ function tradeHtml(){
  for(const k in MATS){if(!(P.mats[k]>0)||k==='conch'||k==='dhorn')continue;const l=left('m',k,0,P.mats[k]);h+=`<div class="row"><div class="t">${matIcon(k,20)} ${MATS[k][0]} <span style="color:#b7a6d9">×${l}</span></div><button class="btn" data-tadd="m:${k}" ${l>0?'':'disabled'}>+1</button><button class="btn" data-tadd="m:${k}:10" ${l>=10?'':'disabled'}>+10</button><button class="btn" data-tsub="m:${k}">-1</button></div>`;}
  for(const k in CONS){if(!(P.pots[k]>0))continue;const l=left('c',k,0,P.pots[k]);h+=`<div class="row"><div class="t">${consIcon(k,20)} ${CONS[k][0]} <span style="color:#b7a6d9">×${l}</span></div><button class="btn" data-tadd="c:${k}" ${l>0?'':'disabled'}>+1</button><button class="btn" data-tsub="c:${k}">-1</button></div>`;}
  return h;}
-function inDebt(){return !!(P&&(P.labor||(P.bank&&P.bank.loan>0)));}
+function inDebt(){return !!(P&&(P.labor||(P.bank&&P.bank.loan>0&&P.lv<100)));} // 100레벨부터는 빚이 있어도 거래 가능
 const BADW=['씨발','시발','씨바','쓰발','씨팔','시팔','ㅅㅂ','ㅆㅂ','샹년','썅','병신','븅신','빙신','ㅂㅅ','등신','지랄','ㅈㄹ','좆','존나','졸라','ㅈㄴ','좃','개새끼','개새','이새끼','저새끼','니새끼','쌔끼','개색','ㄱㅅㄲ','느금','느그어매','느그엄마','느그애미','니애미','니엄마','니어미','애미','애비','엠창','앰창','느개비','미친놈','미친년','미친새','또라이','닥쳐','꺼져','염병','육시랄','호로','후레자식','창녀','창년','걸레년','보지','자지','섹스','쎅스','야동','딸딸이','한남충','김치녀','틀딱','급식충','맘충','짱깨','쪽바리','흑형','장애새끼','정신병자','fuck','fuk','shit','bitch','asshole','dick','pussy','cunt','nigger','nigga','faggot','porn','sex','whore','slut','retard'];
 function hasBad(t){const f=[...String(t||'')].filter(c=>/\p{L}/u.test(c)).join('').toLowerCase();return BADW.some(w=>f.includes(w));}
 const CHATLOG=[];const isBlocked=u=>!!(P&&P.blocked&&P.blocked.some(b=>b[0]===u));
@@ -3756,8 +3756,8 @@ function reportUser(uid,name){$('menu').classList.add('hidden');const go=why=>{i
 function blockUser(uid,name){P.blocked=P.blocked||[];if(!isBlocked(uid))P.blocked.push([uid,String(name).slice(0,12)]);save(true);toast('🚫 '+name+' 님을 차단했어요. 채팅과 신청이 보이지 않아요');renderMenu();}
 function tradeSend(){if(TR.id&&NET.sock)NET.sock.emit('tr:offer',{id:TR.id,offer:TR.mine});}
 function tradeBind(B){const k=NET.sock;
- B.querySelectorAll('[data-rep]').forEach(b=>b.onclick=()=>reportUser(b.dataset.rep,b.dataset.nm));B.querySelectorAll('[data-blk]').forEach(b=>b.onclick=()=>{const u=b.dataset.blk;if(isBlocked(u)){P.blocked=P.blocked.filter(x=>x[0]!==u);save(true);toast('차단을 풀었어요');renderMenu();}else blockUser(u,b.dataset.nm);});B.querySelectorAll('[data-treq]').forEach(b=>b.onclick=()=>{if(inDebt()){toast('💳 빚이 있으면 거래할 수 없어요. 은행 대출부터 갚아 주세요');return;}if(k)k.emit('tr:req',{to:b.dataset.treq});$('mClose').click();toast('🤝 거래 신청을 보냈어요');});
- const lk=$('trLock');if(lk)lk.onclick=()=>{if(inDebt()){k.emit('tr:cancel',{id:TR.id});tradeReset('💳 빚이 있으면 거래할 수 없어요');return;}if(k)k.emit('tr:lock',{id:TR.id,on:!TR.lk.includes(NET.uid)});};
+ B.querySelectorAll('[data-rep]').forEach(b=>b.onclick=()=>reportUser(b.dataset.rep,b.dataset.nm));B.querySelectorAll('[data-blk]').forEach(b=>b.onclick=()=>{const u=b.dataset.blk;if(isBlocked(u)){P.blocked=P.blocked.filter(x=>x[0]!==u);save(true);toast('차단을 풀었어요');renderMenu();}else blockUser(u,b.dataset.nm);});B.querySelectorAll('[data-treq]').forEach(b=>b.onclick=()=>{if(inDebt()){toast('💳 Lv100 전에는 빚이 있으면 거래할 수 없어요. 은행 대출부터 갚아 주세요');return;}if(k)k.emit('tr:req',{to:b.dataset.treq});$('mClose').click();toast('🤝 거래 신청을 보냈어요');});
+ const lk=$('trLock');if(lk)lk.onclick=()=>{if(inDebt()){k.emit('tr:cancel',{id:TR.id});tradeReset('💳 Lv100 전에는 빚이 있으면 거래할 수 없어요');return;}if(k)k.emit('tr:lock',{id:TR.id,on:!TR.lk.includes(NET.uid)});};
  const cc=$('trCancel');if(cc)cc.onclick=()=>{if(k)k.emit('tr:cancel',{id:TR.id});tradeReset('거래를 취소했어요');};
  const gs=$('trGoldSet');if(gs)gs.onclick=()=>{const v=Math.max(0,Math.min(P.gold,Math.floor(+($('trGold').value||0)||0)));TR.mine.g=v;tradeSend();renderMenu();};
  B.querySelectorAll('[data-tadd],[data-tsub]').forEach(b=>b.onclick=()=>{const add=!!b.dataset.tadd,[kind,id,x]=(b.dataset.tadd||b.dataset.tsub).split(':'),me=TR.mine;
@@ -3780,7 +3780,7 @@ function tradeApply(give,get){const N=(v,hi)=>Math.max(0,Math.min(hi,Math.floor(
 function tradeNet(k){
  k.on('tr:msg',m=>toast(String(m).slice(0,60)));
  k.on('tr:ask',d=>{if(!d||!P||P.dead)return;if(isBlocked(d.from)){k.emit('tr:ans',{id:d.id,yes:0});return;}if(inDebt()){k.emit('tr:ans',{id:d.id,yes:0});toast('💳 빚이 있어서 '+String(d.op||'?').slice(0,12)+' 님의 거래 신청을 받을 수 없어요');return;}$('menu').classList.add('hidden');dialog('🤝 거래 신청',[`${String(d.op||'?').slice(0,12)} 님이 거래를 신청했어요.`],[{t:'수락',c:'gold',f:()=>k.emit('tr:ans',{id:d.id,yes:1})},{t:'거절',f:()=>k.emit('tr:ans',{id:d.id,yes:0})}]);});
- k.on('tr:open',d=>{if(!d)return;if(inDebt()){k.emit('tr:cancel',{id:d.id});toast('💳 빚이 있으면 거래할 수 없어요');return;}TR.id=d.id;TR.op=String(d.op||'?').slice(0,12);TR.mine=offerEmpty();TR.theirs=null;TR.lk=[];if(dlgState)closeDlg();openMenu('trade');sfx('coin');});
+ k.on('tr:open',d=>{if(!d)return;if(inDebt()){k.emit('tr:cancel',{id:d.id});toast('💳 Lv100 전에는 빚이 있으면 거래할 수 없어요');return;}TR.id=d.id;TR.op=String(d.op||'?').slice(0,12);TR.mine=offerEmpty();TR.theirs=null;TR.lk=[];if(dlgState)closeDlg();openMenu('trade');sfx('coin');});
  k.on('tr:offer',d=>{if(!d||d.id!==TR.id)return;TR.theirs=d.offer;if(menuTab==='trade')renderMenu();});
  k.on('tr:st',d=>{if(!d||d.id!==TR.id)return;TR.lk=Array.isArray(d.lk)?d.lk:[];TR.at=d.at?Date.now()+Math.max(0,Math.min(6000,d.at-Date.now())):0;if(TR.at)sfx('coin');if(menuTab==='trade')renderMenu();});
  k.on('tr:end',d=>{if(!d||d.id!==TR.id)return;tradeReset(d.msg||'거래가 끝났어요');});
@@ -4021,7 +4021,7 @@ $('tutPrev').onclick=()=>{if(TS2.i>0){TS2.i--;tutShow();}};
 $('tutSkip').onclick=()=>tutEnd();
 addEventListener('resize',()=>{if(!$('tut').classList.contains('hidden'))tutShow();});
 // 📜 패치노트: 새 패치가 나오면 처음 한 번만 띄운다 (이 기기 기준)
-const PATCH={v:'2026-11-25h',title:'📜 패치노트 · 11월 25일 (8)',lines:['⚔ PvP 버튼이 생겼어요! PvP를 켠 사람끼리 서로 공격할 수 있어요 (마을 안은 안전 · 쓰러져도 골드를 잃지 않아요)',
+const PATCH={v:'2026-11-25i',title:'📜 패치노트 · 11월 25일 (9)',lines:['⚔ PvP 버튼이 생겼어요! PvP를 켠 사람끼리 서로 공격할 수 있어요 (마을 안은 안전 · 쓰러져도 골드를 잃지 않아요 · 공격받은 뒤 10초 동안은 PvP 끄기·귀환서 금지)','💳 Lv100부터는 빚이 있어도 거래할 수 있어요 · 빚이 있어도 한도가 남으면 더 빌릴 수 있어요','🏷 인벤토리 칸 아래에 이름이 보여요',
  '🎒 인벤토리가 새로워졌어요 — 왼쪽에 무기·갑옷·탈것·빠른 장비, 오른쪽에 장비·아이템·탈것·먹을것 칸','🎨 모든 스킬과 아이템이 직접 그린 픽셀 그림으로 바뀌었어요',
  '⛰ 들판에서 산 입구가 더 잘 보여요',
  '🎵 마을 건물 안은 마을 노래, 모르간의 던전은 모르간 노래가 나와요',
