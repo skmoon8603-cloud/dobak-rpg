@@ -96,10 +96,14 @@ button{font-family:inherit;cursor:pointer}
 .btn.red{background:#8a1f2a;border-color:#ff9a9a}
 .btn:disabled{opacity:.4}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:4px 14px}
+.inv2{display:flex;gap:6px;align-items:flex-start;border:2px solid #3b2d66;border-radius:8px;padding:6px;background:#140d2a}.invL{width:96px;flex:none;display:flex;flex-direction:column;gap:5px;border-right:2px solid #3b2d66;padding-right:6px}.invR{flex:1;min-width:0}
+.eqs{background:#1b1236;border:2px solid #3b2d66;border-radius:7px;padding:4px;cursor:pointer;text-align:center}.eqs.on{border-color:#4dd0e1;background:#16263d}.eqs.sel{box-shadow:0 0 0 2px #ffe066}.eqs .k{font-size:10px;color:#9a8cc4;text-align:left}.eqs .tg{color:#4dd0e1;font-size:9px;float:right}.eqs .b{height:36px;display:flex;align-items:center;justify-content:center}.eqs .n{font-size:10px;line-height:1.2;word-break:keep-all}.eqs .z{color:#666}
+.ivtabs{display:flex;gap:3px;margin-bottom:5px}.ivt{flex:1;background:#1b1236;color:#cfc3ee;border:2px solid #3b2d66;border-radius:6px;padding:5px 0;font:inherit;font-size:11px;cursor:pointer}.ivt.on{border-color:#4dd0e1;color:#7fe3ff;background:#16263d}.ivt small{color:#ffe066;font-size:9px}
+.pxi{image-rendering:pixelated;image-rendering:crisp-edges;vertical-align:middle}.dh{display:flex;gap:8px;align-items:flex-start}
 .invT{color:#7fe3ff;font-weight:bold;margin:8px 2px 6px}.eqg{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:6px}
 .eqc{background:#1b1236;border:2px solid #3b2d66;border-radius:8px;padding:6px;cursor:pointer;min-height:62px;position:relative}.eqc.on{border-color:#4dd0e1;background:#16263d}.eqc.sel{box-shadow:0 0 0 2px #ffe066}
 .eqc .k{font-size:10px;color:#9a8cc4}.eqc .i{font-size:22px;line-height:26px}.eqc .n{font-size:11px;line-height:1.25;word-break:keep-all}.eqc .z{font-size:10px;color:#666}.eqc .on2{position:absolute;right:5px;top:4px;font-size:9px;color:#4dd0e1}
-.invg{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:5px}.ivc{aspect-ratio:1;background:#1b1236;border:2px solid #3b2d66;border-radius:7px;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden}
+.invg{display:grid;grid-template-columns:repeat(6,1fr);gap:4px}.ivc{aspect-ratio:1;background:#1b1236;border:2px solid #3b2d66;border-radius:7px;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden}
 .ivc .i{font-size:22px;line-height:24px}.ivc .n{font-size:8.5px;line-height:1.1;text-align:center;padding:0 2px;max-height:19px;overflow:hidden}.ivc .c{position:absolute;right:3px;bottom:1px;font-size:10px;color:#ffe066;font-weight:bold;text-shadow:0 0 2px #000}.ivc .p{position:absolute;left:3px;top:1px;font-size:9px;color:#ffe066}
 .ivc.sel{border-color:#ffe066;box-shadow:0 0 6px #ffe066}.ivc.empty{opacity:.35;cursor:default}.ivc.t2{border-color:#2f6c9c}.ivc.t3{border-color:#6b3fa0}.ivc.t4{border-color:#a8682a}.ivc.t5{border-color:#b71c1c}.ivc.t6{border-color:#c79a00}.ivc.t7{border-color:#00acc1}
 .invD{background:#120c26;border:2px solid #ffe066;border-radius:8px;padding:8px;margin:8px 0}.invD .btn{margin:6px 6px 0 0}
@@ -171,13 +175,13 @@ input[type=text],input[type=password]{font-family:inherit;background:#120a24;bor
   <button class="cb sk" id="bS2" data-i="1"></button>
   <button class="cb sk" id="bS3" data-i="2"></button>
   <button class="cb" id="bDash"><span class="key">Shift</span><b id="dashIc">💨</b><span id="dashTxt">대쉬</span><div class="cd"></div></button>
-  <button class="cb pot" id="bHp"><span class="key">Z</span>❤<span id="nHp">0</span></button>
+  <button class="cb pot" id="bHp"><span class="key">Z</span><b id="iHp"></b><span id="nHp">0</span></button>
   <div id="jailBox" class="hidden"></div>
   <div id="laborBox" class="hidden"></div>
  <div id="evtBox" class="hidden"></div>
  <div id="annBox" class="hidden"><small id="annBy"></small><b id="annTxt"></b></div>
   <button class="cb pot" id="bQ"><span class="key">C</span><b id="iQ">＋</b><span id="nQ"></span></button>
-  <button class="cb pot" id="bMp"><span class="key">X</span>💧<span id="nMp">0</span></button>
+  <button class="cb pot" id="bMp"><span class="key">X</span><b id="iMp"></b><span id="nMp">0</span></button>
   <button class="cb hidden" id="bAct">대화</button>
 </div>
 
@@ -1754,8 +1758,8 @@ function eatFood(k){const F=FOOD[k];if(!F||!(P.pots[k]>0))return;if(k==='mountfe
  sfx('coin');for(let i=0;i<12;i++)parts.push({x:P.x,y:P.y-20,vx:rnd(-60,60),vy:rnd(-90,-20),life:.6,color:'#ffd740',s:3});renderMenu();save(true);}
 function cookHtml(){let h=`<div>💰 ${P.gold.toLocaleString()} G · 몹 재료로 음식과 물약을 만들어요. 비싼 재료일수록 효과가 좋아요!</div>`;
  for(const[id,need,g]of COOK){const c=CONS[id];const ok=Object.keys(need).every(m=>(P.mats[m]||0)>=need[m])&&P.gold>=g;
-  const req=Object.keys(need).map(m=>`<span style="color:${(P.mats[m]||0)>=need[m]?'#9dffb0':'#ff9a9a'}">${MATS[m][1]} ${MATS[m][0]} ${P.mats[m]||0}/${need[m]}</span>`).join(' · ');
-  h+=`<div class="row"><div class="t">${c[3]} <b>${c[0]}</b> <span style="color:#b7a6d9;font-size:11px">보유 ${P.pots[id]||0}</span><small>${c[1].replace(' · 요리사 쿡','')}</small><small>${req} · ${g}G</small></div><button class="btn gold" data-cook="${id}" ${ok?'':'disabled'}>요리</button></div>`;}
+  const req=Object.keys(need).map(m=>`<span style="color:${(P.mats[m]||0)>=need[m]?'#9dffb0':'#ff9a9a'}">${matIcon(m,16)} ${MATS[m][0]} ${P.mats[m]||0}/${need[m]}</span>`).join(' · ');
+  h+=`<div class="row"><div class="t">${consIcon(id,20)} <b>${c[0]}</b> <span style="color:#b7a6d9;font-size:11px">보유 ${P.pots[id]||0}</span><small>${c[1].replace(' · 요리사 쿡','')}</small><small>${req} · ${g}G</small></div><button class="btn gold" data-cook="${id}" ${ok?'':'disabled'}>요리</button></div>`;}
  return h;}
 function cookBind(B){B.querySelectorAll('[data-cook]').forEach(b=>b.onclick=()=>{const r=COOK.find(x=>x[0]===b.dataset.cook);if(!r)return;const[id,need,g]=r;if(P.gold<g||!Object.keys(need).every(m=>(P.mats[m]||0)>=need[m]))return;
   for(const m in need)P.mats[m]-=need[m];P.gold-=g;P.pots[id]=(P.pots[id]||0)+1;P.cooked=(P.cooked||0)+1;sfx('win');toast(`🍳 ${CONS[id][0]} 완성!`);renderMenu();save(true);});}
@@ -3079,7 +3083,7 @@ function hud(){
  const bar=(id,v,m,t)=>{const b=$(id);b.querySelector('i').style.width=clamp(v/m*100,0,100)+'%';const s=b.querySelector('span');if(s)s.textContent=t;};
  bar('hpb',P.hp,P.st.hp,Math.ceil(P.hp)+' / '+P.st.hp);bar('mpb',P.mp,P.st.mp,Math.floor(P.mp)+' / '+P.st.mp);bar('xpb',atCap()?1:P.exp,atCap()?1:need(P.lv),atCap()?'MAX (Lv'+CAP+')':'EXP '+P.exp+' / '+need(P.lv));
  $('gold').textContent='💰 '+P.gold.toLocaleString()+' G'+(P.sp>0?'   ⭐SP '+P.sp:'');
- {const q=P.quick&&CONS[P.quick]?P.quick:'';const c=q?P.pots[q]||0:0;const ic=q?CONS[q][3]:'＋';if($('iQ').textContent!==ic)$('iQ').textContent=ic;const cd=q&&FOOD[q]&&FOOD[q].cd?POTCD[FOOD[q].cd]:q==='hp'||q==='mp'?POTCD[q]:0;$('nQ').textContent=q?(cd>0?Math.ceil(cd)+'s':c):'';$('bQ').style.opacity=!q||c<=0||cd>0?.5:1;}
+ {const q=P.quick&&CONS[P.quick]?P.quick:'';const c=q?P.pots[q]||0:0;const ic=q?consIcon(q,22):'＋';if($('iQ')._ic!==ic){$('iQ')._ic=ic;$('iQ').innerHTML=ic;}const cd=q&&FOOD[q]&&FOOD[q].cd?POTCD[FOOD[q].cd]:q==='hp'||q==='mp'?POTCD[q]:0;$('nQ').textContent=q?(cd>0?Math.ceil(cd)+'s':c):'';$('bQ').style.opacity=!q||c<=0||cd>0?.5:1;}
  {const fx2=onFixie();if($('dashTxt').textContent!==(fx2?'스키드':'대쉬')){$('dashTxt').textContent=fx2?'스키드':'대쉬';$('dashIc').textContent=fx2?'🛞':'💨';}}
  $('nHp').textContent=POTCD.hp>0?Math.ceil(POTCD.hp)+'s':P.pots.hp;$('nMp').textContent=POTCD.mp>0?Math.ceil(POTCD.mp)+'s':P.pots.mp;$('bHp').style.opacity=POTCD.hp>0?.5:1;$('bMp').style.opacity=POTCD.mp>0?.5:1;
  $('hint').classList.toggle('hidden',armed<0||paused);
@@ -3102,7 +3106,7 @@ function hud(){
  const el=$('qtrack');if(el._q!==q){el._q=q;el.innerHTML=q;}}
  const oc=NET.others.size,mk='📍 '+map.name+(NET.live?(NET.ch?' · 서버'+NET.ch:'')+' · 👥 '+(oc+1)+'/'+Math.max(NET.total||0,oc+1):'');if($('mapname').textContent!==mk)$('mapname').textContent=mk;
  for(let i=0;i<3;i++){const b=$('bS'+(i+1)),id=P.slots[i],s=id&&SK[id];const key=id||'-';b.classList.toggle('arm',armed===i);
-  if(b._k!==key){b._k=key;b.innerHTML=`<span class="key">${i+1}</span>`+(s?`<b>${s.ic}</b>${s.name}`:'<span style="opacity:.5">빈칸</span>')+'<div class="cd"></div>';b.classList.toggle('lock',!s);}
+  if(b._k!==key){b._k=key;b.innerHTML=`<span class="key">${i+1}</span>`+(s?`<b>${skIcon(s,26)}</b>${s.name}`:'<span style="opacity:.5">빈칸</span>')+'<div class="cd"></div>';b.classList.toggle('lock',!s);}
   b.querySelector('.cd').style.height=(s?(P.cds[id]||0)/s.cd*100:0)+'%';}
  $('bDash').querySelector('.cd').style.height=((P.dcd||0)/1.2*100)+'%';
 }
@@ -3269,27 +3273,147 @@ function elderTalk(){
 let menuTab='stat';
 function openMenu(tab){if(P.dead)return;if(map&&map.pvp&&(tab==='equip'||tab==='shop')){toast('결투 중에는 인벤토리를 열 수 없어요');return;}paused=true;menuTab=tab||'stat';$('menu').classList.remove('hidden');renderMenu();}
 $('mClose').onclick=()=>{$('menu').classList.add('hidden');if(!dlgState)paused=false;calc();};
-let INVSEL='';
-const SLOTIC={weapon:'🗡',armor:'🥋',acc:'💍'};
-function invHtml(){const sel=INVSEL;let d='';const cell=(key,ic,nm,cnt,cls,pl)=>`<div class="ivc ${cls||''}${sel===key?' sel':''}" data-sel="${key}"><div class="i">${ic}</div><div class="n">${nm}</div>${pl?`<div class="p">+${pl}</div>`:''}${cnt>1?`<div class="c">${cnt}</div>`:''}</div>`;
- let h='<div class="invT">장비</div><div class="eqg">';
- for(const [k,n] of [['weapon','무기'],['armor','방어구'],['acc','장신구']]){const e=P.eq[k],it=e&&ITEMS[e.id];h+=`<div class="eqc${e?' on':''}${sel==='eq:'+k?' sel':''}" data-sel="eq:${k}">${e?'<div class="on2">착용 중</div>':''}<div class="k">${n}</div><div class="i">${e?SLOTIC[k]:''}</div><div class="n">${e?itemName(e):'<span class="z">비어 있음</span>'}</div></div>`;
-  if(sel==='eq:'+k&&e)d=`<div><b>${itemName(e)}</b> <span style="color:#4dd0e1">착용 중</span></div><small style="color:#cfc3ee">${itemDesc(it,e.plus)}</small><div>${k!=='weapon'?`<button class="btn" data-un="${k}">해제</button>`:'<span style="font-size:11px;color:#9a8cc4">무기는 다른 무기를 장착하면 바뀌어요</span>'}</div>`;}
- {const V=P.ride&&VEH[P.ride];h+=`<div class="eqc${V?' on':''}${sel==='veh'?' sel':''}" data-sel="veh">${V?'<div class="on2">'+(P.rideOn?'뒤에 탐':'탑승 중')+'</div>':''}<div class="k">탈것</div><div class="i">${V?V.ic:''}</div><div class="n">${V?'<b>'+V.name+'</b>':P.veh.length?'<span class="z">안 탐 · 눌러서 고르기</span>':'<span class="z">없음</span>'}</div></div>`;
-  if(sel==='veh'){d=P.veh.length?'<div><b>내 탈것</b></div>':'<div>탈것이 없어요 · 마을 탈것 가게에서 살 수 있어요</div>';for(const k of P.veh){const W=VEH[k];if(!W)continue;const on=P.ride===k;d+=`<div class="row"${on?' style="border-color:#4dd0e1"':''}><div class="t">${W.ic} <b>${W.name}</b>${on?' <span style="color:#4dd0e1">탑승 중</span>':''}<small>이동 속도 +${Math.round(W.spd*100)}%${W.seats?` · 뒤에 ${W.seats}명`:''}</small></div><button class="btn ${on?'':'gold'}" data-mount="${k}">${on?'내리기':'타기'}</button></div>`;}}}
- {const q=P.quick&&CONS[P.quick]?P.quick:'',F=foodOn(),c=q&&CONS[q];h+=`<div class="eqc${q||F?' on':''}${sel==='food'?' sel':''}" data-sel="food">${F?'<div class="on2">먹는 중</div>':''}<div class="k">음식 · 빠른 칸(C)</div><div class="i">${c?c[3]:F?CONS[P.food.id][3]:''}</div><div class="n">${c?c[0]+' <b style="color:#ffe066">×'+(P.pots[q]||0)+'</b>':'<span class="z">비어 있음</span>'}${F?`<div style="font-size:10px;color:#ffd740">${CONS[P.food.id][0]} 효과 ${Math.ceil((P.food.until-Date.now())/1000)}초</div>`:''}</div></div>`;
-  if(sel==='food'){d=`<div><b>빠른 칸(C)</b> · 가방의 음식·물약을 눌러 「빠른 칸에 두기」를 하면 여기에 들어가요</div>`+(F?`<div style="color:#ffd740;margin-top:4px">${CONS[P.food.id][3]} ${CONS[P.food.id][0]} 효과 중 · ${Math.ceil((P.food.until-Date.now())/1000)}초 남음</div>`:'')+(q?`<div><button class="btn gold" data-use="${q}">사용</button><button class="btn" data-quick="${q}">빠른 칸 비우기</button></div>`:'');}}
- h+='</div>';
- const st=bagStacks(),cons=Object.keys(CONS).filter(k=>P.pots[k]>0),mats=Object.keys(MATS).filter(k=>P.mats[k]>0);
- let g='';
- st.forEach(e=>{const it=ITEMS[e.id];if(!it)return;const key='g:'+e.id+':'+e.plus;g+=cell(key,SLOTIC[it.slot]||'📦',`<span class="r${it.tier}">${it.name}</span>`,e.n,'t'+it.tier,e.plus);
-  if(sel===key){const ok=!it.cls||it.cls===P.cls;d=`<div><b>${itemName(e)}</b>${e.n>1?` ×${e.n}`:''}</div><small style="color:#cfc3ee">${itemDesc(it,e.plus)}${it.cls&&!ok?' · '+CLASSES[it.cls].name+' 전용':''}</small><div>${ok?`<button class="btn gold" data-eq="${e.i}">장착</button>`:''}</div>`;}});
- cons.forEach(k=>{const c=CONS[k],key='c:'+k;g+=cell(key,c[3],c[0],P.pots[k],P.quick===k?'t7':'');
-  if(sel===key)d=`<div><b>${c[3]} ${c[0]}</b> ×${P.pots[k]}${P.quick===k?' <span style="color:#4dd0e1">빠른 칸</span>':''}</div><small style="color:#cfc3ee">${c[1]}</small><div><button class="btn gold" data-use="${k}">사용</button><button class="btn" data-quick="${k}">${P.quick===k?'빠른 칸 비우기':'빠른 칸에 두기'}</button></div>`;});
- mats.forEach(k=>{const M=MATS[k],key='m:'+k;g+=cell(key,M[1],M[0],P.mats[k],'');
-  if(sel===key)d=`<div><b>${M[1]} ${M[0]}</b> ×${P.mats[k]}</div><small style="color:#cfc3ee">${M[2]}</small>${k==='conch'?'<div><button class="btn gold" id="useConch">🐚 불어 보기</button></div>':k==='dhorn'?'<div><button class="btn gold" id="useHorn">📯 불어 보기</button></div>':''}`;});
- const n=st.length+cons.length+mats.length,pad=Math.max(0,Math.ceil(Math.max(n,15)/5)*5-n);for(let i=0;i<pad;i++)g+='<div class="ivc empty"></div>';
- return h+(d?`<div class="invD">${d}</div>`:'')+`<div class="invT">가방 <span style="color:#cfc3ee;font-weight:normal">장비 ${st.length}/24칸</span></div><div class="invg">${g}</div>`+(n?'':'<div style="color:#777;margin-top:6px">비어 있음 — 몬스터가 가끔 장비를 떨어뜨려요</div>');}
+// ===== 픽셀 아이콘: 스킬·아이템 모양을 직접 그린다 (이모지 대신) =====
+// k 테두리 · 1 주색 · 2 밝은색 · 3 어두운색 · w 흰색 · y 금색 · b 갈색 · g 회색 · r 빨강 · . 투명
+const SPR={
+ sword:['..........kk','.........k2k','........k21k','.......k21k.','......k21k..','..k..k21k...','..kkk21k....','...kyk1k....','...kbyk.....','..kbk.yk....','.kbk...k....','.kk.........'],
+ bigsword:['.........kkk','........k22k','.......k221k','......k221k.','.....k221k..','....k221k...','.k.k221k....','.kky21k.....','..kyyk......','.kbkyk......','kbk..k......','kk..........'],
+ staff:['.......kkk..','......k2w2k.','......k2213k','......k1133k','.......kkkk.','......kbk...','.....kbk....','....kbk.....','...kbk......','..kbk.......','.kbk........','.kk.........'],
+ stick:['.........kk.','........kbbk','.......kbbk.','......kbbk..','.....kbbk...','....kbbk....','...kbbk.....','..kbbk......','.kbbk.......','.kbk........','..k.........','............'],
+ bow:['...kkk......','..k33bk.....','..k3k.kw....','.k3k...w....','.k1k....w...','.k1k....w...','.k1k....w...','.k1k....w...','.k3k...w....','..k3k.kw....','..k33bk.....','...kkk......'],
+ gun:['............','............','kkkkkkkkkkk.','k2222222222k','k1111111111k','kk11kkkkkkk.','.kbbk.......','.kbbk.......','kbbk........','kbbk........','kkk.........','............'],
+ cannon:['............','.......kkkkk','..kkkkk2222k','.k22222111kk','k211111111k.','k11k1kkkkk..','kkkbbk......','..kbbk......','.kbbk.......','.kkk........','............','............'],
+ kunai:['...........k','..........k2','.........k21','........k21k','.......k21k.','......k21k..','.....kk1k...','....kyyk....','...kbk......','..kbk.......','.kkk........','.k.k........'],
+ armor:['.kkk....kkk.','k221kkkk122k','k2111111112k','k2113yy3112k','.k21111112k.','..k211112k..','..k211112k..','..k211112k..','..k333333k..','..kkkkkkkk..','............','............'],
+ robe:['....kkkk....','...k2112k...','..k211112k..','..k21yy12k..','.k21111113k.','.k21111113k.','.k21111113k.','k2111111113k','k2111111113k','k3333333333k','kkkkkkkkkkkk','............'],
+ ring:['............','....kkkk....','....k21k....','...kkkkkk...','..kyyyyyyk..','.kyk....kyk.','.kyk....kyk.','.kyk....kyk.','..kyyyyyyk..','...kkkkkk...','............','............'],
+ amulet:['.k........k.','.ky......yk.','..ky....yk..','...ky..yk...','....kyyk....','....kkkk....','...k2112k...','...k2113k...','...k1133k...','....k33k....','.....kk.....','............'],
+ charm:['...kkkkkk...','...kwwwwk...','...kw11wk...','...kwwwwk...','...kw1w1k...','...kwwwwk...','...kw11wk...','...kwwwwk...','...kkkkkk...','....k..k....','....k..k....','............'],
+ dice:['............','.kkkkkkkkkk.','.k22222222k.','.k2k2222k2k.','.k22222222k.','.k2222k222k.','.k22222222k.','.k2k2222k2k.','.k33333333k.','.kkkkkkkkkk.','............','............'],
+ potion:['....kkkk....','....kbbk....','.....kk.....','....kwwk....','...kw..wk...','..k2wwww2k..','.k21111112k.','.k2w111113k.','.k21111113k.','.k31111133k.','..k333333k..','...kkkkkk...'],
+ scroll:['.kkkkkkkkk..','kbbbbbbbbbk.','kbkwwwwwwkbk','.kkw1111wkk.','..kwwwwwwk..','..kw1111wk..','..kwwwwwwk..','..kw111wwk..','.kkwwwwwwkk.','kbkkkkkkkkbk','kbbbbbbbbbk.','.kkkkkkkkk..'],
+ ticket:['............','kkkkkkkkkkkk','k2222222222k','k2kk2222kk2k','k21y1111y12k','.k21111112k.','.k21111112k.','k21y1111y12k','k2kk2222kk2k','k3333333333k','kkkkkkkkkkkk','............'],
+ jelly:['............','....kkkk....','...k2ww2k...','..k22w1112k.','..k211111k..','.k21111111k.','.k21111113k.','.k31111133k.','kkyyyyyyyykk','.kkkkkkkkkk.','............','............'],
+ fish:['............','............','..kkkk...kk.','.k2ww2k.k1k.','k2wk2112k11k','k2222111k11k','k1111133kk1k','.k1113k..k1k','..kkkk....kk','............','............','............'],
+ meat:['.........kk.','........kwwk','.......kwwk.','...kkkkwk...','..k21111k...','.k2111113k..','.k1r111r3k..','.k1111113k..','..k11133k...','...kkkkk....','............','............'],
+ bowl:['....w..w....','.....w..w...','....w..w....','.kkkkkkkkkk.','k2222222222k','kk11111111kk','.k21111113k.','.k21111133k.','..k333333k..','...kkkkkk...','....kyyk....','............'],
+ burger:['............','...kkkkkk...','..kyyyyyyk..','.kywywyywyk.','kyyyyyyyyyyk','kggggggggggk','krrrrrrrrrrk','k1111111111k','kyyyyyyyyyyk','.kyyyyyyyyk.','..kkkkkkkk..','............'],
+ cup:['............','..kkkkkkk...','.k2222222k..','.k2wwwww2kkk','.k211111k2k.','.k21yy11k2k.','.k211111kkk.','.k211111k...','.k311113k...','..k3333k....','...kkkk.....','............'],
+ shield:['.kkkkkkkkkk.','k2222222222k','k2111yy1113k','k211yyyy113k','k211yyyy113k','k2111yy1113k','.k21111113k.','.k21111113k.','..k211113k..','...k2113k...','....k33k....','.....kk.....'],
+ // 재료
+ drop:['.....k......','....k2k.....','....k2k.....','...k211k....','...k2111k...','..k2w1111k..','..kw11111k..','..k211111k..','..k311113k..','...k3333k...','....kkkk....','............'],
+ leg:['..........k.','.........k1k','........k1k.','.......k1k..','......k12k..','.....k12k...','....k12k....','...k1k......','..k1k.......','.k1k........','k1k.........','kk..........'],
+ eye:['............','............','...kkkkkk...','..kwwwwwwk..','.kww1111wwk.','kww11kk11wwk','kww11kk11wwk','.kww1111wwk.','..kwwwwwwk..','...kkkkkk...','............','............'],
+ web:['k....k....k.','.k...k...k..','..kkkkkkk...','..k.kkk.k...','kkkkk.kkkkkk','..k.kkk.k...','..kkkkkkk...','.k...k...k..','k....k....k.','............','............','............'],
+ fang:['............','.kkkkkkkkkk.','.kwwwwwwwwk.','..kwwkkwwk..','..kww..wwk..','...kwk.kwk..','...kwk.kwk..','....kk..k1k.','.........k..','............','............','............'],
+ heart:['............','.kkk...kkk..','k22wk.k211k.','k2w11k1111k.','k21111111k3.','.k1111113k..','..k111133k..','...k1133k...','....k33k....','.....kk.....','............','............'],
+ scale:['.....kk.....','....k22k....','...k2111k...','..k211111k..','.k21111111k.','.k21111113k.','.k21111133k.','..k111133k..','...k1333k...','....k33k....','.....kk.....','............'],
+ bone:['.kk......kk.','kwwk....kwwk','kwwwkkkkwwwk','.kwwwwwwwwk.','kwwwkkkkwwwk','kwwk....kwwk','.kk......kk.','............','............','............','............','............'],
+ hide:['..kk....kk..','.k21kkkk12k.','.k21111112k.','k2111111113k','.k1111111k..','.k21111113k.','k2111111113k','.k1111111k..','..k111133k..','..k1kkkk1k..','..kk....kk..','............'],
+ horn:['..........kk','.........k2k','........k21k','.......k21k.','......k211k.','.....k211k..','....k2113k..','...k2113k...','..k21133k...','.k2113kk....','.kkkkk......','............'],
+ shell:['............','.....kkk....','....k2w2k...','...k21112k..','..k2111112k.','.k211k1112k.','.k21k11113k.','.k211kk113k.','..k2111133k.','...kk1133k..','.....kkkk...','............'],
+ gem:['............','...kkkkkk...','..k2w2112k..','.k2w211112k.','kkkkkkkkkkkk','.k21111113k.','..k211113k..','...k2113k...','....k13k....','.....kk.....','............','............'],
+ hand:['...k.k.k....','..k1k1k1k...','..k1k1k1k.k.','..k1k1k1kk1k','..k1111111k.','.k2k111111k.','k21k111113k.','.k1111113k..','..k11133k...','...k333k....','...kkkk.....','............'],
+ spear:['..........kk','.........kyk','........kyyk','.......kyyk.','......kkyk..','.....kbk....','....kbk.....','...kbk......','..kbk.......','.kbk........','kbk.........','kk..........'],
+ slime:['............','............','....kkkk....','...k2ww2k...','..k2w1112k..','.k211111111k','.k21k11k11k.','.k211111113k','.k311111133k','..kkkkkkkkk.','............','............'],
+ // 스킬
+ flame:['.....k......','....k1k.....','....k1k.k...','...k12kk1k..','..k1221k1k..','..k122211k..','.k12y2221k..','.k12yy221k..','.k12yyy21k..','..k12y21k...','...kkkkk....','............'],
+ frost:['.....k......','..k..k..k...','...k.k.k....','.k..k2k..k..','..k.k2k.k...','kkkk212kkkk.','..k.k2k.k...','.k..k2k..k..','...k.k.k....','..k..k..k...','.....k......','............'],
+ bolt:['......kkkk..','.....k22k...','....k21k....','...k21k.....','..k2111kkk..','..kkkk121k..','.....k21k...','....k21k....','...k21k.....','..k2k.......','..kk........','............'],
+ heal:['....kkkk....','....k22k....','....k21k....','kkkkk21kkkk.','k2222112222k','k1111111111k','kkkkk11kkkk.','....k11k....','....k13k....','....k33k....','....kkkk....','............'],
+ arrow:['.......kkkk.','........k22k','.......k221k','......k21kk.','.....k21k...','....k21k....','.k.k21k.....','.kkk1k......','..k3k.......','.k3kk.......','.kk.........','............'],
+ bullet:['............','............','............','...kkkkk....','..k2w222kk..','.k2211111k..','.k1111111kk.','..k333333k..','...kkkkk....','............','............','............'],
+ shuriken:['.....kk.....','.....k1k....','.....k1k....','kkk..k1k....','k122kk1kkk..','.kk1k1k22k..','..kkk1k1kk..','....k1kk221k','....k1k..kkk','....k1k.....','.....kk.....','............'],
+ boot:['............','...kkkk.....','...k21k.....','...k21k.....','...k21k.....','...k21kkk...','.k.k2111kk..','k.kk211112k.','.k.k3333333k','...kkkkkkkk.','.k..........','k...........'],
+ spirit:['....kkkk....','..kk2222kk..','.k22wwww22k.','.k2w1111w2k.','k2w1k11k1w2k','k2w111111w2k','k2w1k11k1w2k','.k2w1kk1w2k.','.k22wwww22k.','..kk2222kk..','....kkkk....','............'],
+ boom:['.k...k...k..','..k..k..k...','...k2w2k....','.kk2wyw2kk..','k.2wyyyw2.k.','.kk2wyw2kk..','...k2w2k....','..k..k..k...','.k...k...k..','............','............','............'],
+ skull:['...kkkkkk...','..kwwwwwwk..','.kwwwwwwwwk.','.kwkkwwkkwk.','.kwk1wwk1wk.','.kwwwwwwwwk.','..kwwkkwwk..','...kwwwwk...','...kwkwkk...','....kkkk....','............','............'],
+ wind:['............','.kkkkkkk....','k22222222k..','.kkkkkk22k..','...........k','.kkkkkkkkk2k','k1111111112k','.kkkkkkkkkk.','...kkkkk....','..k2222k....','...kkkk.....','............'],
+ slash:['...........k','..........k2','.........k2.','........k2..','.......k2...','......k2....','.....k2.....','....k2......','...k2.......','..k2........','.k2.........','k2..........'],
+ cloud:['............','............','....kkk.....','...k222k....','..k22222kk..','.kk2222222k.','k2222222222k','k2111111112k','k1111111111k','.kkkkkkkkkk.','............','............'],
+ trap:['............','............','.k.k.k.k.k..','kwkwkwkwkwk.','k1k1k1k1k1k.','k111111111k.','k1k1k1k1k1k.','kwkwkwkwkwk.','.k.k.k.k.k..','............','............','............'],
+ turret:['............','......kkkkkk','..kkkk22222k','.k2221111kk.','.k21111k....','.k1111k.....','..kkkk......','..kggk......','.kggggk.....','kggggggk....','kkkkkkkk....','............'],
+ star:['.....kk.....','.....k2k....','....k21k....','kkkkk11kkkk.','k22111111k..','.kk11111kk..','..k11111k...','.k111k113k..','.k13k.k33k..','.kkk...kkk..','............','............'],
+ sun:['.k...k...k..','..k..k..k...','....kkk.....','...k222k....','kk.k2w2k.kk.','...k222k....','....kkk.....','..k..k..k...','.k...k...k..','............','............','............'],
+ rune:['...kkkkkk...','..k222222k..','.k2kk11kk2k.','k2k.k22k.k2k','k2k.k22k.k2k','k21kkkkkk12k','k2k.k22k.k2k','.k2kk11kk2k.','..k222222k..','...kkkkkk...','............','............'],
+ flower:['....kkk.....','...k222k....','.kkk222kkk..','k222kyk222k.','k222yyy222k.','.kkk2y2kkk..','...k222k....','....kkk.....','.....k3k....','....k3k.....','............','............'],
+ deer:['.k.k...k.k..','..kk...kk...','...kkkkk....','...k222k....','...k2k2k....','....k22k....','....k22kkkk.','...k222222k.','...k2kk2k2k.','...k2k.k2k..','...kk..kk...','............'],
+ phoenix:['k.........k.','kk..kkk..kk.','k1k.k2k.k1k.','.k1kk1kk1k..','..k11211k...','...k111k....','....k1k.....','...k1k1k....','..k1k.k1k...','..kk...kk...','............','............'],
+ snake:['............','....kkkk....','...k2222k...','..k2kk22k...','..k2k..k....','...k22k.....','....kk2k....','..kk..k2k...','.k22kk22k...','..k2222k.kr.','...kkkk..k..','............'],
+ hole:['...kkkkkk...','..k333333k..','.k33kkkk33k.','k33k1111k33k','k3k1kkkk1k3k','k3k1kkkk1k3k','k33k1111k33k','.k33kkkk33k.','..k333333k..','...kkkkkk...','............','............'],
+ hawk:['............','k.........k.','kk.......kk.','k2k.kkk.k2k.','.k2kk22kk2k.','..k22wk22k..','...k2yk2k...','....k22k....','....k2k.....','.....k......','............','............'],
+ // 탈것
+ kick:['..........kk','.........kgk','.........kgk','.........kgk','........kgk.','........kgk.','.......kgk..','.kkkkkkkk1k.','.k1111111kk.','kkk.....kkk.','kwk.....kwk.','kkk.....kkk.'],
+ bike:['............','..kkk..kkk..','...k1kkk....','...kk11k1k..','....k...kk..','..kkk...kkk.','.k...k.k...k','k..k..k..k..','k...kk.k...k','.k...k.k...k','..kkk...kkk.','............'],
+ moto:['............','.......kkk..','......k1k...','..kkkk11kk..','.k2222111k..','k21111111kk.','kkk1kkk1kkk.','kgk...kkgk..','kkk....kkk..','............','............','............'],
+ van:['............','.kkkkkkkk...','k22222222k..','k2ww2ww22kk.','k2ww2ww2222k','k1111111111k','k1111111111k','kkk11111kkkk','.kgk....kgk.','.kkk....kkk.','............','............'],
+ car:['............','............','....kkkkk...','...k2ww22k..','.kk2wwww22kk','k21111111112','k1111111111k','kkk11111kkkk','.kgk....kgk.','.kkk....kkk.','............','............'],
+ heli:['kkkkkkkkkkkk','.....kk.....','..kkkkkk....','.k2ww2222kkk','k2www11111kk','k11111111k..','.k1111111k..','..kkkkkkk...','..k.....k...','.kkkkkkkkk..','............','............']
+};
+const SCOL=c=>{const h=c.replace('#','');const n=parseInt(h.length===3?h.split('').map(x=>x+x).join(''):h,16);return[n>>16&255,n>>8&255,n&255];};
+const shade=(c,f)=>{const[r,g,b]=SCOL(c);const m=v=>Math.max(0,Math.min(255,Math.round(f>0?v+(255-v)*f:v*(1+f))));return'rgb('+m(r)+','+m(g)+','+m(b)+')';};
+const ICC={};
+function pxIcon(spr,col,bg){const key=spr+'|'+col+'|'+(bg||'');if(ICC[key])return ICC[key];const A=SPR[spr]||SPR.star,c=document.createElement('canvas');c.width=c.height=14;const g=c.getContext('2d');
+ if(bg){g.fillStyle=bg;g.fillRect(0,0,14,14);}
+ const P={k:'#140c1c',1:col,2:shade(col,.45),3:shade(col,-.35),w:'#ffffff',y:'#ffd54f',b:'#8d5a2b',g:'#9e9e9e',r:'#e53935'};
+ A.forEach((row,y)=>{for(let x=0;x<row.length;x++){const ch=row[x];if(ch==='.')continue;g.fillStyle=P[ch]||col;g.fillRect(x+1,y+1,1,1);}});
+ return ICC[key]=c.toDataURL();}
+const pxImg=(spr,col,sz,bg)=>`<img class="pxi" src="${pxIcon(spr,col,bg)}" style="width:${sz||24}px;height:${sz||24}px">`;
+// 이름에서 색 정하기
+function themeCol(n,def){const T=[[/용|드래곤|화염|불|마그마|호화구|불사조|레드/,'#ff5722'],[/심해|해룡|레비아탄|바다|물|비늘|청새치/,'#29b6f6'],[/아누비스|사막|자칼|황금|금/,'#ffc107'],[/예티|만년설|눈|빙|서리|설|얼음|프로스트/,'#80deea'],[/그림자|명계|심연|리치|어둠|죽음|영혼|블랙홀|차원/,'#7e57c2'],[/번개|뇌|전기|낙뢰/,'#ffeb3b'],[/독|지네/,'#9ccc65'],[/매화|꽃/,'#f48fb1'],[/바람|풍|질풍/,'#a5d6a7'],[/신성|천사|빛|대현자/,'#fff59d'],[/마력|마검|룬|마나|마도|원소/,'#b388ff'],[/정령|풀|새싹/,'#66bb6a'],[/땅/,'#a1887f'],[/철/,'#90a4ae']];for(const[r,c]of T)if(r.test(n))return c;return def;}
+const TIERC={1:'#bdbdbd',2:'#64b5f6',3:'#ba68c8',4:'#ffb74d',5:'#ef5350',6:'#ffd740',7:'#4dd0e1'};
+function itemSpr(id){const it=ITEMS[id];if(!it)return['star','#bdbdbd'];const n=it.name,c=themeCol(n,TIERC[it.tier]||'#bdbdbd');
+ if(it.slot==='weapon'){if(id==='baton')return['stick','#37474f'];if(id==='catsword')return['sword','#f8bbd0'];const cl=it.cls||'';
+  const s=cl==='mage'||cl==='spirit'?'staff':cl==='archer'?'bow':cl==='ranger'?(/캐논|포|소총/.test(n)?'cannon':'gun'):cl==='ninja'?'kunai':cl==='novice'?'stick':/대검|슬레이어/.test(n)?'bigsword':'sword';return[s,cl==='novice'?'#8d6e63':c];}
+ if(it.slot==='armor')return[/로브|수의|방한복|망토/.test(n)?'robe':'armor',c];
+ if(id==='r4')return['dice','#ffd740'];return[/목걸이/.test(n)?'amulet':/부적/.test(n)?'charm':'ring',c];}
+const CONSPR={hp:['potion','#e53935'],mp:['potion','#1e88e5'],haste:['potion','#26c6da'],lifepot:['potion','#ff1744'],manapot:['potion','#2979ff'],dragonelix:['potion','#ff6d00'],scroll:['scroll','#8d6e63'],seascroll:['scroll','#29b6f6'],desertscroll:['scroll','#ffb300'],snowscroll:['scroll','#80deea'],
+ slimejelly:['jelly','#66bb6a'],eyejelly:['jelly','#ce93d8'],grillfish:['fish','#ff8a65'],sashimi:['fish','#f48fb1'],goldcarp:['fish','#ffd740'],skewer:['meat','#a1572b'],legfry:['meat','#ffb74d'],mountfeast:['meat','#d84315'],heartstew:['bowl','#c62828'],scalesoup:['bowl','#4fc3f7'],hornsoup:['bowl','#90caf9'],bloodsoup:['bowl','#8e0000'],
+ protect:['ticket','#4fc3f7'],statreset:['ticket','#ba68c8'],jobticket:['ticket','#ffb74d'],burger:['burger','#8d6e63'],xp2:['ticket','#66bb6a'],gold2:['ticket','#ffd740'],
+ americano:['cup','#4e342e'],latte:['cup','#bcaaa4'],monster:['cup','#76ff03'],smoothie:['cup','#f06292'],tea:['cup','#aed581']};
+function consSpr(k){return CONSPR[k]||(/수프|탕|국|스튜/.test((CONS[k]||[''])[0])?['bowl','#ffb74d']:/커피|라떼|차|음료|스무디/.test((CONS[k]||[''])[0])?['cup','#8d6e63']:['meat','#ff8a65']);}
+const MATSPR={mblood:['drop','#c62828'],sleg:['leg','#8d6e63'],seye:['eye','#d50000'],silk:['web','#eeeeee'],sfang:['fang','#7b1fa2'],aheart2:['heart','#9c27b0'],dhorn:['horn','#d84315'],dscale:['scale','#e53935'],dtooth:['fang','#ff7043'],dheart:['heart','#ff3d00'],conch:['shell','#f8bbd0'],fish:['fish','#4fc3f7'],bigfish:['fish','#1e88e5'],goldfish:['fish','#ffd740'],
+ bone:['bone','#b39ddb'],slime:['slime','#66bb6a'],hide:['hide','#8d6e63'],bone2:['bone','#eeeeee'],heart:['heart','#ec407a'],flesh:['meat','#e57373'],scale:['scale','#4fc3f7'],horn:['horn','#90caf9'],ltooth:['fang','#e0e0e0'],poisongland:['drop','#9c27b0'],centleg:['leg','#ff7043'],ahide:['hide','#37474f'],aheart:['heart','#424242'],aspear:['spear','#ffc107'],
+ yhand:['hand','#e0f7fa'],yfur:['hide','#f5f5f5'],yeye:['eye','#00b0ff'],ytalis:['charm','#00bcd4']};
+const matSpr=k=>MATSPR[k]||['gem',themeCol((MATS[k]||[''])[0],'#b0bec5')];
+const VEHSPR={kick:['kick','#26c6da'],fixie:['bike','#ff4081'],moto:['moto','#e53935'],bonggu:['van','#fdd835'],lambo:['car','#ff9800'],heli:['heli','#43a047']};
+const vehSpr=k=>VEHSPR[k]||['car','#90a4ae'];
+function skSpr(sk){const n=sk.name,d=sk.desc||'',t=n+' '+d,c=themeCol(n,themeCol(d,'#b0bec5'));
+ const R=[[/정령.*소환/,'spirit'],[/축복|정령 폭발/,'spirit'],[/사슴/,'deer'],[/불사조/,'phoenix'],[/영혼 그릇|죽음을 먹는|죽음의|영혼 수확|처형/,'skull'],[/블랙홀|차원 붕괴/,'hole'],[/매의 눈/,'hawk'],[/주사위/,'dice'],[/수리검/,'shuriken'],[/연막|은신|위장/,'cloud'],[/포탑/,'turret'],[/덫/,'trap'],[/보호막|방패|철벽|가호|무아지경|암향|검신강림|각성|광전사|탄막/,'shield'],[/치유|신성한 빛/,'heal'],[/매화|꽃/,'flower'],
+  [/화살|궁/,'arrow'],[/탄|저격|헤드샷|사격|난사|산탄|연사|유탄|폭격|수류/,'bullet'],[/번개|뇌|낙뢰|전기/,'bolt'],[/얼음|빙결|프로스트|서리/,'frost'],[/불|화염|파이어|호화구|마그마|메테오|별똥별/,'flame'],[/폭발|폭풍|메테오|해방|원소/,'boom'],[/바람|질풍|풍둔|스톰/,'wind'],[/순간이동|걸음|돌진|도약|질주|박기/,'boot'],[/마나참|물방울|미사일|룬|마력/,'rune'],[/베기|참|검|칼날|천검|난무|검강|검기|창/,'slash']];
+ for(const[r,s]of R)if(r.test(n))return[s,c];for(const[r,s]of R)if(r.test(d))return[s,c];return['star',c];}
+const skIcon=(sk,sz)=>{const[s,c]=skSpr(sk);return pxImg(s,c,sz);};
+const itIcon=(id,sz)=>{const[s,c]=itemSpr(id);return pxImg(s,c,sz);};
+const consIcon=(k,sz)=>{const[s,c]=consSpr(k);return pxImg(s,c,sz);};
+const matIcon=(k,sz)=>{const[s,c]=matSpr(k);return pxImg(s,c,sz);};
+const vehIcon=(k,sz)=>{const[s,c]=vehSpr(k);return pxImg(s,c,sz);};
+let INVSEL='',INVTAB='gear';
+const EDIBLE=k=>!!FOOD[k]||['hp','mp','haste','lifepot','manapot','dragonelix','burger'].includes(k)||['fish','meat','bowl','jelly','burger','cup','potion'].includes(consSpr(k)[0]);
+function invHtml(){const sel=INVSEL;let d='';
+ const cell=(key,img,cnt,cls,pl)=>`<div class="ivc ${cls||''}${sel===key?' sel':''}" data-sel="${key}">${img}${pl?`<div class="p">+${pl}</div>`:''}${cnt>1?`<div class="c">${cnt}</div>`:''}</div>`;
+ const slot=(key,lab,img,nm,on,tag)=>`<div class="eqs${on?' on':''}${sel===key?' sel':''}" data-sel="${key}"><div class="k">${lab}${tag?` <span class="tg">${tag}</span>`:''}</div><div class="b">${img||''}</div><div class="n">${nm||'<span class="z">비어 있음</span>'}</div></div>`;
+ let L='';
+ const eqd=(k,lab)=>{const e=P.eq[k],it=e&&ITEMS[e.id];L+=slot('eq:'+k,lab,e?itIcon(e.id,34):'',e?itemName(e,1):'',!!e,e?'착용':'');
+  if(sel==='eq:'+k&&e)d=`<div class="dh">${itIcon(e.id,30)}<div><b>${itemName(e,1)}</b> <span style="color:#4dd0e1">착용 중</span><br><small style="color:#cfc3ee">${itemDesc(it,e.plus)}</small></div></div><div>${k!=='weapon'?`<button class="btn" data-un="${k}">해제</button>`:'<span style="font-size:11px;color:#9a8cc4">무기는 다른 무기를 장착하면 바뀌어요</span>'}</div>`;};
+ eqd('weapon','무기');eqd('armor','갑옷');if(P.eq.acc)eqd('acc','장신구');
+ {const V=P.ride&&VEH[P.ride];L+=slot('veh',' 탈것',V?vehIcon(P.ride,34):'',V?V.name:'',!!V,V?'탑승':'');if(sel==='veh'){INVTAB='veh';}}
+ {const q=P.quick&&CONS[P.quick]?P.quick:'',F=foodOn();L+=slot('food','빠른 장비',q?consIcon(q,34):'',q?CONS[q][0]+' ×'+(P.pots[q]||0):'',!!q,q?'C키':'');
+  if(sel==='food')d=`<div><b>빠른 장비 (C키)</b><br><small style="color:#cfc3ee">「먹을것」 칸에서 물약·음식을 눌러 「빠른 장비에 두기」를 하면 여기에 들어가요</small></div>`+(F?`<div style="color:#ffd740;margin-top:4px">${consIcon(P.food.id,18)} ${CONS[P.food.id][0]} 효과 중 · ${Math.ceil((P.food.until-Date.now())/1000)}초 남음</div>`:'')+(q?`<div><button class="btn gold" data-use="${q}">사용</button><button class="btn" data-quick="${q}">비우기</button></div>`:'');}
+ const st=bagStacks().filter(e=>ITEMS[e.id]),cons=Object.keys(CONS).filter(k=>P.pots[k]>0),food=cons.filter(EDIBLE),items=cons.filter(k=>!EDIBLE(k)),mats=Object.keys(MATS).filter(k=>P.mats[k]>0);
+ const tabs=[['gear','장비',st.length],['item','아이템',items.length+mats.length],['veh','탈것',P.veh.length],['food','먹을것',food.length]];
+ let g='',n=0;
+ if(INVTAB==='gear')st.forEach(e=>{const it=ITEMS[e.id],key='g:'+e.id+':'+e.plus;n++;g+=cell(key,itIcon(e.id,30),e.n,'t'+it.tier,e.plus);
+  if(sel===key){const ok=!it.cls||it.cls===P.cls;d=`<div class="dh">${itIcon(e.id,30)}<div><b>${itemName(e,1)}</b>${e.n>1?` ×${e.n}`:''}<br><small style="color:#cfc3ee">${itemDesc(it,e.plus)}${it.cls&&!ok?' · '+CLASSES[it.cls].name+' 전용':''}</small></div></div><div>${ok?`<button class="btn gold" data-eq="${e.i}">장착</button>`:''}</div>`;}});
+ const consCell=k=>{const c=CONS[k],key='c:'+k;n++;g+=cell(key,consIcon(k,30),P.pots[k],P.quick===k?'t7':'');
+  if(sel===key)d=`<div class="dh">${consIcon(k,30)}<div><b>${c[0]}</b> ×${P.pots[k]}${P.quick===k?' <span style="color:#4dd0e1">빠른 장비</span>':''}<br><small style="color:#cfc3ee">${c[1]}</small></div></div><div><button class="btn gold" data-use="${k}">사용</button>${EDIBLE(k)?`<button class="btn" data-quick="${k}">${P.quick===k?'빠른 장비에서 빼기':'빠른 장비에 두기'}</button>`:''}</div>`;};
+ if(INVTAB==='item'){items.forEach(consCell);mats.forEach(k=>{const M=MATS[k],key='m:'+k;n++;g+=cell(key,matIcon(k,30),P.mats[k],'');
+  if(sel===key)d=`<div class="dh">${matIcon(k,30)}<div><b>${M[0]}</b> ×${P.mats[k]}<br><small style="color:#cfc3ee">${M[2]}</small></div></div>${k==='conch'?'<div><button class="btn gold" id="useConch">불어 보기</button></div>':k==='dhorn'?'<div><button class="btn gold" id="useHorn">불어 보기</button></div>':''}`;});}
+ if(INVTAB==='food')food.forEach(consCell);
+ if(INVTAB==='veh')P.veh.forEach(k=>{const W=VEH[k];if(!W)return;const key='v:'+k,on=P.ride===k;n++;g+=cell(key,vehIcon(k,30),0,on?'t7':'');
+  if(sel===key||(sel==='veh'&&on))d=`<div class="dh">${vehIcon(k,30)}<div><b>${W.name}</b>${on?' <span style="color:#4dd0e1">탑승 중</span>':''}<br><small style="color:#cfc3ee">이동 속도 +${Math.round(W.spd*100)}%${W.seats?` · 뒤에 ${W.seats}명`:''}</small></div></div><div><button class="btn ${on?'':'gold'}" data-mount="${k}">${on?'내리기':'타기'}</button></div>`;});
+ const pad=Math.max(0,Math.ceil(Math.max(n,24)/6)*6-n);for(let i=0;i<pad;i++)g+='<div class="ivc empty"></div>';
+ const R=`<div class="ivtabs">${tabs.map(([k,t,c])=>`<button class="ivt${INVTAB===k?' on':''}" data-ivt="${k}">${t}${c?` <small>${c}</small>`:''}</button>`).join('')}</div><div class="invg">${g}</div>`+(INVTAB==='gear'?`<div style="font-size:10px;color:#9a8cc4;margin-top:4px">장비 ${st.length}/24칸</div>`:'')+(n?'':`<div style="color:#777;font-size:11px;margin-top:4px">${INVTAB==='veh'?'탈것이 없어요 · 탈것 가게에서 살 수 있어요':'비어 있음'}</div>`);
+ return `<div class="inv2"><div class="invL">${L}</div><div class="invR">${R}</div></div>`+(d?`<div class="invD">${d}</div>`:'');}
 function bagStacks(){const m=new Map();P.bag.forEach((e,i)=>{const k=e.id+':'+(e.plus||0);let st=m.get(k);if(!st){st={id:e.id,plus:e.plus||0,n:0,i};m.set(k,st);}st.n++;});return [...m.values()];}
 function bagCanAdd(id,plus){return P.bag.some(e=>e.id===id&&(e.plus||0)===(plus||0))||bagStacks().length<24;}
 const fmtA=v=>v>=1e8?'∞':v;
@@ -3305,7 +3429,7 @@ function itemDesc(it,plus){const m=1+.15*(plus||0);const d=wDps(it,plus);const c
  const dt=d?` · <span style="color:#ff8a65">⚔ DPS ${d.toLocaleString()}</span>${df?` <span style="color:${df>0?'#7dff7d':'#ff8a80'}">(지금 무기보다 ${df>0?'+':''}${df.toLocaleString()} · ${df>0?'+':''}${Math.round(df/cd*1000)/10}%)</span>`:''}`:'';
  const wid=it.slot==='weapon'&&P?Object.keys(ITEMS).find(q=>ITEMS[q]===it):null;const wf=wid?wFacOf(wid,P.lv):0;
  return Object.keys(STATNAME).filter(k=>it[k]).map(k=>STATNAME[k]+' +'+(k==='spd'?it[k]:fmtA(Math.round(it[k]*m*10)/10))).join(' · ')+(wf?` · <span style="color:${wf>1.001?'#7dff7d':wf<.999?'#ff8a80':'#ddd'}">무기 위력 ×${wf.toFixed(2)}</span>`:'')+dt;}
-function itemName(e){const it=ITEMS[e.id];return `<span class="r${it.tier}">${it.name}${e.plus?' +'+e.plus:''}</span>`;}
+function itemName(e,noIc){const it=ITEMS[e.id];return `${noIc?'':itIcon(e.id,18)+' '}<span class="r${it.tier}">${it.name}${e.plus?' +'+e.plus:''}</span>`;}
 function renderMenu(){
  const inTown=safeHere();
  const tabs=[['stat','상태'],['skill','스킬'+(P.sp?' ⭐':'')],['quest','퀘스트'],['sys','저장']];
@@ -3339,7 +3463,7 @@ function renderMenu(){
  }else if(menuTab==='skill'){
   h=`<div>스킬 포인트 <b style="color:#ffe066">${P.sp}</b> · 스킬당 Lv5까지 강화 · 숫자를 눌러 슬롯(1~3)에 장착</div>`;
   const sec=(title,list)=>{list=list.filter(sk=>P.skl[sk.id]);if(!list.length)return;h+=`<div style="color:#ffe9a8;margin-top:10px">${title}</div>`;list.forEach(sk=>{const lv=P.skl[sk.id]||0,slot=P.slots.indexOf(sk.id);
-   h+=`<div class="row" style="flex-wrap:wrap;${lv?'':'opacity:.6'}"><div style="font-size:22px;width:28px;text-align:center">${sk.ic}</div><div class="t">${sk.name} <span style="color:#ffe066">${lv?'Lv'+lv:''}</span><small>${sk.desc} · MP ${sk.mp} · 쿨 ${sk.cd}초${lv&&P.skd&&P.skd[sk.id]&&P.skd[sk.id][1]?` · <span style="color:#ff8a65">💥 최근 1회 총 피해 ${fmtA(P.skd[sk.id][0])} · 누적 ${fmtA(P.skd[sk.id][1])}</span>`:lv?' · <span style="color:#8d7bb3">💥 쓰면 총 피해가 기록돼요</span>':''}${lv?'':sk.book?' · <span style="color:#ff8a8a">스킬북 필요 (마법 도서관)</span>':' · <span style="color:#ff8a8a">Lv'+sk.lv+'에 습득</span>'}</small></div>`;
+   h+=`<div class="row" style="flex-wrap:wrap;${lv?'':'opacity:.6'}"><div style="width:30px;text-align:center">${skIcon(sk,28)}</div><div class="t">${sk.name} <span style="color:#ffe066">${lv?'Lv'+lv:''}</span><small>${sk.desc} · MP ${sk.mp} · 쿨 ${sk.cd}초${lv&&P.skd&&P.skd[sk.id]&&P.skd[sk.id][1]?` · <span style="color:#ff8a65">💥 최근 1회 총 피해 ${fmtA(P.skd[sk.id][0])} · 누적 ${fmtA(P.skd[sk.id][1])}</span>`:lv?' · <span style="color:#8d7bb3">💥 쓰면 총 피해가 기록돼요</span>':''}${lv?'':sk.book?' · <span style="color:#ff8a8a">스킬북 필요 (마법 도서관)</span>':' · <span style="color:#ff8a8a">Lv'+sk.lv+'에 습득</span>'}</small></div>`;
    if(lv)h+=`<button class="btn gold" data-sk="${sk.id}" ${P.sp>0&&lv<5?'':'disabled'}>${lv<5?'강화':'MAX'}</button><div class="slots">슬롯 ${[0,1,2].map(i=>`<button class="sl ${slot===i?'on':''}" data-slot="${sk.id}:${i}">${i+1}</button>`).join('')}</div>`;
    h+='</div>';});};
   if(P.job3&&JOBS3[P.job3])sec('🌟 '+JOBS3[P.job3].name+' 스킬 (3차)',SKILLS[P.job3]);
@@ -3359,7 +3483,7 @@ function renderMenu(){
  }else if(menuTab==='craft'){
   h=`<div>💰 ${P.gold.toLocaleString()} G · 재료와 골드를 내면 바로 만들어 가방에 넣어 줘요</div>`;
   for(const r of RECIPES){const id=r[0].replace('{cls}',P.cls),it=ITEMS[id];if(!it)continue;const need=Object.entries(r[1]),ok=need.every(([k,n])=>(P.mats[k]||0)>=n)&&P.gold>=r[2];
-   h+=`<div class="row"><div class="t">${itemName({id,plus:0})}<small>${itemDesc(it,0)}</small><small>${need.map(([k,n])=>`<span style="color:${(P.mats[k]||0)>=n?'#9dffb0':'#ff9a9a'}">${MATS[k][1]} ${MATS[k][0]} ${P.mats[k]||0}/${n}</span>`).join(' · ')} · <span style="color:${P.gold>=r[2]?'#ffe066':'#ff9a9a'}">${r[2]}G</span></small></div><button class="btn gold" data-craft="${r[0]}" ${ok?'':'disabled'}>제작</button></div>`;}
+   h+=`<div class="row"><div class="t">${itemName({id,plus:0})}<small>${itemDesc(it,0)}</small><small>${need.map(([k,n])=>`<span style="color:${(P.mats[k]||0)>=n?'#9dffb0':'#ff9a9a'}">${matIcon(k,16)} ${MATS[k][0]} ${P.mats[k]||0}/${n}</span>`).join(' · ')} · <span style="color:${P.gold>=r[2]?'#ffe066':'#ff9a9a'}">${r[2]}G</span></small></div><button class="btn gold" data-craft="${r[0]}" ${ok?'':'disabled'}>제작</button></div>`;}
  }else if(menuTab==='daily'){
   dailyCheck();const D=P.dq;
   h=`<div>📋 오늘의 의뢰 · 매일 자정(한국 시간)에 바뀌어요 · 지금까지 완료 ${P.dqn||0}개</div>`;
@@ -3380,7 +3504,7 @@ function renderMenu(){
   const sc=500*(1+(P.flags.scroll||0));
   h+=`<div class="row"><div style="font-size:22px;width:28px;text-align:center">📜</div><div class="t">지혜의 두루마리<small>스킬 포인트 +1 (살 때마다 비싸져요)</small></div><button class="btn gold" id="bScroll" ${P.gold<sc?'disabled':''}>${sc}G</button></div>`;
   skillsFor(P.cls).filter(x=>x.book).forEach(sk=>{const own=!!P.skl[sk.id],lvok=P.lv>=sk.lv;
-   h+=`<div class="row"><div style="font-size:22px;width:28px;text-align:center">${sk.ic}</div><div class="t">${sk.name} <span style="color:#b7a6d9;font-size:11px">${sk.id[0]==='u'?'공용':CLASSES[P.cls].name}</span><small>${sk.desc} · MP ${sk.mp} · 쿨 ${sk.cd}초${lvok?'':' · <span style="color:#ff8a8a">Lv'+sk.lv+' 필요</span>'}</small></div><button class="btn gold" data-book="${sk.id}" ${own||!lvok||P.gold<sk.book?'disabled':''}>${own?'습득함':sk.book+'G'}</button></div>`;});
+   h+=`<div class="row"><div style="width:30px;text-align:center">${skIcon(sk,28)}</div><div class="t">${sk.name} <span style="color:#b7a6d9;font-size:11px">${sk.id[0]==='u'?'공용':CLASSES[P.cls].name}</span><small>${sk.desc} · MP ${sk.mp} · 쿨 ${sk.cd}초${lvok?'':' · <span style="color:#ff8a8a">Lv'+sk.lv+' 필요</span>'}</small></div><button class="btn gold" data-book="${sk.id}" ${own||!lvok||P.gold<sk.book?'disabled':''}>${own?'습득함':sk.book+'G'}</button></div>`;});
  }else if(menuTab==='quest'){
   const q=P.q;if(q.i>=QUESTS.length)h='모든 퀘스트를 완료했습니다! 🏆';else{const Q=QUESTS[q.i];h=`<div class="row"><div class="t"><b style="color:#ffe9a8">${Q.name}</b><small>${ENEMIES[Q.tgt].name} ${Q.n}마리 처치 · 보상 ${Q.gold}G / 경험치 ${Q.exp}</small></div><div>${q.s==='none'?'촌장에게 받기':q.s==='clear'?'✅ 보고하기':q.c+'/'+Q.n}</div></div>`;}
   {const m2=P.sq;if(P.flags.sea&&m2&&m2.i<SQUESTS.length){const Q=SQUESTS[m2.i];h+=`<div class="row"><div class="t"><b style="color:#4fc3f7">🌊 ${Q.name}</b><small>${ENEMIES[Q.tgt].name} ${Q.n}마리 처치 · 보상 ${Q.gold}G / 경험치 ${Q.exp} · 해저마을 이장</small></div><div>${m2.s==='none'?'이장에게 받기':m2.s==='clear'?'✅ 보고하기':m2.c+'/'+Q.n}</div></div>`;}}
@@ -3391,12 +3515,12 @@ function renderMenu(){
   <br><br><div style="font-size:12px;color:#b7a6d9;line-height:1.7">PC: WASD/방향키 이동 · Space/클릭 공격(마우스 방향 조준) · 1~3 스킬 · Shift 대쉬 · E 대화 · Z/X 물약 · I 인벤토리 · M 메뉴 · Enter 채팅<br>폰: 왼쪽 화면을 누르고 드래그해서 이동 · 오른쪽 버튼으로 공격/스킬 (가까운 적 자동 조준)</div>`;
  }else if(menuTab==='shop'){
   h=`<div>💰 ${P.gold.toLocaleString()} G</div>`;
-  for(const k in CONS){const c=CONS[k];if(!c[2])continue;if(k==='seascroll'&&!map.sea)continue;if(k==='desertscroll'&&map.key!=='desert')continue;if(k==='snowscroll'&&map.key!=='snowvil')continue;h+=`<div class="row"><div class="t">${c[3]} ${c[0]} <span style="color:#b7a6d9;font-size:11px">보유 ${P.pots[k]}</span><small>${c[1]}</small></div><button class="btn gold" data-buyp="${k}" ${P.gold<c[2]?'disabled':''}>${c[2]}G</button></div>`;}
+  for(const k in CONS){const c=CONS[k];if(!c[2])continue;if(k==='seascroll'&&!map.sea)continue;if(k==='desertscroll'&&map.key!=='desert')continue;if(k==='snowscroll'&&map.key!=='snowvil')continue;h+=`<div class="row"><div class="t">${consIcon(k,20)} ${c[0]} <span style="color:#b7a6d9;font-size:11px">보유 ${P.pots[k]}</span><small>${c[1]}</small></div><button class="btn gold" data-buyp="${k}" ${P.gold<c[2]?'disabled':''}>${c[2]}G</button></div>`;}
   Object.keys(ITEMS).filter(k=>ITEMS[k].tier<=3&&!ITEMS[k].craft&&(!ITEMS[k].cls||ITEMS[k].cls===P.cls)).forEach(k=>{const it=ITEMS[k];h+=`<div class="row"><div class="t">${itemName({id:k,plus:0})}<small>${itemDesc(it,0)}</small></div><button class="btn gold" data-buy="${k}" ${P.gold<it.price?'disabled':''}>${it.price}G</button></div>`;});
- h+='<div style="color:#ffe9a8;margin-top:10px">🛵 탈것 (한 번 사면 계속 탈 수 있어요)</div>';for(const k in VEH){const V=VEH[k],own=P.veh.includes(k);h+=`<div class="row"><div class="t">${V.ic} <b>${V.name}</b><small>이동 속도 +${Math.round(V.spd*100)}%${V.seats?` · 뒤에 ${V.seats}명 탈 수 있음`:''}</small></div><button class="btn gold" data-veh="${k}" ${own||P.gold<V.price?'disabled':''}>${own?'보유 중':V.price.toLocaleString()+'G'}</button></div>`;}
+ h+='<div style="color:#ffe9a8;margin-top:10px">🛵 탈것 (한 번 사면 계속 탈 수 있어요)</div>';for(const k in VEH){const V=VEH[k],own=P.veh.includes(k);h+=`<div class="row"><div class="t">${vehIcon(k,22)} <b>${V.name}</b><small>이동 속도 +${Math.round(V.spd*100)}%${V.seats?` · 뒤에 ${V.seats}명 탈 수 있음`:''}</small></div><button class="btn gold" data-veh="${k}" ${own||P.gold<V.price?'disabled':''}>${own?'보유 중':V.price.toLocaleString()+'G'}</button></div>`;}
  }else if(menuTab==='sell'){
   h=`<div>💰 ${P.gold.toLocaleString()} G · 장비는 원래 가격의 40%에 팔아요</div>`;
-  {const own=Object.keys(MATS).filter(k=>P.mats[k]>0&&MATP[k]);if(own.length){h+='<div style="color:#ffe9a8;margin-top:8px">재료</div>';own.forEach(k=>{const M=MATS[k];h+=`<div class="row"><div class="t">${M[1]} ${M[0]} <b style="color:#ffe066">×${P.mats[k]}</b><small>1개 ${MATP[k]}G</small></div><button class="btn" data-msell="${k}:1">1개</button><button class="btn gold" data-msell="${k}:all">전부 ${(MATP[k]*P.mats[k]).toLocaleString()}G</button></div>`;});}}
+  {const own=Object.keys(MATS).filter(k=>P.mats[k]>0&&MATP[k]);if(own.length){h+='<div style="color:#ffe9a8;margin-top:8px">재료</div>';own.forEach(k=>{const M=MATS[k];h+=`<div class="row"><div class="t">${matIcon(k,20)} ${M[0]} <b style="color:#ffe066">×${P.mats[k]}</b><small>1개 ${MATP[k]}G</small></div><button class="btn" data-msell="${k}:1">1개</button><button class="btn gold" data-msell="${k}:all">전부 ${(MATP[k]*P.mats[k]).toLocaleString()}G</button></div>`;});}}
   if(P.bag.length)h+='<div style="color:#ffe9a8;margin-top:8px">장비</div>';else if(!Object.keys(MATS).some(k=>P.mats[k]>0))h+='<div style="color:#777">팔 물건이 없어요</div>';
   bagStacks().forEach(e=>{const it=ITEMS[e.id];const v=Math.floor(it.price*.4*EARN*(1+e.plus*.3));h+=`<div class="row"><div class="t">${itemName(e)}${e.n>1?` <b style="color:#ffe066">×${e.n}</b>`:''}<small>${itemDesc(it,e.plus)}</small></div><button class="btn" data-sell="${e.i}">1개 ${v}G</button></div>`;});
  }else if(menuTab==='gamble'){
@@ -3409,6 +3533,7 @@ function renderMenu(){
  B.innerHTML=h;
  B.querySelectorAll('[data-title]').forEach(b=>b.onclick=()=>{P.title=b.dataset.title;sfx('coin');renderMenu();});
  B.querySelectorAll('[data-pt]').forEach(b=>b.onclick=()=>{addPt(b.dataset.pt);renderMenu();});
+ B.querySelectorAll('[data-ivt]').forEach(b=>b.onclick=()=>{INVTAB=b.dataset.ivt;INVSEL='';renderMenu();});
  B.querySelectorAll('[data-sel]').forEach(b=>b.onclick=()=>{INVSEL=INVSEL===b.dataset.sel?'':b.dataset.sel;renderMenu();});
  B.querySelectorAll('[data-un]').forEach(b=>b.onclick=()=>{const q=P.eq[b.dataset.un];if(!q||!bagCanAdd(q.id,q.plus))return;P.bag.push(P.eq[b.dataset.un]);P.eq[b.dataset.un]=null;INVSEL='';renderMenu();});
  B.querySelectorAll('[data-eq]').forEach(b=>b.onclick=()=>{const i=+b.dataset.eq,e=P.bag[i],sl=ITEMS[e.id].slot;P.bag.splice(i,1);if(P.eq[sl])P.bag.push(P.eq[sl]);P.eq[sl]=e;sfx('coin');INVSEL='eq:'+sl;renderMenu();});
@@ -3495,7 +3620,7 @@ function fishGo(){const b=$('fGo');if(!b)return;if(!FISH.on){if(P.fishCd>Date.no
  $('fMsg').innerHTML=(hit?'<span style="color:#7dff7d">걸렸다!</span>':'<span style="color:#ff9a9a">놓쳤다…</span>')+` (${FISH.ok}/${FISH.round})`;
  if(FISH.round>=3){FISH.on=false;cancelAnimationFrame(FISH.raf);b.textContent='🎣 낚싯대 던지기';P.fishCd=Date.now()+4000;
   if(FISH.ok>=2){const r=Math.random(),id=FISH.ok===3&&r<.06?'goldfish':r<.25?'bigfish':r<.33?'scale':'fish';P.mats[id]=(P.mats[id]||0)+1;P.fishN=(P.fishN||0)+1;if(id==='goldfish')toast('🎏 황금 잉어!!');sfx('win');
-   $('fMsg').innerHTML+=`<br>🎉 ${MATS[id][1]} <b>${MATS[id][0]}</b>을(를) 낚았다!`;if($('fCnt'))$('fCnt').textContent=P.fishN;save(true);}
+   $('fMsg').innerHTML+=`<br>🎉 ${matIcon(id,18)} <b>${MATS[id][0]}</b>을(를) 낚았다!`;if($('fCnt'))$('fCnt').textContent=P.fishN;save(true);}
   else $('fMsg').innerHTML+='<br>물고기가 도망갔다…';
   if(FISH.ok>=2&&Math.random()<.2){P.pots.jobticket=(P.pots.jobticket||0)+1;$('fMsg').innerHTML+='<br>🎫 낚싯줄에 <b style="color:#ffd740">직업 변경권</b>이 걸려 올라왔다!';toast('🎫 직업 변경권을 낚았다!');save(true);}
   return;}
@@ -3577,7 +3702,7 @@ setInterval(()=>{if(menuTab==='party'&&!$('menu').classList.contains('hidden')&&
 const TR={id:null,op:'',mine:null,theirs:null,lk:[]};
 const offerEmpty=()=>({g:0,it:[],m:{},c:{}});
 function offerText(o){if(!o)return '<span style="color:#777">아직 아무것도 올리지 않았어요</span>';const a=[];if(o.g>0)a.push('💰 '+(+o.g).toLocaleString()+'G');
- for(const[id,pl,n]of o.it||[])if(ITEMS[id])a.push(itemName({id,plus:pl})+' ×'+n);for(const k in o.m||{})if(MATS[k])a.push(MATS[k][1]+' '+MATS[k][0]+' ×'+o.m[k]);for(const k in o.c||{})if(CONS[k])a.push(CONS[k][3]+' '+CONS[k][0]+' ×'+o.c[k]);
+ for(const[id,pl,n]of o.it||[])if(ITEMS[id])a.push(itemName({id,plus:pl})+' ×'+n);for(const k in o.m||{})if(MATS[k])a.push(matIcon(k,16)+' '+MATS[k][0]+' ×'+o.m[k]);for(const k in o.c||{})if(CONS[k])a.push(consIcon(k,16)+' '+CONS[k][0]+' ×'+o.c[k]);
  return a.length?a.join('<br>'):'<span style="color:#777">빈손</span>';}
 function tradeHtml(){
  if(!NET.live)return '<div>거래는 계정으로 로그인한 사람끼리만 할 수 있어요.</div>';
@@ -3595,8 +3720,8 @@ function tradeHtml(){
  <div style="color:#ffe9a8;margin-top:10px">🎒 내 물건 (눌러서 올리기)</div>`;
  const left=(kind,id,pl,have)=>{let used=0;if(kind==='it'){const r=me.it.find(x=>x[0]===id&&x[1]===pl);used=r?r[2]:0;}else used=(me[kind][id]||0);return have-used;};
  for(const st of bagStacks()){if(st.id==='catsword'||st.id==='dalkong'||st.id==='baton')continue;const l=left('it',st.id,st.plus,st.n);h+=`<div class="row"><div class="t">${itemName(st)} <span style="color:#b7a6d9">×${l}</span></div><button class="btn" data-tadd="it:${st.id}:${st.plus}" ${l>0?'':'disabled'}>+1</button><button class="btn" data-tsub="it:${st.id}:${st.plus}">-1</button></div>`;}
- for(const k in MATS){if(!(P.mats[k]>0)||k==='conch'||k==='dhorn')continue;const l=left('m',k,0,P.mats[k]);h+=`<div class="row"><div class="t">${MATS[k][1]} ${MATS[k][0]} <span style="color:#b7a6d9">×${l}</span></div><button class="btn" data-tadd="m:${k}" ${l>0?'':'disabled'}>+1</button><button class="btn" data-tadd="m:${k}:10" ${l>=10?'':'disabled'}>+10</button><button class="btn" data-tsub="m:${k}">-1</button></div>`;}
- for(const k in CONS){if(!(P.pots[k]>0))continue;const l=left('c',k,0,P.pots[k]);h+=`<div class="row"><div class="t">${CONS[k][3]} ${CONS[k][0]} <span style="color:#b7a6d9">×${l}</span></div><button class="btn" data-tadd="c:${k}" ${l>0?'':'disabled'}>+1</button><button class="btn" data-tsub="c:${k}">-1</button></div>`;}
+ for(const k in MATS){if(!(P.mats[k]>0)||k==='conch'||k==='dhorn')continue;const l=left('m',k,0,P.mats[k]);h+=`<div class="row"><div class="t">${matIcon(k,20)} ${MATS[k][0]} <span style="color:#b7a6d9">×${l}</span></div><button class="btn" data-tadd="m:${k}" ${l>0?'':'disabled'}>+1</button><button class="btn" data-tadd="m:${k}:10" ${l>=10?'':'disabled'}>+10</button><button class="btn" data-tsub="m:${k}">-1</button></div>`;}
+ for(const k in CONS){if(!(P.pots[k]>0))continue;const l=left('c',k,0,P.pots[k]);h+=`<div class="row"><div class="t">${consIcon(k,20)} ${CONS[k][0]} <span style="color:#b7a6d9">×${l}</span></div><button class="btn" data-tadd="c:${k}" ${l>0?'':'disabled'}>+1</button><button class="btn" data-tsub="c:${k}">-1</button></div>`;}
  return h;}
 function inDebt(){return !!(P&&(P.labor||(P.bank&&P.bank.loan>0)));}
 const BADW=['씨발','시발','씨바','쓰발','씨팔','시팔','ㅅㅂ','ㅆㅂ','샹년','썅','병신','븅신','빙신','ㅂㅅ','등신','지랄','ㅈㄹ','좆','존나','졸라','ㅈㄴ','좃','개새끼','개새','이새끼','저새끼','니새끼','쌔끼','개색','ㄱㅅㄲ','느금','느그어매','느그엄마','느그애미','니애미','니엄마','니어미','애미','애비','엠창','앰창','느개비','미친놈','미친년','미친새','또라이','닥쳐','꺼져','염병','육시랄','호로','후레자식','창녀','창년','걸레년','보지','자지','섹스','쎅스','야동','딸딸이','한남충','김치녀','틀딱','급식충','맘충','짱깨','쪽바리','흑형','장애새끼','정신병자','fuck','fuk','shit','bitch','asshole','dick','pussy','cunt','nigger','nigga','faggot','porn','sex','whore','slut','retard'];
@@ -3737,7 +3862,7 @@ const ENH_HI={10:[500000,{dheart:1}],11:[750000,{aheart:1}],12:[1000000,{yeye:1}
 const enhCost=e=>e.plus>=10&&ENH_HI[e.plus]?ENH_HI[e.plus][0]:Math.round(30*(e.plus+1)*Math.min(5,ITEMS[e.id].tier)); // 강화 비용 절반
 const enhMats=e=>e.plus>=10&&ENH_HI[e.plus]?ENH_HI[e.plus][1]:null;
 const enhMatOk=e=>{const m=enhMats(e);return !m||Object.entries(m).every(([k,n])=>(P.mats[k]||0)>=n);};
-const enhMatTxt=e=>{const m=enhMats(e);return m?' · '+Object.entries(m).map(([k,n])=>`<span style="color:${(P.mats[k]||0)>=n?'#ffd740':'#ff8a8a'}">${MATS[k][1]}${MATS[k][0]} ${P.mats[k]||0}/${n}</span>`).join(' · '):'';};
+const enhMatTxt=e=>{const m=enhMats(e);return m?' · '+Object.entries(m).map(([k,n])=>`<span style="color:${(P.mats[k]||0)>=n?'#ffd740':'#ff8a8a'}">${matIcon(k,14)}${MATS[k][0]} ${P.mats[k]||0}/${n}</span>`).join(' · '):'';};
 // 강화 확률: 올라갈수록 성공은 줄고 깨질 확률은 늘어난다. 나머지는 유지.
 const enhOdds=e=>{const n=e.plus,up=Math.max(6,90-9*n)+Math.floor(P.st.luck/3),brk=n<3?0:Math.min(40,(n-2)*4);return{up:Math.min(95,up),brk,keep:Math.max(0,100-Math.min(95,up)-brk)};};
 const enhRate=e=>enhOdds(e).up;
@@ -3896,8 +4021,8 @@ $('tutPrev').onclick=()=>{if(TS2.i>0){TS2.i--;tutShow();}};
 $('tutSkip').onclick=()=>tutEnd();
 addEventListener('resize',()=>{if(!$('tut').classList.contains('hidden'))tutShow();});
 // 📜 패치노트: 새 패치가 나오면 처음 한 번만 띄운다 (이 기기 기준)
-const PATCH={v:'2026-11-25g',title:'📜 패치노트 · 11월 25일 (7)',lines:['⚔ PvP 버튼이 생겼어요! PvP를 켠 사람끼리 서로 공격할 수 있어요 (마을 안은 안전 · 쓰러져도 골드를 잃지 않아요)',
- '🎒 인벤토리가 새로워졌어요 — 위에 장비·탈것·음식 칸, 아래에 가방 칸',
+const PATCH={v:'2026-11-25h',title:'📜 패치노트 · 11월 25일 (8)',lines:['⚔ PvP 버튼이 생겼어요! PvP를 켠 사람끼리 서로 공격할 수 있어요 (마을 안은 안전 · 쓰러져도 골드를 잃지 않아요)',
+ '🎒 인벤토리가 새로워졌어요 — 왼쪽에 무기·갑옷·탈것·빠른 장비, 오른쪽에 장비·아이템·탈것·먹을것 칸','🎨 모든 스킬과 아이템이 직접 그린 픽셀 그림으로 바뀌었어요',
  '⛰ 들판에서 산 입구가 더 잘 보여요',
  '🎵 마을 건물 안은 마을 노래, 모르간의 던전은 모르간 노래가 나와요',
  '🥤 지금까지 마신 몬스터 때문에 줄어든 최대 체력이 모두 돌아왔어요',
@@ -3907,7 +4032,7 @@ function patchNote2(){if(!P||dlgState)return;dialog(PATCH.title,[PATCH.lines]);}
 function startGame(isNew){
  $('title').classList.add('hidden');$('hud').classList.remove('hidden');$('ctrl').classList.remove('hidden');
  if(String(P.map).startsWith('arena')){P.map='village';P.x=33.5*TS;P.y=19.6*TS;}
- fixPlayer();calc();if(isNew){P.hp=P.st.hp;P.mp=P.st.mp;}P.pk=false;pkBtn();
+ fixPlayer();calc();if(isNew){P.hp=P.st.hp;P.mp=P.st.mp;}P.pk=false;pkBtn();$('iHp').innerHTML=consIcon('hp',22);$('iMp').innerHTML=consIcon('mp',22);
  if(NET.admin&&NET.token&&!P.flags.admin)adminGift();
  if(NET.token&&(NET.admin||NET.nick==='이태희')&&!(P.eq.weapon&&P.eq.weapon.id==='baton')&&!P.bag.some(x=>x.id==='baton')){P.bag.push({id:'baton',plus:0});setTimeout(()=>toast('🚓 경찰봉 지급! (인벤토리에서 장착)'),2200);}
  if(P.flags.dragon&&!P.flags.dhorn){P.flags.dhorn=1;P.mats.dhorn=(P.mats.dhorn||0)+1;}
