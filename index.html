@@ -1308,8 +1308,8 @@ const need=lv=>Math.floor(30*Math.pow(lv,1.6));
 
 // ================= 저장 =================
 const SAVEKEY='dobakrpg_save_v1';
-function snap(){const d=Object.assign({},P);delete d.st;delete d.dash;delete d.say;delete d.sayT;delete d.rideOn;delete d.rideAsk;delete d.frz;delete d.coldT;return d;}
-function save(silent){let ok=true;try{localStorage.setItem(SAVEKEY,JSON.stringify(snap()));}catch(e){ok=false;}
+function snap(){const d=Object.assign({},P);for(const k of['st','dash','say','sayT','rideOn','rideAsk','frz','coldT','heatT','portalLock','inv','acd','atkAnim','walk','moving','cds','dcd','poisT','burnTick'])delete d[k];return d;} // 저장할 필요 없는 순간 값은 뺀다
+function save(silent){let ok=true;if(!NET.srv){try{localStorage.setItem(SAVEKEY,JSON.stringify(snap()));}catch(e){ok=false;}} // 서버 계정으로 하는 중이면 이 기기 저장(옛 백업)은 쓰지 않는다
  if(NET.token&&!NET.stopped&&NET.srv){NET.dirty=true;ok=true;}
  if(!silent)log(ok?(NET.token?'💾 저장되었습니다 (서버)':'💾 저장되었습니다'):'⚠ 이 브라우저에서는 저장할 수 없어요');return ok;}
 function saveLoss(){save(true);try{netFlush();}catch(e){}} // 도박에서 잃으면 바로 서버까지 저장
@@ -3760,7 +3760,7 @@ function netStop(why){if(NET.stopped)return;NET.stopped=true;NET.dirty=false;try
  setTimeout(()=>dialog('⚠ 저장 멈춤',[why+'\n\n이 기기의 예전 데이터가 서버의 최신 데이터를 덮어쓰지 않도록 이 기기에서는 저장을 멈췄어요.\n새로고침하면 서버에 있는 최신 데이터로 이어서 할 수 있어요.'],[{t:'🔄 새로고침',c:'gold',f:()=>location.reload()}]),300);}
 async function netFlush(keep){if(!NET.srv)return;if(NET.busy&&NET.dirty){NET.again=keep?2:Math.max(NET.again||0,1);return;}if(!NET.token||!NET.dirty||NET.busy||!P||NET.stopped)return;NET.busy=true;NET.dirty=false;const d=snap();
  try{const r=await fetch(NET.base+'/api/rpg/save',{method:'POST',keepalive:!!keep,headers:{'Content-Type':'application/json',Authorization:'Bearer '+NET.token},body:JSON.stringify({save:d,base:NET.saveT||0})});
-  if(r.ok){NET.cloud=d;NET.fail=0;try{const j=await r.json();if(j&&j.t)NET.saveT=j.t;}catch(e){}}else if(r.status===409){netStop('다른 기기에서 이 계정으로 더 최근에 저장했어요.');}else if(r.status===401){log('⚠ 로그인이 만료됐어요. 타이틀에서 다시 로그인해 주세요');NET.token=null;}else{NET.dirty=true;}
+  if(r.ok){NET.cloud=d;NET.fail=0;try{const j=await r.json();if(j&&j.t)NET.saveT=j.t;}catch(e){}}else if(r.status===409){netStop('다른 기기에서 이 계정으로 더 최근에 저장했어요.');}else if(r.status===401){log('⚠ 로그인이 만료됐어요. 타이틀에서 다시 로그인해 주세요');NET.token=null;}else{NET.dirty=true;if(gameT-(NET.warnT||-99)>30){NET.warnT=gameT;log('⚠ 서버 저장이 안 되고 있어요 ('+r.status+'). 계속 다시 시도할게요');toast('⚠ 서버 저장 실패 — 다시 시도 중');}}
  }catch(e){NET.dirty=true;if(!(NET.fail++%10))log('⚠ 서버 저장에 실패했어요. 다시 시도할게요');}
  NET.busy=false;if(NET.again){const k=NET.again===2;NET.again=0;if(NET.dirty)netFlush(k);}}
 setInterval(()=>netFlush(),4000);
