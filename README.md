@@ -18,3 +18,8 @@
 
 ## 실행
 `index.html` 한 파일로 돌아가요. GitHub Pages를 켜면 링크로 바로 플레이할 수 있어요.
+
+## 배포
+
+`main`에는 원본 코드를 두고, 게임 사이트(`gh-pages`)에는 난독화된 배포본을 올린다.
+`main`에 커밋·푸시한 뒤 `bash tools/deploy.sh`로 배포한다. `gh-pages`에 원본을 직접 푸시하지 않는다.
