@@ -1389,7 +1389,7 @@ function saveLoss(){save(true);try{netFlush();}catch(e){}} // 도박에서 잃�
 function hasSave(){try{return !!localStorage.getItem(SAVEKEY);}catch(e){return false;}}
 function applySave(d){if(!d||!d.race||!RACES[d.race]||!CLASSES[d.cls])return false;P=Object.assign(newPlayer(d.name,d.race,d.cls),d);fixPlayer();return true;}
 function load(){try{return applySave(JSON.parse(localStorage.getItem(SAVEKEY)));}catch(e){return false;}}
-function fixPlayer(){monReset();
+function fixPlayer(){monReset();take2x();
  delete P.say;delete P.sayT;
  if(!P.skl)P.skl={};(P.sk||[]).forEach((v,i)=>{if(v)P.skl[P.cls+i]=Math.max(v,P.skl[P.cls+i]||0);});
  delete P.sk;
@@ -4005,6 +4005,7 @@ function adminGift(){P.flags.admin=1;const up=Math.max(0,999-P.lv);P.lv=Math.max
  calc();P.hp=P.st.hp;P.mp=P.st.mp;autoLearn(true);setTimeout(()=>{toast('👑 관리자 보상 지급!');log('👑 Lv999 · 999,999G · 🐱 고양이 소드');save(true);},800);}
 // 운영자가 계정에 준 보상(레벨 등)을 한 번만 적용
 const GRANT_KEYS=['id','items','veh','lv','title','keep','setLv','lvAdd','sp','ap','spDown','apDown','goldMul','goldAdd','item','setCls','recalc','cons','mats','clearDebt'];
+function take2x(){if(P&&P.flags&&!P.flags.take2x1){P.flags.take2x1=1;const n=(P.pots.xp2||0)+(P.pots.gold2||0);delete P.pots.xp2;delete P.pots.gold2;P.x2u=0;P.g2u=0;if(P.quick==='xp2'||P.quick==='gold2')P.quick='';if(n)setTimeout(()=>{toast('📢 운영자가 2배권을 모두 회수했어요');log('📢 운영자가 경험치·골드 2배권 '+n+'장을 회수했어요');},2500);}}
 function monReset(){if(P&&P.flags&&!P.flags.monReset1){P.flags.monReset1=1;if(P.monN){P.monN=0;calc();}}}
 function changeCls(c){let back=0;for(const id in P.skl){if(/^u\d+$/.test(id)||/^special\d+$/.test(id))continue;back+=P.skl[id]-1;delete P.skl[id];}P.sp+=back;P.slots=P.slots.map(id=>id&&P.skl[id]?id:null);const w=P.eq.weapon;if(w&&ITEMS[w.id]&&ITEMS[w.id].cls){P.bag.push(w);P.eq.weapon={id:'w_'+c+'1',plus:0};}P.cls=c;P.job='';P.job3='';calc();autoLearn(true);spirits=[];}
 function applyGrants(){const list=NET.grants;NET.grants=[];P.gotG=Array.isArray(P.gotG)?P.gotG:[];for(const g of list){const lv=Math.round(+g.lv||0);if(g.id&&P.gotG.includes(String(g.id))){netApi('/api/rpg/grantdone',{id:g.id}).catch(()=>{});continue;} // 이미 받은 지급 (받음 처리가 서버에 안 닿았던 경우)
