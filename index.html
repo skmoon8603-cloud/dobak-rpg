@@ -793,7 +793,7 @@ function makeField(){
  t[3][41]='.';t[4][41]='.';t[5][41]=',';t[4][42]='.';
  rect(t,37,26,6,5,'.');rect(t,0,27,5,4,'.'); // 왼쪽 아래: 산으로 가는 길
  return{name:'바람의 들판',key:'field',w,h,t,labels:[{x:24*TS,y:15.6*TS,t:'🌊 호수 속 해저마을 (Lv23+)'}],
-  portals:[{look:'gate',x:6,y:16*TS+16,to:'village',tx:57*TS,ty:22*TS,label:'마을'},{look:'cave',x:41.5*TS,y:4*TS,to:'dungeon',tx:5*TS,ty:5*TS+16,label:'던전'},{look:'tomb',x:41.5*TS,y:28.5*TS,to:'ruins',tx:4.5*TS,ty:15.5*TS,label:'폐허 Lv12+'},{look:'mountain',x:1.6*TS,y:28.5*TS,to:'mount',tx:3*TS,ty:37*TS,label:'산 Lv170+'}],
+  portals:[{look:'gate',x:6,y:16*TS+16,to:'village',tx:57*TS,ty:22*TS,label:'마을'},{look:'cave',x:41.5*TS,y:4*TS,to:'dungeon',tx:5*TS,ty:5*TS+16,label:'던전'},{look:'tomb',x:41.5*TS,y:28.5*TS,to:'ruins',tx:4.5*TS,ty:15.5*TS,label:'폐허 Lv12+'},{look:'mountain',x:1.6*TS,y:28.5*TS,to:'mount',tx:3*TS,ty:37*TS,label:'산 Lv170+',minLv:170}],
   npcs:[],
   spawns:[{type:'slime',zone:[3,8,18,30],max:7},{type:'wolf',zone:[16,8,34,30],max:5},{type:'goblin',zone:[30,8,42,30],max:9,pack:3},{type:'slime',zone:[18,2,40,8],max:3}],
   start:{x:2*TS,y:16*TS+16}};
@@ -2194,7 +2194,7 @@ function update(dt){
   if(map.sealed){const[rx,ry,rw,rh]=map.bossRoom;P.x=clamp(P.x,rx*TS+9,(rx+rw)*TS-9);P.y=clamp(P.y,ry*TS+9,(ry+rh)*TS-9);}}
  // 포탈
  P.portalLock-=dt;
- if(P.portalLock<=0)for(const pt of map.portals)if((!pt.need||P.flags[pt.need])&&(pt.door?Math.abs(pt.x-P.x)<28&&Math.abs(pt.y-P.y)<26:Math.hypot(pt.x-P.x,pt.y-P.y)<(pt.look==='stairs'||pt.look==='stairsUp'?26:22))){if(lairLocked()||evtLocked()||(P.labor&&map.mine&&!getMap(pt.to).mine)||(P.cloneFight&&map.key==='clonearena')){if(gameT-(P.lockMsg||0)>2){P.lockMsg=gameT;toast(P.cloneFight&&map.key==='clonearena'?'🪞 분신을 모두 쓰러뜨리기 전에는 나갈 수 없어요!':P.labor&&map.mine?'⛓ 빚을 다 갚기 전에는 광산을 나갈 수 없어요!':evtLocked()?'🟢 거대 슬라임 이벤트 중에는 마을을 나갈 수 없어요!':'🔥 불의 결계가 출구를 막고 있다! 드래곤을 쓰러뜨려야 나갈 수 있어');}const k3=norm(P.x-pt.x,P.y-pt.y);P.x=pt.x+k3.x*26;P.y=pt.y+k3.y*26;break;}enterMap(pt.to,pt.tx,pt.ty);return;}
+ if(P.portalLock<=0)for(const pt of map.portals)if((!pt.need||P.flags[pt.need])&&(pt.door?Math.abs(pt.x-P.x)<28&&Math.abs(pt.y-P.y)<26:Math.hypot(pt.x-P.x,pt.y-P.y)<(pt.look==='stairs'||pt.look==='stairsUp'?26:22))){if(lairLocked()||evtLocked()||(P.labor&&map.mine&&!getMap(pt.to).mine)||(P.cloneFight&&map.key==='clonearena')){if(gameT-(P.lockMsg||0)>2){P.lockMsg=gameT;toast(P.cloneFight&&map.key==='clonearena'?'🪞 분신을 모두 쓰러뜨리기 전에는 나갈 수 없어요!':P.labor&&map.mine?'⛓ 빚을 다 갚기 전에는 광산을 나갈 수 없어요!':evtLocked()?'🟢 거대 슬라임 이벤트 중에는 마을을 나갈 수 없어요!':'🔥 불의 결계가 출구를 막고 있다! 드래곤을 쓰러뜨려야 나갈 수 있어');}const k3=norm(P.x-pt.x,P.y-pt.y);P.x=pt.x+k3.x*26;P.y=pt.y+k3.y*26;break;}if(pt.minLv&&P.lv<pt.minLv&&!(P.flags&&P.flags.admin)){if(gameT-(P.lockMsg||0)>2){P.lockMsg=gameT;toast('⛰ Lv'+pt.minLv+'부터 들어갈 수 있어요');}const k4=norm(P.x-pt.x,P.y-pt.y);P.x=pt.x+k4.x*26;P.y=pt.y+k4.y*26;break;}enterMap(pt.to,pt.tx,pt.ty);return;}
  }
  // 투사체
  for(let i=projs.length-1;i>=0;i--){const p=projs[i];SKTAG=p.owner==='p'?p.sk||null:null;if(p.home){const t=nearest(p,260);if(t){const sp=Math.hypot(p.vx,p.vy),n=norm(t.x-p.x,t.y-6-p.y),c=norm(p.vx/sp+n.x*dt*9,p.vy/sp+n.y*dt*9);p.vx=c.x*sp;p.vy=c.y*sp;}}p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt;let dead=p.life<=0;
@@ -2249,10 +2249,11 @@ function hitTarget(T,atk){if(T.me)hurtPlayer(atk);else netEv({k:'dmg',to:T.uid,a
 // 결투장: 상대 플레이어를 몬스터처럼 맞힐 수 있게 그림자 대상을 만든다
 const PVB={name:'상대',lv:1,r:12,exp:0,gold:[0,0],aggro:0};
 const safeAt=x=>!!map&&(map.safe===1||(map.safeX!=null&&x<map.safeX*TS));
-const pkOn=()=>!!P&&!!P.pk&&!!map&&!map.pvp&&!safeHere()&&!P.dead;
-function openPk(){const seen=new Set();if(pkOn())for(const[uid,o]of NET.others){if(!o.pk||safeAt(o.x)||(typeof inParty==='function'&&inParty(uid)))continue;seen.add(uid);let e=enemies.find(q=>q.pv&&q.uid===uid);if(!e){e={pv:1,uid,id:'pv'+uid,type:'slime',b:PVB,x:o.x,y:o.y,r:12,hp:1e9,max:1e9,def:0,atk:0,spd:0,slow:0,root:0,burn:0,hitT:0,anim:0,wander:{x:0,y:0,t:0}};enemies.push(e);}e.x=o.x;e.y=o.y;}
+const PK_ALWAYS=['왕정훈 본계'];const pkForced=()=>!!P&&PK_ALWAYS.includes(P.name);
+const pkOn=()=>!!P&&(!!P.pk||pkForced())&&!!map&&!map.pvp&&!P.dead;
+function openPk(){const seen=new Set();if(pkOn())for(const[uid,o]of NET.others){if(!o.pk||(typeof inParty==='function'&&inParty(uid)))continue;seen.add(uid);let e=enemies.find(q=>q.pv&&q.uid===uid);if(!e){e={pv:1,uid,id:'pv'+uid,type:'slime',b:PVB,x:o.x,y:o.y,r:12,hp:1e9,max:1e9,def:0,atk:0,spd:0,slow:0,root:0,burn:0,hitT:0,anim:0,wander:{x:0,y:0,t:0}};enemies.push(e);}e.x=o.x;e.y=o.y;}
  enemies=enemies.filter(e=>!e.pv||seen.has(e.uid));}
-function pkToggle(){if(!P)return;if(map&&map.pvp){toast('결투장에서는 바꿀 수 없어요');return;}if(gameT-(P.pkHit||-99)<10&&P.pk){toast('⚔ 공격받은 뒤 10초 동안은 PvP를 끌 수 없어요 ('+Math.ceil(10-(gameT-P.pkHit))+'초)');return;}P.pk=!P.pk;toast(P.pk?'⚔ PvP 켬 · PvP를 켠 사람끼리 서로 공격할 수 있어요 (마을 안은 안전)':'🕊 PvP 끔');sfx('coin');pkBtn();}
+function pkToggle(){if(!P)return;if(pkForced()){P.pk=true;pkBtn();toast('⚔ 이 캐릭터는 PvP를 끌 수 없어요');return;}if(map&&map.pvp){toast('결투장에서는 바꿀 수 없어요');return;}if(gameT-(P.pkHit||-99)<10&&P.pk){toast('⚔ 공격받은 뒤 10초 동안은 PvP를 끌 수 없어요 ('+Math.ceil(10-(gameT-P.pkHit))+'초)');return;}P.pk=!P.pk;toast(P.pk?'⚔ PvP 켬 · PvP를 켠 사람끼리 마을에서도 서로 공격할 수 있어요':'🕊 PvP 끔');sfx('coin');pkBtn();}
 function pkBtn(){const b=$('bPk');if(!b)return;b.textContent=P&&P.pk?'⚔ PvP 켬':'🕊 PvP 끔';b.style.background=P&&P.pk?'#8b1a1a':'';}
 function pkHurt(v,from){if(!pkOn())return;if(P.inv>0||P.dash||P.holy>0)return;const o=NET.others.get(from);if(!o||!o.pk)return;
  if(P.guard>0)v=Math.max(1,Math.round(v*.35));if(P.shield>0){const ab=Math.min(P.shield,v);P.shield-=ab;v-=ab;if(v<=0)return;}
@@ -4099,7 +4100,9 @@ addEventListener('resize',()=>{if(!$('tut').classList.contains('hidden'))tutShow
 const PATCH={v:'2026-11-27a',title:'📜 패치노트 · 11월 27일',lines:['💣 개틀링건(3차) 새 스킬 「폭탄 포탑」',
  '🔫 레인저 기본 공격 피해 1.5배',
  '🔨 대장장이에게 돈을 내면 다른 직업 무기를 내 직업 무기로 바꿀 수 있어요',
- '🏜 사막·설산 상인에게 귀환권을 사도 창이 닫히지 않아요','🏦 은행 예금을 100억까지 넣을 수 있어요',
+ '🏜 사막·설산 상인에게 귀환권을 사도 창이 닫히지 않아요',
+ '⚔ PvP를 켠 사람끼리는 마을 안에서도 싸울 수 있어요',
+ '⛰ 산은 Lv170부터 들어갈 수 있어요','🏦 은행 예금을 100억까지 넣을 수 있어요',
  '✨ 능력치를 한 번에 10개씩 찍는 「+10」 버튼이 생겼어요 (상태 창)',
  '🌑 주간 레이드에서 보스가 안 나오거나 못 움직이던 문제를 고쳤어요',
  '🛡 게임 조작·해킹 방지를 강화했어요'].join('\n\n')};
@@ -4108,7 +4111,7 @@ function patchNote2(){if(!P||dlgState)return;dialog(PATCH.title,[PATCH.lines]);}
 function startGame(isNew){
  $('title').classList.add('hidden');$('hud').classList.remove('hidden');$('ctrl').classList.remove('hidden');
  if(String(P.map).startsWith('arena')){P.map='village';P.x=33.5*TS;P.y=19.6*TS;}
- fixPlayer();calc();if(isNew){P.hp=P.st.hp;P.mp=P.st.mp;}P.pk=false;pkBtn();$('bAdm').classList.toggle('hidden',!NET.admin);$('iHp').innerHTML=consIcon('hp',22);$('iMp').innerHTML=consIcon('mp',22);
+ fixPlayer();calc();if(isNew){P.hp=P.st.hp;P.mp=P.st.mp;}P.pk=pkForced();pkBtn();$('bAdm').classList.toggle('hidden',!NET.admin);$('iHp').innerHTML=consIcon('hp',22);$('iMp').innerHTML=consIcon('mp',22);
  if(NET.admin&&NET.token&&!P.flags.admin)adminGift();
  if(NET.token&&(NET.admin||NET.nick==='이태희')&&!(P.eq.weapon&&P.eq.weapon.id==='baton')&&!P.bag.some(x=>x.id==='baton')){P.bag.push({id:'baton',plus:0});setTimeout(()=>toast('🚓 경찰봉 지급! (인벤토리에서 장착)'),2200);}
  if(P.flags.dragon&&!P.flags.dhorn){P.flags.dhorn=1;P.mats.dhorn=(P.mats.dhorn||0)+1;}
@@ -4222,7 +4225,7 @@ function netConnect(){if(!NET.token||NET.sock)return;
  if(window.io)go();else{const sc=document.createElement('script');sc.src=NET.base+'/socket.io/socket.io.js';sc.onload=go;document.head.appendChild(sc);}}
 let netLastMove=0;
 setInterval(()=>{const k=NET.sock;if(!k||!k.connected||!P||!map||!NET.playing)return;const mv=getMove();
- const SO={m:map.key,n:P.name,r:P.race,c:P.cls,j:P.job||'',l:P.lv,x:P.x,y:P.y,f:P.fx<0?-1:1,a:P.atkAnim>0?1:0,w:mv.l>0&&!paused?1:0,wp:P.eq.weapon?P.eq.weapon.id:'',ar:P.eq.armor?P.eq.armor.id:'',t:P.title||'',hp:P.dead?0:Math.max(1,Math.round(clamp(P.hp/P.st.hp*100,0,100))),v:P.rideOn||rideBan()?'':P.ride||'',hd:P.ride==='fixie'&&P.hd!=null?Math.round(P.hd*100)/100:0,sp:spirits.map(x=>[SPI.indexOf(x.t),Math.round(x.x),Math.round(x.y)]),wl:P.eq.weapon?P.eq.weapon.plus||0:0,pk:P.pk?1:0};SO.x=Math.round(SO.x);SO.y=Math.round(SO.y);{const sg=JSON.stringify(SO),now=Date.now();if(sg!==NET.sLast||now-(NET.sT||0)>2000){NET.sLast=sg;NET.sT=now;k.volatile.emit('s',SO);}} // 그대로면 안 보냄 (2초마다 한 번은 보냄)
+ const SO={m:map.key,n:P.name,r:P.race,c:P.cls,j:P.job||'',l:P.lv,x:P.x,y:P.y,f:P.fx<0?-1:1,a:P.atkAnim>0?1:0,w:mv.l>0&&!paused?1:0,wp:P.eq.weapon?P.eq.weapon.id:'',ar:P.eq.armor?P.eq.armor.id:'',t:P.title||'',hp:P.dead?0:Math.max(1,Math.round(clamp(P.hp/P.st.hp*100,0,100))),v:P.rideOn||rideBan()?'':P.ride||'',hd:P.ride==='fixie'&&P.hd!=null?Math.round(P.hd*100)/100:0,sp:spirits.map(x=>[SPI.indexOf(x.t),Math.round(x.x),Math.round(x.y)]),wl:P.eq.weapon?P.eq.weapon.plus||0:0,pk:P.pk||pkForced()?1:0};SO.x=Math.round(SO.x);SO.y=Math.round(SO.y);{const sg=JSON.stringify(SO),now=Date.now();if(sg!==NET.sLast||now-(NET.sT||0)>2000){NET.sLast=sg;NET.sT=now;k.volatile.emit('s',SO);}} // 그대로면 안 보냄 (2초마다 한 번은 보냄)
  if(VQ.length){const v=VQ.splice(0,30);VQ.length=0;k.emit('ev',{k:'sk',v});}
  if(NET.host&&NET.hostMap===map.key){const L=enemies.filter(e=>!e.mirror&&!e.dead&&!e.pv&&!e.dummy).map(e=>[e.id,e.type,Math.round(e.x),Math.round(e.y),Math.round(e.hp),e.max,(e.strong?1:0)|(e.summon?2:0)|(e.slow>0?4:0)|(e.root>0?8:0)|(e.burn>0?16:0)|(e.aggroed?32:0)|(e.tel?64:0)|(e.fly>0?128:0)|(e.intro>0?256:0),Math.round(e.atk)]);
   // 전송량 줄이기: 1.5초마다 전체, 그 사이엔 바뀐 몬스터만
