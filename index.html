@@ -1641,7 +1641,14 @@ function petScale(t,lv,ride){t=pb(t);const B=ENEMIES[t];return (ride?PETS[t].sz*
 function drawPet(t,lv,x,y,fx,ride,anim){t=pb(t);const B=ENEMIES[t];if(!B)return;const k=petScale(t,lv,ride);
  const e={type:t,b:B,x:0,y:0,r:B.r,hp:1,max:1,anim:anim||0,hitT:0,dead:false,face:fx,fx,state:'',st:'',phase:0,pet:1};
  const px0=P.x,py0=P.y;ctx.save();ctx.translate(x,y);ctx.scale(fx<0?-k:k,k);try{P.x=x+(fx<0?-1:1)*1000;P.y=y;drawEnemy(e);}catch(er){}finally{P.x=px0;P.y=py0;ctx.restore();}}
-function petTop(t){return Math.round(PETS[pb(t)].sz*1.35*1.3);} // 탔을 때 사람이 올라가는 높이
+const PETBACK={};
+function petBack(t){t=pb(t);if(PETBACK[t]!=null)return PETBACK[t];let h=Math.round(PETS[t].sz*1.35*1.2);
+ try{const c=document.createElement('canvas');c.width=240;c.height=240;const g=c.getContext('2d'),old=ctx;ctx=g;try{drawPet(t,20,120,200,1,true,0);}finally{ctx=old;}
+  const d=g.getImageData(0,0,240,240).data,tops=[];for(let x=108;x<=132;x+=2){for(let y=0;y<200;y++){if(d[(y*240+x)*4+3]>40){tops.push(200-y);break;}}}
+  if(tops.length){tops.sort((a,b)=>a-b);h=tops[Math.floor(tops.length/2)];}}catch(e){}
+ return PETBACK[t]=Math.max(8,h);}
+// 등에 앉은 모습: 다리는 보스 몸에 가려지게 (안장 줄 아래는 안 그린다)
+function rideSeat(t,x,y){const bk=petBack(t);ctx.save();ctx.beginPath();ctx.rect(x-300,y-2000,600,2000-bk+4);ctx.clip();ctx.translate(0,-(bk-11));}
 // 인벤토리 아이콘: 보스 모습을 작은 그림으로 (한 번만 만들어 둔다)
 const PETIC={};
 function petIcon(t,sz,egg){t=pb(t);const key=t+(egg?'e':'');if(!PETIC[key]){if(egg){PETIC[key]=pxIcon('egg',PETS[t].col);}else{const c=document.createElement('canvas');c.width=c.height=64;const g=c.getContext('2d'),old=ctx;ctx=g;try{const B=ENEMIES[t],k=24/(B.r||20);g.translate(32,50);g.scale(k,k);const e={type:t,b:B,x:0,y:0,r:B.r,hp:1,max:1,anim:0,hitT:0,face:1,fx:1,pet:1};const px0=P.x;P.x=1000;try{drawEnemy(e);}finally{P.x=px0;}}catch(er){}ctx=old;PETIC[key]=c.toDataURL();}}
@@ -2841,7 +2848,7 @@ function drawChar(o){
 }
 function drawPlayer(){
  if(P.inv>0&&!(P.holy>0)&&(gameT*20|0)%2)return;
- const PR=petRiding();if(PR){const t=petCur();drawPet(t,petOf(t).lv,P.x,P.y,P.fx<0?-1:1,true,P.walk*3);ctx.save();ctx.translate(0,-petTop(t));}
+ const PR=petRiding();if(PR){const t=petCur();drawPet(t,petOf(t).lv,P.x,P.y,P.fx<0?-1:1,true,P.walk*3);rideSeat(t,P.x,P.y);}
  const myV=!PR&&!P.rideOn&&!rideBan()&&VEH[P.ride]?P.ride:'';if(myV&&myV!=='fixie')drawVehicle(P.x,P.y,myV,P.fx<0?-1:1,P.walk,P.moving);const pv=P.rideOn&&VEH[P.rideV]?P.rideV:'';
  const meC={job3:P.job3,sk:P.skid?Math.max(.35,1-(P.skidT||0)/SKID_STOP):0,wl:P.eq&&P.eq.weapon?P.eq.weapon.plus||0:0,hd:myV==='fixie'?(P.hd!=null?P.hd:(P.fx<0?Math.PI:0)):null,lean:P.lean||0,x:P.x,y:P.y,race:P.race,cls:P.cls,job:P.job,fx:P.fx,fy:P.fy,walk:P.walk,atk:P.atkAnim>0,wp:P.eq&&P.eq.weapon?P.eq.weapon.id:'',ar:P.eq&&P.eq.armor?P.eq.armor.id:''};
  if(myV||pv)drawRider(meC,P.x,P.y,myV||pv,!!myV&&P.moving,P.walk,!myV);else
@@ -2853,7 +2860,7 @@ function drawPlayer(){
  if(P.say&&P.sayT>nowS())bubble(P.say,P.x,P.y-(tt?76:62));
  if(PR)ctx.restore();
 }
-function drawOther(o){const OPR=o.pt&&PETS[o.pt[0]]&&o.pt[2];if(OPR){drawPet(o.pt[0],o.pt[1],o.x,o.y,o.fx<0?-1:1,true,o.walk*3);ctx.save();ctx.translate(0,-petTop(o.pt[0]));try{drawOther0(o);}finally{ctx.restore();}return;}drawOther0(o);}
+function drawOther(o){const OPR=o.pt&&PETS[o.pt[0]]&&o.pt[2];if(OPR){drawPet(o.pt[0],o.pt[1],o.x,o.y,o.fx<0?-1:1,true,o.walk*3);rideSeat(o.pt[0],o.x,o.y);try{drawOther0(o);}finally{ctx.restore();}return;}drawOther0(o);}
 function drawOther0(o){if(VEH[o.v]&&o.v!=='fixie')drawVehicle(o.x,o.y,o.v,o.fx<0?-1:1,o.walk,o.w);if(o.v==='fixie'&&o.hd==null)o.hd=o.fx<0?Math.PI:0;let rv=VEH[o.v]?o.v:'';if(!rv&&o.rd){for(const q of NET.others.values())if(VEH[q.v]&&Math.abs(q.x-o.x)<40&&Math.abs(q.y-o.y)<4){rv=q.v;break;}if(!rv&&P.ride&&!P.rideOn&&Math.abs(P.x-o.x)<40&&Math.abs(P.y-o.y)<4)rv=P.ride;}
  ctx.globalAlpha=.9;if(rv)drawRider(o,o.x,o.y,rv,!!o.w&&!o.rd,o.walk,!!o.rd&&!VEH[o.v]);else if(o.rd){drawChar(Object.assign({},o,{y:o.y-9,walk:0}));}else drawChar(o);ctx.globalAlpha=1;const pid=[...NET.others.entries()].find(e=>e[1]===o);if(pid&&inParty(pid[0])&&!map.pvp){px(o.x-16,o.y-72,32,4,'#300');px(o.x-16,o.y-72,32*clamp(o.php!=null?o.php:(o.hp||100),0,100)/100,4,'#ff5252');label('👥',o.x-(o.name.length*4+16),o.y-46,'#e1bee7');}if(o.vc){ctx.font='11px sans-serif';ctx.textAlign='center';ctx.fillText('🎙',o.x+(o.name.length*4+14),o.y-42);}if(o.pk&&!map.pvp){label('PvP',o.x+(o.name.length*4+20),o.y-46,'#ff5252');if(P.pk&&o.hp!=null){px(o.x-16,o.y-72,32,5,'#300');px(o.x-16,o.y-72,32*o.hp/100,5,'#ff5252');}}if(map.pvp&&o.hp!=null){px(o.x-16,o.y-72,32,5,'#300');px(o.x-16,o.y-72,32*o.hp/100,5,'#ff5252');}const lup=rv==='bonggu'?18:rv?VEH[rv].up:o.rd?9:0;label(o.name+' Lv'+o.lv,o.x,o.y-46-lup,'#9dffb0');const tt=TITLES[o.tt];if(tt)label(tt[0],o.x,o.y-59-lup,tt[1]);if(o.say&&o.sayT>nowS())bubble(o.say,o.x,o.y-(tt?76:62));}
 const SIGNS={};
@@ -3479,7 +3486,7 @@ function invHtml(){const sel=INVSEL;let d='';const SELL=menuTab==='sell';if(SELL
  const eqd=(k,lab)=>{const e=P.eq[k],it=e&&ITEMS[e.id];L+=slot('eq:'+k,lab,e?itIcon(e.id,34):'',e?itemName(e,1):'',!!e,e?'착용':'');
   if(sel==='eq:'+k&&e)d=`<div class="dh">${itIcon(e.id,30)}<div><b>${itemName(e,1)}</b> <span style="color:#4dd0e1">착용 중</span><br><small style="color:#cfc3ee">${itemDesc(it,e.plus)}</small></div></div><div>${k!=='weapon'?`<button class="btn" data-un="${k}">해제</button>`:'<span style="font-size:11px;color:#9a8cc4">무기는 다른 무기를 장착하면 바뀌어요</span>'}</div>`;};
  eqd('weapon','무기');eqd('armor','갑옷');if(P.eq.acc)eqd('acc','장신구');
- {const V=P.ride&&VEH[P.ride];L+=slot('veh',' 탈것',V?vehIcon(P.ride,34):'',V?V.name:'',!!V,V?'탑승':'');if(sel==='veh'){INVTAB='veh';}}
+ if(petRiding()){const t=petCur();L+=slot('p:'+t,' 탈것',petIcon(t,34,false),petName(t)+' Lv'+petOf(t).lv,true,'탑승');if(sel==='p:'+t)INVTAB='pet';}else{const V=P.ride&&VEH[P.ride];L+=slot('veh',' 탈것',V?vehIcon(P.ride,34):'',V?V.name:'',!!V,V?'탑승':'');if(sel==='veh'){INVTAB='veh';}}
  {const q=P.quick&&CONS[P.quick]?P.quick:'',F=foodOn();L+=slot('food','빠른 장비',q?consIcon(q,34):'',q?CONS[q][0]+' ×'+(P.pots[q]||0):'',!!q,q?'C키':'');
   if(sel==='food')d=`<div><b>빠른 장비 (C키)</b><br><small style="color:#cfc3ee">「먹을것」 칸에서 물약·음식을 눌러 「빠른 장비에 두기」를 하면 여기에 들어가요</small></div>`+(F?`<div style="color:#ffd740;margin-top:4px">${consIcon(P.food.id,18)} ${CONS[P.food.id][0]} 효과 중 · ${Math.ceil((P.food.until-Date.now())/1000)}초 남음</div>`:'')+(q?`<div><button class="btn gold" data-use="${q}">사용</button><button class="btn" data-quick="${q}">비우기</button></div>`:'');}
  const st=bagStacks().filter(e=>ITEMS[e.id]),cons=Object.keys(CONS).filter(k=>P.pots[k]>0),food=cons.filter(EDIBLE),items=SELL?[]:cons.filter(k=>!EDIBLE(k)),mats=Object.keys(MATS).filter(k=>P.mats[k]>0&&(!SELL||MATP[k]));
