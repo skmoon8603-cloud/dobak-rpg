@@ -1982,7 +1982,8 @@ let SKTAG=null;
 function skAdd(v){if(!SKTAG||!P)return;const d=P.skd||(P.skd={});const q=d[SKTAG]||(d[SKTAG]=[0,0]);q[0]+=v;q[1]+=v;}
 function cast(id,pt){const n0=[timers.length,zones.length,traps.length,turrets.length,spirits.length];const was=P.cds[id];SKTAG=id;MSUSED=0;try{castInner(id,pt);}finally{SKTAG=null;}
  if(MSUSED&&P.cds[id]>0&&P.cds[id]!==was)P.cds[id]*=.7;
- if(P.cds[id]>0&&P.cds[id]!==was){for(const t of timers.slice(n0[0])){const f=t.f;t.f=()=>{const pv=SKTAG;SKTAG=id;try{f();}finally{SKTAG=pv;}};}for(const z of zones.slice(n0[1]))z.sk=id;for(const z of traps.slice(n0[2]))z.sk=id;for(const z of turrets.slice(n0[3]))z.sk=id;for(const z of spirits.slice(n0[4]))z.sk=id;if(P.dash)P.dash.sk=P.dash.sk||id;for(const f of ['barrage','rapid','ram','storm'])if(P[f]>0)P[f+'Sk']=id;}}
+ if(P.cds[id]>0&&P.cds[id]!==was){for(const t of timers.slice(n0[0])){const f=t.f;t.f=()=>{const pv=SKTAG;SKTAG=id;try{f();}finally{SKTAG=pv;}};}for(const z of zones.slice(n0[1]))z.sk=id;for(const z of traps.slice(n0[2]))z.sk=id;for(const z of turrets.slice(n0[3]))z.sk=id;for(const z of spirits.slice(n0[4]))z.sk=id;if(P.dash)P.dash.sk=P.dash.sk||id;for(const f of ['barrage','rapid','ram','storm'])if(P[f]>0)P[f+'Sk']=id;}
+ if(P.flags&&P.flags.admin&&P.cds[id]>.15)P.cds[id]=.15;} // 관리자: 쿨타임 없음 (연타로 한 프레임에 여러 번 쓰이지 않게 0.15초만)
 function castInner(id,pt){if(CUT.t>0)return;if(map&&map.pvp&&(gameT<(P.pvStart||0)||P.pvOver))return;
  const S=SK[id],lv=P.skl[id];if(!S||!lv)return;
  if(P.cds[id]>0)return;if(P.mp<S.mp){log('마나가 부족해요');return;}
