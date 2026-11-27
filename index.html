@@ -246,7 +246,7 @@ let AC=null;
 // 효과음: 음악보다 잘 들리게 크게, 압축기로 한꺼번에 터져도 찢어지지 않게
 let SFXOUT=null;const sfxLast={};
 const MENU1={open:false,ap:null};
-const IN_APP=(()=>{try{return !!(window.Capacitor||navigator.standalone||matchMedia('(display-mode: standalone)').matches||matchMedia('(display-mode: fullscreen)').matches||/; wv\)|Android.*Version\/[\d.]+.*Chrome/.test(navigator.userAgent)&&/wv/.test(navigator.userAgent));}catch(e){return false;}})();
+const IN_APP=(()=>{try{if(/KAKAOTALK/i.test(navigator.userAgent))return false;return !!(window.Capacitor||navigator.standalone||matchMedia('(display-mode: standalone)').matches||matchMedia('(display-mode: fullscreen)').matches||/; wv\)|Android.*Version\/[\d.]+.*Chrome/.test(navigator.userAgent)&&/wv/.test(navigator.userAgent));}catch(e){return false;}})();
 let VOLM=100,VOLS=100;try{const v=JSON.parse(localStorage.getItem('dobakrpg_vol')||'{}');if(v.m>=0&&v.m<=100)VOLM=v.m;if(v.s>=0&&v.s<=100)VOLS=v.s;}catch(e){}
 let MUSOUT=null;function musOut(){if(!MUSOUT){MUSOUT=AC.createGain();MUSOUT.gain.value=VOLM/100;MUSOUT.connect(AC.destination);}return MUSOUT;}
 function applyVol(){try{BGM.volume=.75*VOLM/100;ROAR.volume=.9*VOLS/100;if(MUSOUT)MUSOUT.gain.value=VOLM/100;if(SFXOUT)SFXOUT.gain.value=3.4*VOLS/100;localStorage.setItem('dobakrpg_vol',JSON.stringify({m:VOLM,s:VOLS}));}catch(e){}}
