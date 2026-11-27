@@ -301,7 +301,7 @@ function musTick(){if(!MUS.name||!AC||AC.state!=='running')return;const S=SONGS[
 function musPlay(name){if(MUS.name===name)return;MUS.name=name;MUS.step=0;MUS.next=0;if(name){try{if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();}catch(e){MUS.name=null;return;}if(!MUS.timer)MUS.timer=setInterval(musTick,40);}}
 let winAway=false; // 다른 창·탭을 보고 있으면 음악을 멈춘다
 addEventListener('blur',()=>{winAway=true;bgmUpdate();});addEventListener('focus',()=>{winAway=false;bgmUpdate();});
-document.addEventListener('visibilitychange',()=>{winAway=document.hidden;bgmUpdate();if(NET.sock&&NET.sock.connected)NET.sock.emit('idle',document.hidden);});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){try{resize();last=performance.now();}catch(e){}}winAway=document.hidden;bgmUpdate();if(NET.sock&&NET.sock.connected)NET.sock.emit('idle',document.hidden);});
 const bossMus=k=>!!k&&(k==='dungeon'||(k==='yetilair'&&enemies.some(e=>e.b.boss&&!e.dead)));
 function bgmUpdate(){const k=P&&map&&NET.playing&&!winAway?map.key:null;const tr=!muted&&k&&!bossMus(k)?(k==='village'&&EVT.on?'dragon.mp3':map.mine?(P.labor?'minejail.mp3':'mine.mp3'):trackOf(k)):null;
  if(tr&&tr!==bgmSrc){bgmSrc=tr;BGM.src=tr;BGM.currentTime=0;}
@@ -4257,14 +4257,15 @@ async function updCheck(){if(UPD.busy||location.protocol==='file:')return;let t=
 updCheck();setInterval(updCheck,45000);
 
 // ================= 루프 =================
-let last=performance.now();
+let last=performance.now(),DRAWERR=0;
 function loop(now){
  const dt=Math.min(.05,(now-last)/1000);last=now;
  if(P&&map&&!paused)update(dt);
  else if(P&&map&&paused&&NET.playing)worldTick(dt);
  netTick(dt);if(P&&map)bgmUpdate();
- if(P&&map)draw();else{ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle='#0d0818';ctx.fillRect(0,0,cv.width,cv.height);}
- hud();
+ if(P&&map&&!(isFinite(P.x)&&isFinite(P.y))){const st=map.start||{x:map.w*TS/2,y:map.h*TS/2};P.x=st.x;P.y=st.y;P.dash=null;} // 좌표가 깨지면 맵 시작점으로
+ if(P&&map){try{draw();DRAWERR=0;}catch(e){if(!DRAWERR++)console.warn('draw',e);if(DRAWERR===30){try{resize();}catch(e2){}}}}else{ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle='#0d0818';ctx.fillRect(0,0,cv.width,cv.height);}
+ try{hud();}catch(e){}
  requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
