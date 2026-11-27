@@ -1605,7 +1605,7 @@ function bossGold(i,pot){bdSend(true);const id=i.id,mk=map.key,x=i.x,y=i.y;
 // 보스를 잡으면 0.5% 확률로 보스알 → 그 지역 재료(먹이)를 먹이면 깨어나 자란다 (최대 Lv20) · Lv15부터 탈 수 있다
 const PETS={
  lich:{food:{bone:6,bone2:1,slime:1,hide:1},col:'#b388ff',sz:20},
- leviathan:{food:{ltooth:8,scale:2,horn:4,fish:1,bigfish:3},col:'#29b6f6',sz:22,k:.55,flip:1},
+ leviathan:{food:{ltooth:8,scale:2,horn:4,fish:1,bigfish:3},col:'#29b6f6',sz:22,k:.55},
  dragon:{food:{dscale:3,dtooth:10,dheart:40},col:'#ff5722',sz:24},
  anubis:{food:{ahide:4,poisongland:2,centleg:2,aheart:40},col:'#ffca28',sz:22},
  yeti:{food:{yfur:3,yhand:6,yeye:40},col:'#e0f7fa',sz:22},
@@ -1630,9 +1630,10 @@ function petFeed(t,k,all){const p=petOf(t),F=PETS[pb(t)];if(!p||!F||!F.food[k]||
 function petToggle(t){if(!petOf(t)||petOf(t).lv<1)return;if(P.petOn===t){P.petOn='';P.petRide=false;toast('들여보냈어요');}else{P.petOn=t;P.petRide=false;PETST.x=P.x-30;PETST.y=P.y;toast('🐾 '+petName(t)+'을(를) 데리고 다녀요');}calc();save(true);}
 function petRideToggle(t){const p=petOf(t);if(!p||p.lv<PET_RIDE){toast('Lv'+PET_RIDE+'부터 탈 수 있어요');return;}if(rideBan()&&!P.petRide){toast('여기서는 탈 수 없어요');return;}
  if(P.petOn!==t){P.petOn=t;P.petRide=false;PETST.x=P.x-30;PETST.y=P.y;}P.petRide=!P.petRide;if(P.petRide)P.rideOn=null;toast(P.petRide?'🐾 '+petName(t)+'에 올라탔어요 (속도 150%)':'내렸어요');calc();save(true);}
-const PETST={x:0,y:0,t:0,fx:1,anim:0};
-function petTick(dt){const t=petCur();if(!t||P.dead)return;const p=petOf(t);PETST.anim+=dt;
- if(petRiding()){PETST.x=P.x;PETST.y=P.y;PETST.fx=P.fx<0?-1:1;}
+const PETST={x:0,y:0,t:0,fx:1,anim:0,wt:0,dir:1};
+function petDir(){if(Math.abs(P.fx)>.3)PETST.dir=P.fx<0?-1:1;return PETST.dir;}
+function petTick(dt){const t=petCur();if(!t||P.dead)return;const p=petOf(t);PETST.anim+=dt;if(P.moving)PETST.wt+=dt;
+ if(petRiding()){PETST.x=P.x;PETST.y=P.y;PETST.fx=petDir();}
  else{const tx=P.x-(P.fx<0?-1:1)*34,ty=P.y+6,d=Math.hypot(tx-PETST.x,ty-PETST.y);if(d>600){PETST.x=tx;PETST.y=ty;}else if(d<=6){PETST.fx=P.fx<0?-1:1;}else if(d>6){const sp=Math.min(d,(P.st.spd*60*1.6+40)*dt);PETST.x+=(tx-PETST.x)/d*sp;PETST.y+=(ty-PETST.y)/d*sp;PETST.fx=tx>PETST.x?1:-1;}}
  PETST.t-=dt;if(PETST.t>0)return;
  let best=null,bd=300;for(const e of enemies){if(e.pv||e.dead||e.intro>0)continue;const q=Math.hypot(e.x-PETST.x,e.y-PETST.y);if(q<bd){bd=q;best=e;}}
@@ -1641,8 +1642,8 @@ function petTick(dt){const t=petCur();if(!t||P.dead)return;const p=petOf(t);PETS
 // 보스 그림을 작게 그린다 (보스 그리기 코드를 그대로 쓰고 크기만 줄인다)
 function petScale(t,lv,ride){t=pb(t);const B=ENEMIES[t];return (PETS[t].k||1)*(ride?PETS[t].sz*1.35:PETS[t].sz*(.55+lv*.025))/(B.r||20);}
 function drawPet(t,lv,x,y,fx,ride,anim){t=pb(t);const B=ENEMIES[t];if(!B)return;const k=petScale(t,lv,ride);
- const e={type:t,b:B,x:0,y:0,r:B.r,hp:1,max:1,anim:(anim||0)*(t==='leviathan'?.12:1),hitT:0,dead:false,face:fx,fx,state:'',st:'',phase:0,pet:1};if(t==='leviathan')e.trail=Array.from({length:13},(_,i)=>({x:i*9,y:Math.sin(i*.45)*16})); // 레비아탄은 몸을 짧게
- const px0=P.x,py0=P.y;ctx.save();ctx.translate(x,y);ctx.scale((fx<0)!==!!PETS[t].flip?-k:k,k);try{P.x=x+1000;P.y=y;drawEnemy(e);}catch(er){}finally{P.x=px0;P.y=py0;ctx.restore();}}
+ const e={type:t,b:B,x:0,y:0,r:B.r,hp:1,max:1,anim:(anim||0)*(t==='leviathan'?.12:1),hitT:0,dead:false,face:1,fx:1,state:'',st:'',phase:0,pet:1};if(t==='leviathan')e.trail=Array.from({length:13},(_,i)=>({x:-i*9,y:Math.sin(i*.45)*16})); // 머리는 앞(오른쪽), 몸은 뒤 // 레비아탄은 몸을 짧게
+ const px0=P.x,py0=P.y;ctx.save();ctx.translate(x,y);ctx.scale(fx<0?-k:k,k);try{P.x=x+1000;P.y=y;drawEnemy(e);}catch(er){}finally{P.x=px0;P.y=py0;ctx.restore();}}
 const PETBACK={};
 function petBack(t){t=pb(t);if(PETBACK[t]!=null)return PETBACK[t];let h=Math.round(PETS[t].sz*1.35*1.2);
  try{const c=document.createElement('canvas');c.width=240;c.height=240;const g=c.getContext('2d'),old=ctx;ctx=g;try{drawPet(t,20,120,200,1,true,0);}finally{ctx=old;}
@@ -1653,7 +1654,7 @@ function petBack(t){t=pb(t);if(PETBACK[t]!=null)return PETBACK[t];let h=Math.rou
 function rideSeat(t,x,y){const bk=petBack(t);ctx.save();ctx.beginPath();ctx.rect(x-300,y-2000,600,2000-bk+4);ctx.clip();ctx.translate(0,-(bk-11));}
 // 인벤토리 아이콘: 보스 모습을 작은 그림으로 (한 번만 만들어 둔다)
 const PETIC={};
-function petIcon(t,sz,egg){t=pb(t);const key=t+(egg?'e':'');if(!PETIC[key]){if(egg){PETIC[key]=pxIcon('egg',PETS[t].col);}else{const c=document.createElement('canvas');c.width=c.height=64;const g=c.getContext('2d'),old=ctx;ctx=g;try{const B=ENEMIES[t],k=24/(B.r||20);g.translate(32,50);g.scale(k,k);const e={type:t,b:B,x:0,y:0,r:B.r,hp:1,max:1,anim:0,hitT:0,face:1,fx:1,pet:1};const px0=P.x;P.x=1000;try{drawEnemy(e);}finally{P.x=px0;}}catch(er){}ctx=old;PETIC[key]=c.toDataURL();}}
+function petIcon(t,sz,egg){t=pb(t);const key=t+(egg?'e':'');if(!PETIC[key]){if(egg){PETIC[key]=pxIcon('egg',PETS[t].col);}else{const c=document.createElement('canvas');c.width=c.height=64;const g=c.getContext('2d'),old=ctx;ctx=g;try{const B=ENEMIES[t],k=24/(B.r||20);g.translate(32,50);g.scale(k,k);const e={type:t,b:B,x:0,y:0,r:B.r,hp:1,max:1,anim:0,hitT:0,face:1,fx:1,pet:1};if(t==='leviathan')e.trail=Array.from({length:13},(_,i)=>({x:-i*9,y:Math.sin(i*.45)*16}));const px0=P.x;P.x=1000;try{drawEnemy(e);}finally{P.x=px0;}}catch(er){}ctx=old;PETIC[key]=c.toDataURL();}}
  return `<img class="pxi" src="${PETIC[key]}" style="width:${sz}px;height:${sz}px">`;}
 function killEnemy(e){ // 방장(또는 혼자일 때)만 부른다
  e.dead=true;enemies=enemies.filter(x=>x!==e);
@@ -2850,7 +2851,7 @@ function drawChar(o){
 }
 function drawPlayer(){
  if(P.inv>0&&!(P.holy>0)&&(gameT*20|0)%2)return;
- const PR=petRiding();if(PR){const t=petCur();drawPet(t,petOf(t).lv,P.x,P.y,P.fx<0?-1:1,true,P.walk*3);rideSeat(t,P.x,P.y);}
+ const PR=petRiding();if(PR)P.fx=petDir()*Math.max(.3,Math.abs(P.fx));if(PR){const t=petCur();drawPet(t,petOf(t).lv,P.x,P.y,petDir(),true,PETST.wt*5);rideSeat(t,P.x,P.y);}
  const myV=!PR&&!P.rideOn&&!rideBan()&&VEH[P.ride]?P.ride:'';if(myV&&myV!=='fixie')drawVehicle(P.x,P.y,myV,P.fx<0?-1:1,P.walk,P.moving);const pv=P.rideOn&&VEH[P.rideV]?P.rideV:'';
  const meC={job3:P.job3,sk:P.skid?Math.max(.35,1-(P.skidT||0)/SKID_STOP):0,wl:P.eq&&P.eq.weapon?P.eq.weapon.plus||0:0,hd:myV==='fixie'?(P.hd!=null?P.hd:(P.fx<0?Math.PI:0)):null,lean:P.lean||0,x:P.x,y:P.y,race:P.race,cls:P.cls,job:P.job,fx:P.fx,fy:P.fy,walk:P.walk,atk:P.atkAnim>0,wp:P.eq&&P.eq.weapon?P.eq.weapon.id:'',ar:P.eq&&P.eq.armor?P.eq.armor.id:''};
  if(myV||pv)drawRider(meC,P.x,P.y,myV||pv,!!myV&&P.moving,P.walk,!myV);else
@@ -2862,7 +2863,7 @@ function drawPlayer(){
  if(P.say&&P.sayT>nowS())bubble(P.say,P.x,P.y-(tt?76:62));
  if(PR)ctx.restore();
 }
-function drawOther(o){const OPR=o.pt&&PETS[o.pt[0]]&&o.pt[2];if(OPR){drawPet(o.pt[0],o.pt[1],o.x,o.y,o.fx<0?-1:1,true,o.walk*3);rideSeat(o.pt[0],o.x,o.y);try{drawOther0(o);}finally{ctx.restore();}return;}drawOther0(o);}
+function drawOther(o){const OPR=o.pt&&PETS[o.pt[0]]&&o.pt[2];if(OPR){o.pwt=(o.pwt||0)+(o.w?.016:0);drawPet(o.pt[0],o.pt[1],o.x,o.y,o.fx<0?-1:1,true,o.pwt*5);rideSeat(o.pt[0],o.x,o.y);try{drawOther0(o);}finally{ctx.restore();}return;}drawOther0(o);}
 function drawOther0(o){if(VEH[o.v]&&o.v!=='fixie')drawVehicle(o.x,o.y,o.v,o.fx<0?-1:1,o.walk,o.w);if(o.v==='fixie'&&o.hd==null)o.hd=o.fx<0?Math.PI:0;let rv=VEH[o.v]?o.v:'';if(!rv&&o.rd){for(const q of NET.others.values())if(VEH[q.v]&&Math.abs(q.x-o.x)<40&&Math.abs(q.y-o.y)<4){rv=q.v;break;}if(!rv&&P.ride&&!P.rideOn&&Math.abs(P.x-o.x)<40&&Math.abs(P.y-o.y)<4)rv=P.ride;}
  ctx.globalAlpha=.9;if(rv)drawRider(o,o.x,o.y,rv,!!o.w&&!o.rd,o.walk,!!o.rd&&!VEH[o.v]);else if(o.rd){drawChar(Object.assign({},o,{y:o.y-9,walk:0}));}else drawChar(o);ctx.globalAlpha=1;const pid=[...NET.others.entries()].find(e=>e[1]===o);if(pid&&inParty(pid[0])&&!map.pvp){px(o.x-16,o.y-72,32,4,'#300');px(o.x-16,o.y-72,32*clamp(o.php!=null?o.php:(o.hp||100),0,100)/100,4,'#ff5252');label('👥',o.x-(o.name.length*4+16),o.y-46,'#e1bee7');}if(o.vc){ctx.font='11px sans-serif';ctx.textAlign='center';ctx.fillText('🎙',o.x+(o.name.length*4+14),o.y-42);}if(o.pk&&!map.pvp){label('PvP',o.x+(o.name.length*4+20),o.y-46,'#ff5252');if(P.pk&&o.hp!=null){px(o.x-16,o.y-72,32,5,'#300');px(o.x-16,o.y-72,32*o.hp/100,5,'#ff5252');}}if(map.pvp&&o.hp!=null){px(o.x-16,o.y-72,32,5,'#300');px(o.x-16,o.y-72,32*o.hp/100,5,'#ff5252');}const lup=rv==='bonggu'?18:rv?VEH[rv].up:o.rd?9:0;label(o.name+' Lv'+o.lv,o.x,o.y-46-lup,'#9dffb0');const tt=TITLES[o.tt];if(tt)label(tt[0],o.x,o.y-59-lup,tt[1]);if(o.say&&o.sayT>nowS())bubble(o.say,o.x,o.y-(tt?76:62));}
 const SIGNS={};
