@@ -1616,7 +1616,9 @@ const pb=t=>String(t||'').split('#')[0]; // 'spider#2' → 'spider'
 const petName=t=>ENEMIES[pb(t)]?ENEMIES[pb(t)].name:t;
 function petNewKey(t){if(!P.pets[t])return t;let i=2;while(P.pets[t+'#'+i])i++;return t+'#'+i;}
 const petOf=t=>P&&P.pets&&P.pets[t];
-const petDmg=(t,lv)=>Math.round((ENEMIES[pb(t)].atk||10)*1.2*(1+lv*.15)); // 원래 보스가 셀수록, 레벨이 높을수록 세다
+const petBase=(t,lv)=>Math.round((ENEMIES[pb(t)].atk||10)*1.2*(1+lv*.15)); // 원래 보스가 셀수록, 레벨이 높을수록 세다
+const myAtk=()=>{const k=basicKind();return Math.round((k==='m'?P.st.matk:k==='h'?P.st.hatk:P.st.patk)*(P.wf||1)*(1+.08*((P.eq.weapon&&P.eq.weapon.plus)||0)));};
+const petDmg=(t,lv)=>petBase(t,lv)+Math.round(myAtk()*(.4+lv*.04)); // + 내 무기·강화·능력치에 비례 (Lv20이면 내 기본 공격의 1.2배)
 function petCur(){const t=P&&P.petOn,p=t&&petOf(t);return p&&p.lv>=1?t:null;}
 function petRiding(){const t=petCur();return !!(t&&P.petRide&&petOf(t).lv>=PET_RIDE&&!rideBan());}
 function petFeed(t,k,all){const p=petOf(t),F=PETS[pb(t)];if(!p||!F||!F.food[k]||!(P.mats[k]>0))return;if(p.lv>=PET_MAX){toast('이미 최고 레벨(Lv'+PET_MAX+')이에요');return;}
@@ -1627,11 +1629,11 @@ function petFeed(t,k,all){const p=petOf(t),F=PETS[pb(t)];if(!p||!F||!F.food[k]||
  save(true);}
 function petToggle(t){if(!petOf(t)||petOf(t).lv<1)return;if(P.petOn===t){P.petOn='';P.petRide=false;toast('들여보냈어요');}else{P.petOn=t;P.petRide=false;PETST.x=P.x-30;PETST.y=P.y;toast('🐾 '+petName(t)+'을(를) 데리고 다녀요');}calc();save(true);}
 function petRideToggle(t){const p=petOf(t);if(!p||p.lv<PET_RIDE){toast('Lv'+PET_RIDE+'부터 탈 수 있어요');return;}if(rideBan()&&!P.petRide){toast('여기서는 탈 수 없어요');return;}
- if(P.petOn!==t){P.petOn=t;}P.petRide=!P.petRide;if(P.petRide)P.rideOn=null;toast(P.petRide?'🐾 '+petName(t)+'에 올라탔어요 (속도 150%)':'내렸어요');calc();save(true);}
+ if(P.petOn!==t){P.petOn=t;P.petRide=false;PETST.x=P.x-30;PETST.y=P.y;}P.petRide=!P.petRide;if(P.petRide)P.rideOn=null;toast(P.petRide?'🐾 '+petName(t)+'에 올라탔어요 (속도 150%)':'내렸어요');calc();save(true);}
 const PETST={x:0,y:0,t:0,fx:1,anim:0};
 function petTick(dt){const t=petCur();if(!t||P.dead)return;const p=petOf(t);PETST.anim+=dt;
  if(petRiding()){PETST.x=P.x;PETST.y=P.y;PETST.fx=P.fx<0?-1:1;}
- else{const tx=P.x-(P.fx<0?-1:1)*34,ty=P.y+6,d=Math.hypot(tx-PETST.x,ty-PETST.y);if(d>600){PETST.x=tx;PETST.y=ty;}else if(d>6){const sp=Math.min(d,(P.st.spd*60*1.6+40)*dt);PETST.x+=(tx-PETST.x)/d*sp;PETST.y+=(ty-PETST.y)/d*sp;PETST.fx=tx>PETST.x?1:-1;}}
+ else{const tx=P.x-(P.fx<0?-1:1)*34,ty=P.y+6,d=Math.hypot(tx-PETST.x,ty-PETST.y);if(d>600){PETST.x=tx;PETST.y=ty;}else if(d<=6){PETST.fx=P.fx<0?-1:1;}else if(d>6){const sp=Math.min(d,(P.st.spd*60*1.6+40)*dt);PETST.x+=(tx-PETST.x)/d*sp;PETST.y+=(ty-PETST.y)/d*sp;PETST.fx=tx>PETST.x?1:-1;}}
  PETST.t-=dt;if(PETST.t>0)return;
  let best=null,bd=300;for(const e of enemies){if(e.pv||e.dead||e.intro>0)continue;const q=Math.hypot(e.x-PETST.x,e.y-PETST.y);if(q<bd){bd=q;best=e;}}
  if(!best){PETST.t=.2;return;}PETST.t=1;const sy=PETST.y-(petRiding()?14:10),n=norm(best.x-PETST.x,best.y-8-sy);PETST.fx=n.x<0?-1:1;
@@ -1639,7 +1641,7 @@ function petTick(dt){const t=petCur();if(!t||P.dead)return;const p=petOf(t);PETS
 // 보스 그림을 작게 그린다 (보스 그리기 코드를 그대로 쓰고 크기만 줄인다)
 function petScale(t,lv,ride){t=pb(t);const B=ENEMIES[t];return (PETS[t].k||1)*(ride?PETS[t].sz*1.35:PETS[t].sz*(.55+lv*.025))/(B.r||20);}
 function drawPet(t,lv,x,y,fx,ride,anim){t=pb(t);const B=ENEMIES[t];if(!B)return;const k=petScale(t,lv,ride);
- const e={type:t,b:B,x:0,y:0,r:B.r,hp:1,max:1,anim:anim||0,hitT:0,dead:false,face:fx,fx,state:'',st:'',phase:0,pet:1};if(t==='leviathan')e.trail=Array.from({length:13},(_,i)=>({x:i*9,y:Math.sin(i*.45)*16})); // 레비아탄은 몸을 짧게
+ const e={type:t,b:B,x:0,y:0,r:B.r,hp:1,max:1,anim:(anim||0)*(t==='leviathan'?.12:1),hitT:0,dead:false,face:fx,fx,state:'',st:'',phase:0,pet:1};if(t==='leviathan')e.trail=Array.from({length:13},(_,i)=>({x:i*9,y:Math.sin(i*.45)*16})); // 레비아탄은 몸을 짧게
  const px0=P.x,py0=P.y;ctx.save();ctx.translate(x,y);ctx.scale((fx<0)!==!!PETS[t].flip?-k:k,k);try{P.x=x+1000;P.y=y;drawEnemy(e);}catch(er){}finally{P.x=px0;P.y=py0;ctx.restore();}}
 const PETBACK={};
 function petBack(t){t=pb(t);if(PETBACK[t]!=null)return PETBACK[t];let h=Math.round(PETS[t].sz*1.35*1.2);
