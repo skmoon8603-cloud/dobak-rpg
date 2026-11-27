@@ -25,7 +25,7 @@ button{font-family:inherit;cursor:pointer}
 #hpb i{background:linear-gradient(#ff6b6b,#c0392b)}#mpb i{background:linear-gradient(#6ba8ff,#2c5bc0)}#xpb i{background:linear-gradient(#ffe066,#d4a017)}
 #xpb{height:10px}#xpb span{font-size:8px;line-height:10px}
 #gold{font-size:12px;color:#ffd75e;margin-top:3px}
-#topr{display:flex;flex-direction:column;align-items:flex-end;gap:6px;pointer-events:auto;min-width:0;flex:1 1 auto;max-width:100%}#tbtns{display:flex;flex-direction:column;align-items:flex-end;gap:6px;max-width:100%}
+#topr{display:flex;flex-direction:column;align-items:flex-end;gap:6px;pointer-events:auto;min-width:0;flex:1 1 auto;max-width:100%}#tbtns{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;width:min(292px,calc(100vw - 20px));max-width:100%;box-sizing:border-box;background:rgba(20,10,40,.94);border:2px solid #8a6bd1;border-radius:10px;padding:8px}#tbtns .tbtn{text-align:center;padding:6px 0;font-size:11px;white-space:nowrap}
 #mapname{white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis;background:rgba(20,10,40,.78);border:2px solid #6b4fa8;border-radius:8px;padding:4px 8px;font-size:12px}
 .tbtn{background:#3b2766;border:2px solid #a585e8;color:#fff;border-radius:8px;padding:5px 7px;font-size:12px;white-space:nowrap}
 .trow{display:flex;gap:4px;justify-content:flex-end;flex-wrap:wrap;max-width:100%}
@@ -153,12 +153,14 @@ input[type=text],input[type=password]{font-family:inherit;background:#120a24;bor
   </div>
   <div id="topr">
     <div id="mapname">마을</div>
-    <div class="trow"><button class="tbtn" id="bFold" title="버튼 접기/펴기">☰</button></div>
-    <div id="tbtns">
-    <div class="trow"><button class="tbtn" id="bMute">🔊</button><button class="tbtn hidden" id="bVoice">🎤</button><button class="tbtn" id="bChat">💬</button><button class="tbtn" data-tab="stat">상태</button><button class="tbtn" data-tab="skill">스킬</button></div>
-    <div class="trow"><button class="tbtn" data-tab="quest">퀘스트</button><button class="tbtn" data-tab="title">칭호</button><button class="tbtn" data-tab="sys">저장</button></div>
-    <div class="trow"><button class="tbtn" id="bFull">⛶</button><button class="tbtn" id="bGuide">🧭 길안내</button><button class="tbtn" data-tab="map">지도</button><button class="tbtn" data-tab="equip">인벤토리</button></div>
-    <div class="trow"><button class="tbtn" data-tab="party">👥 파티</button><button class="tbtn" data-tab="trade">🤝 거래</button><button class="tbtn" id="bCh">📡 서버</button><button class="tbtn" id="bPk">🕊 PvP 끔</button><button class="tbtn hidden" id="bAdm">👑 관리자</button></div>
+    <div class="trow"><button class="tbtn" id="bFold" title="메뉴 열기/닫기">☰ 메뉴</button></div>
+    <div id="tbtns" class="hidden">
+    <button class="tbtn" data-tab="stat">상태</button><button class="tbtn" data-tab="skill">스킬</button><button class="tbtn" data-tab="quest">퀘스트</button>
+    <button class="tbtn" data-tab="equip">인벤토리</button><button class="tbtn" data-tab="map">지도</button><button class="tbtn" id="bGuide">🧭 길안내</button>
+    <button class="tbtn" data-tab="party">👥 파티</button><button class="tbtn" data-tab="trade">🤝 거래</button><button class="tbtn" id="bCh">📡 서버</button>
+    <button class="tbtn" id="bChat">💬 채팅</button><button class="tbtn hidden" id="bVoice">🎤</button><button class="tbtn" id="bPk">🕊 PvP 끔</button>
+    <button class="tbtn" data-tab="set">⚙ 설정</button><button class="tbtn" data-tab="sys">저장</button><button class="tbtn" id="bFull">⛶ 전체화면</button>
+    <button class="tbtn hidden" id="bAdm">👑 관리자</button>
     </div>
   </div>
 </div>
@@ -243,9 +245,13 @@ const isTouch=('ontouchstart' in window)||navigator.maxTouchPoints>0;
 let AC=null;
 // 효과음: 음악보다 잘 들리게 크게, 압축기로 한꺼번에 터져도 찢어지지 않게
 let SFXOUT=null;const sfxLast={};
-function sfxOut(){if(!SFXOUT){const c=AC.createDynamicsCompressor();c.threshold.value=-8;c.knee.value=6;c.ratio.value=4;c.attack.value=.003;c.release.value=.15;const g=AC.createGain();g.gain.value=3.4;g.connect(c);c.connect(AC.destination);SFXOUT=g;}return SFXOUT;}
+const MENU1={open:false,ap:null};
+let VOLM=100,VOLS=100;try{const v=JSON.parse(localStorage.getItem('dobakrpg_vol')||'{}');if(v.m>=0&&v.m<=100)VOLM=v.m;if(v.s>=0&&v.s<=100)VOLS=v.s;}catch(e){}
+let MUSOUT=null;function musOut(){if(!MUSOUT){MUSOUT=AC.createGain();MUSOUT.gain.value=VOLM/100;MUSOUT.connect(AC.destination);}return MUSOUT;}
+function applyVol(){try{BGM.volume=.75*VOLM/100;ROAR.volume=.9*VOLS/100;if(MUSOUT)MUSOUT.gain.value=VOLM/100;if(SFXOUT)SFXOUT.gain.value=3.4*VOLS/100;localStorage.setItem('dobakrpg_vol',JSON.stringify({m:VOLM,s:VOLS}));}catch(e){}}
+function sfxOut(){if(!SFXOUT){const c=AC.createDynamicsCompressor();c.threshold.value=-8;c.knee.value=6;c.ratio.value=4;c.attack.value=.003;c.release.value=.15;const g=AC.createGain();g.gain.value=3.4*VOLS/100;g.connect(c);c.connect(AC.destination);SFXOUT=g;}return SFXOUT;}
 // 효과음 파일 (용의 포효)
-const ROAR=new Audio('roar.mp3');ROAR.volume=.9;ROAR.preload='auto';
+const ROAR=new Audio('roar.mp3');ROAR.volume=.9*VOLS/100;ROAR.preload='auto';
 function playRoar(){if(muted)return;try{ROAR.currentTime=0;ROAR.play().catch(()=>{});}catch(e){}}
 // 수상한 고동: 뿌우~ / 땅울림
 function hornSfx(){try{if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();if(muted)return;const t=AC.currentTime;for(const[f,v]of[[147,.28],[294,.12],[441,.05]]){const o=AC.createOscillator(),g=AC.createGain(),lf=AC.createOscillator(),lg=AC.createGain();o.type='sawtooth';o.frequency.value=f;lf.frequency.value=5.5;lg.gain.value=f*.012;lf.connect(lg);lg.connect(o.frequency);const fl=AC.createBiquadFilter();fl.type='lowpass';fl.frequency.value=900;o.connect(fl);fl.connect(g);g.connect(sfxOut());g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+.25);g.gain.setValueAtTime(v,t+1.6);g.gain.exponentialRampToValueAtTime(.0001,t+2.3);o.start(t);lf.start(t);o.stop(t+2.4);lf.stop(t+2.4);}}catch(e){}}
@@ -279,7 +285,7 @@ const TRACKS={village:'village2.mp3',field:'field.mp3',plain:'field.mp3',sea:'se
  house:'village2.mp3',bank:'village2.mp3',casino:'village2.mp3',cafe:'village2.mp3',police:'village2.mp3'};
 // 목록에 없는 지역도 항상 음악이 나오게: 레이드·결투장은 전투 북소리, 나머지는 성의 역사
 const trackOf=k=>TRACKS[k]||(/^raid|^arena/.test(k)?'drums.mp3':'castle.mp3');
-const BGM=new Audio();BGM.loop=true;BGM.volume=.75;BGM.preload='auto';let bgmSrc=''; // 모든 곡은 같은 크기(-18 LUFS)로 맞춰 둠
+const BGM=new Audio();BGM.loop=true;BGM.volume=.75*VOLM/100;BGM.preload='auto';let bgmSrc=''; // 모든 곡은 같은 크기(-18 LUFS)로 맞춰 둠
 let muted=false;try{muted=localStorage.getItem('dobakrpg_mute')==='1';}catch(e){}
 // 들판·보스전 음악은 직접 만든 8비트 연주 (웹 오디오)
 const SONGS={
@@ -294,8 +300,8 @@ const SONGS={
   bass:[45,45,57,45,45,57,45,57, 45,45,57,45,45,57,45,57, 41,41,53,41,41,53,41,53, 43,43,55,43,43,55,43,55,
         45,45,57,45,45,57,45,57, 45,45,57,45,45,57,45,57, 41,41,53,41,41,53,41,53, 40,40,52,40,40,52,40,52]}};
 const MUS={name:null,step:0,next:0,timer:null};
-function tone(m,t,d,type,v){if(!m)return;const o=AC.createOscillator(),g=AC.createGain(),f=AC.createBiquadFilter();f.type='lowpass';f.frequency.value=2400;o.type=type;o.frequency.value=440*Math.pow(2,(m-69)/12);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(f);f.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+d+.02);}
-function kick(t){const o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.setValueAtTime(140,t);o.frequency.exponentialRampToValueAtTime(40,t+.1);g.gain.setValueAtTime(.09,t);g.gain.exponentialRampToValueAtTime(.0001,t+.12);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+.14);}
+function tone(m,t,d,type,v){if(!m)return;const o=AC.createOscillator(),g=AC.createGain(),f=AC.createBiquadFilter();f.type='lowpass';f.frequency.value=2400;o.type=type;o.frequency.value=440*Math.pow(2,(m-69)/12);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(f);f.connect(g);g.connect(musOut());o.start(t);o.stop(t+d+.02);}
+function kick(t){const o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.setValueAtTime(140,t);o.frequency.exponentialRampToValueAtTime(40,t+.1);g.gain.setValueAtTime(.09,t);g.gain.exponentialRampToValueAtTime(.0001,t+.12);o.connect(g);g.connect(musOut());o.start(t);o.stop(t+.14);}
 function musTick(){if(!MUS.name||!AC||AC.state!=='running')return;const S=SONGS[MUS.name],sd=30/S.bpm;if(MUS.next<AC.currentTime)MUS.next=AC.currentTime+.05;
  while(MUS.next<AC.currentTime+.2){const i=MUS.step%S.mel.length;if(S.mel[i])tone(S.mel[i]+S.tr,MUS.next,sd*.9,S.lead,S.vol);if(S.bass[i])tone(S.bass[i],MUS.next,sd*(S.drum?.8:1.8),'triangle',S.vol*2.2);if(S.drum&&i%2===0)kick(MUS.next);MUS.step++;MUS.next+=sd;}}
 function musPlay(name){if(MUS.name===name)return;MUS.name=name;MUS.step=0;MUS.next=0;if(name){try{if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();}catch(e){MUS.name=null;return;}if(!MUS.timer)MUS.timer=setInterval(musTick,40);}}
@@ -1512,12 +1518,13 @@ function toggleFS(){const d=document,el=d.documentElement;try{if(d.fullscreenEle
  const f=el.requestFullscreen||el.webkitRequestFullscreen;if(!f){toast('이 기기는 전체화면을 지원하지 않아요');log('💡 아이폰은 Safari 공유 버튼 → 「홈 화면에 추가」로 열면 전체화면처럼 쓸 수 있어요');return;}
  const r=f.call(el,{navigationUI:'hide'});if(r&&r.catch)r.catch(()=>toast('전체화면을 열 수 없어요'));}catch(e){toast('전체화면을 열 수 없어요');}}
 $('bFull').onclick=toggleFS;
-{let fold=false;try{fold=localStorage.getItem('dobakrpg_fold')==='1';}catch(e){}const ap=()=>{$('tbtns').classList.toggle('hidden',fold);$('bFold').textContent=fold?'☰ 메뉴':'✕';};ap();
- $('bFold').onclick=()=>{fold=!fold;try{localStorage.setItem('dobakrpg_fold',fold?'1':'0');}catch(e){}ap();};}
+{const ap=()=>{$('tbtns').classList.toggle('hidden',!MENU1.open);$('bFold').textContent=MENU1.open?'✕ 닫기':'☰ 메뉴';};MENU1.ap=ap;ap();
+ $('bFold').onclick=()=>{MENU1.open=!MENU1.open;ap();};
+ $('tbtns').addEventListener('click',e=>{if(e.target.closest('.tbtn')&&!e.target.closest('#bFull')){MENU1.open=false;ap();}});}
 $('bVoice').onclick=()=>vcToggle();
 $('bGuide').onclick=()=>{if(!P)return;if(!guideActive(true)){toast('길안내는 모르간을 잡기 전까지만 있어요');return;}P.flags.guideOff=P.flags.guideOff?0:1;toast(P.flags.guideOff?'🧭 길안내 끔':'🧭 길안내 켬');GUIDE.t=0;};
 $('chatIn').addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter'){e.preventDefault();sendChat();}else if(e.key==='Escape')closeChat();});
-$('bMute').onclick=()=>{muted=!muted;try{localStorage.setItem('dobakrpg_mute',muted?'1':'0');}catch(e){}bgmUpdate();};
+
 
 // ================= 전투 도우미 =================
 let curTier=0; // 지금 쓰는 스킬의 등급(1~4). 높을수록 연출이 화려하다
@@ -3410,7 +3417,7 @@ function invHtml(){const sel=INVSEL;let d='';
  {const q=P.quick&&CONS[P.quick]?P.quick:'',F=foodOn();L+=slot('food','빠른 장비',q?consIcon(q,34):'',q?CONS[q][0]+' ×'+(P.pots[q]||0):'',!!q,q?'C키':'');
   if(sel==='food')d=`<div><b>빠른 장비 (C키)</b><br><small style="color:#cfc3ee">「먹을것」 칸에서 물약·음식을 눌러 「빠른 장비에 두기」를 하면 여기에 들어가요</small></div>`+(F?`<div style="color:#ffd740;margin-top:4px">${consIcon(P.food.id,18)} ${CONS[P.food.id][0]} 효과 중 · ${Math.ceil((P.food.until-Date.now())/1000)}초 남음</div>`:'')+(q?`<div><button class="btn gold" data-use="${q}">사용</button><button class="btn" data-quick="${q}">비우기</button></div>`:'');}
  const st=bagStacks().filter(e=>ITEMS[e.id]),cons=Object.keys(CONS).filter(k=>P.pots[k]>0),food=cons.filter(EDIBLE),items=cons.filter(k=>!EDIBLE(k)),mats=Object.keys(MATS).filter(k=>P.mats[k]>0);
- const tabs=[['gear','장비',st.length],['item','아이템',items.length+mats.length],['veh','탈것',P.veh.length],['food','먹을것',food.length]];
+ const tabs=[['gear','장비',st.length],['item','아이템',items.length+mats.length],['veh','탈것',P.veh.length],['food','먹을것',food.length],['title','칭호',P.titles.length]];
  if(INVAUTO){INVAUTO=0;const cnt={gear:st.length,item:items.length+mats.length,veh:P.veh.length,food:food.length};if(!cnt[INVTAB]){const f=['gear','item','food','veh'].find(k=>cnt[k]);if(f)INVTAB=f;}}
  let g='',n=0;
  if(INVTAB==='gear')st.forEach(e=>{const it=ITEMS[e.id],key='g:'+e.id+':'+e.plus;n++;g+=cell(key,itIcon(e.id,28),e.n,'t'+it.tier,e.plus,it.name);
@@ -3422,7 +3429,8 @@ function invHtml(){const sel=INVSEL;let d='';
  if(INVTAB==='food')food.forEach(consCell);
  if(INVTAB==='veh')P.veh.forEach(k=>{const W=VEH[k];if(!W)return;const key='v:'+k,on=P.ride===k;n++;g+=cell(key,vehIcon(k,28),0,on?'t7':'',0,W.name);
   if(sel===key||(sel==='veh'&&on))d=`<div class="dh">${vehIcon(k,30)}<div><b>${W.name}</b>${on?' <span style="color:#4dd0e1">탑승 중</span>':''}<br><small style="color:#cfc3ee">이동 속도 +${Math.round(W.spd*100)}%${W.seats?` · 뒤에 ${W.seats}명`:''}</small></div></div><div><button class="btn ${on?'':'gold'}" data-mount="${k}">${on?'내리기':'타기'}</button></div>`;});
- const pad=Math.max(0,Math.ceil(Math.max(n,20)/5)*5-n);for(let i=0;i<pad;i++)g+='<div class="ivc empty"></div>';
+ const pad=INVTAB==='title'?0:Math.max(0,Math.ceil(Math.max(n,20)/5)*5-n);for(let i=0;i<pad;i++)g+='<div class="ivc empty"></div>';
+ if(INVTAB==='title'){checkTitles();const T=P.titles.filter(id=>TITLES[id]);g=`<div style="grid-column:1/-1"><div style="font-size:12px">지금 칭호: <b style="color:${TITLES[P.title]?TITLES[P.title][1]:'#fff'}">${TITLES[P.title]?TITLES[P.title][0]:'없음'}</b></div><div style="color:#b7a6d9;font-size:11px;margin:3px 0 6px">머리 위에 보여줄 칭호를 고르세요.</div>`+T.map(id=>{const t=TITLES[id];return `<div class="row"><div class="t"><b style="color:${t[1]}">${t[0]}</b><small>${t[2]}</small></div><button class="btn ${P.title===id?'gold':''}" data-title="${id}" ${P.title===id?'disabled':''}>${P.title===id?'사용 중':'달기'}</button></div>`;}).join('')+'</div>';n=T.length;}
  const R=`<div class="ivtabs">${tabs.map(([k,t,c])=>`<button class="ivt${INVTAB===k?' on':''}" data-ivt="${k}">${t}${c?` <small>${c}</small>`:''}</button>`).join('')}</div><div class="invg">${g}</div>`+(INVTAB==='gear'?`<div style="font-size:10px;color:#9a8cc4;margin-top:4px">장비 ${st.length}/24칸</div>`:'')+(n?'':`<div style="color:#777;font-size:11px;margin-top:4px">${INVTAB==='veh'?'탈것이 없어요 · 탈것 가게에서 살 수 있어요':'비어 있음'}</div>`);
  return `<div class="inv2"><div class="invL">${L}</div><div class="invR">${R}</div></div>`+(d?`<div class="invD">${d}</div>`:'');}
 function bagStacks(){const m=new Map();P.bag.forEach((e,i)=>{const k=e.id+':'+(e.plus||0);let st=m.get(k);if(!st){st={id:e.id,plus:e.plus||0,n:0,i};m.set(k,st);}st.n++;});return [...m.values()];}
@@ -3448,6 +3456,7 @@ function renderMenu(){
  if(menuTab==='gamble')tabs.splice(0,9,['gamble','도박장']);if(menuTab==='admin')tabs.splice(0,9,['admin','👑 관리자']);
  if(menuTab==='book')tabs.splice(0,9,['book','📚 스킬북']);
  if(menuTab==='equip')tabs.splice(0,9,['equip','🎒 인벤토리']);
+ if(menuTab==='set')tabs.splice(0,9,['set','⚙ 설정']);
  if(menuTab==='nick')tabs.splice(0,9,['nick','✏ 이름 바꾸기']);
  if(menuTab==='title')tabs.splice(0,9,['title','🏅 칭호']);
  if(menuTab==='map')tabs.splice(0,9,['map','🗺 지도']);
@@ -3522,6 +3531,11 @@ function renderMenu(){
   if(P.hq&&P.hq.s!=='none'&&P.hq.s!=='done'&&P.cls==='novice')h+=`<div class="row"><div class="t"><b style="color:#c58bff">🕯 히든: 슬라임 100마리</b><small>보상: 히든 직업 「마검사」 · 마을 남서쪽 끝 집의 수상한 자</small></div><div>${P.hq.s==='clear'?'✅ 보고하기':P.hq.c+'/100'}</div></div>`;
   h+=`<br><div style="color:#b7a6d9;font-size:12px">진행: ${Math.min(q.i,QUESTS.length)}/${QUESTS.length}<br>마을 동쪽 → 바람의 들판 → 북동쪽 끝 → 모르간의 던전</div>`;
  }else if(menuTab==='admin'){h=admHtml();
+ }else if(menuTab==='set'){
+  h=`<div style="font-weight:bold;color:#ffe9a8;margin-bottom:6px">🔊 소리</div>
+<div class="row"><div class="t">소리 전체<small>끄면 음악과 효과음이 모두 멈춰요</small></div><button class="btn ${muted?'':'gold'}" id="setMute">${muted?'🔇 꺼짐':'🔊 켜짐'}</button></div>
+<div class="row" style="flex-direction:column;align-items:stretch"><div class="t">🎵 음악 <b id="vmN">${VOLM}</b>%</div><input type="range" id="vmR" min="0" max="100" step="5" value="${VOLM}"></div>
+<div class="row" style="flex-direction:column;align-items:stretch"><div class="t">✨ 효과음 (스킬·공격 소리) <b id="vsN">${VOLS}</b>%</div><input type="range" id="vsR" min="0" max="100" step="5" value="${VOLS}"></div>`;
  }else if(menuTab==='sys'){
   h=``+`<div style="margin-bottom:8px;font-size:12px;color:${NET.token?'#7dff7d':'#b7a6d9'}">${NET.token?'👤 '+esc(NET.nick)+' 계정 · 서버에 저장돼요'+(NET.live?' · 실시간 접속 중':''):'이 기기에만 저장돼요'}</div><button class="btn gold" id="mSave">💾 저장하기</button> <span style="font-size:11px;color:#b7a6d9">(5분마다, 그리고 맵을 옮길 때도 자동 저장돼요)</span><br><br><button class="btn" id="mTut">📖 화면 설명 다시 보기</button><br><br><button class="btn red" id="mTitleBtn">타이틀로</button>
   <br><br><div style="font-size:12px;color:#b7a6d9;line-height:1.7">PC: WASD/방향키 이동 · Space/클릭 공격(마우스 방향 조준) · 1~3 스킬 · Shift 대쉬 · E 대화 · Z/X 물약 · I 인벤토리 · M 메뉴 · Enter 채팅<br>폰: 왼쪽 화면을 누르고 드래그해서 이동 · 오른쪽 버튼으로 공격/스킬 (가까운 적 자동 조준)</div>`;
@@ -3543,6 +3557,8 @@ function renderMenu(){
   <div style="color:#b7a6d9;font-size:12px;margin-top:6px">🔨 장비 강화는 대장장이 볼프에게 · 🎰 슬롯머신·빙글판은 카지노 안에서!</div>`;
  }
  B.innerHTML=h;
+ if(menuTab==='set'){const sm=$('setMute');if(sm)sm.onclick=()=>{muted=!muted;try{localStorage.setItem('dobakrpg_mute',muted?'1':'0');}catch(e){}bgmUpdate();renderMenu();};
+  const vm=$('vmR'),vs=$('vsR');if(vm)vm.oninput=()=>{VOLM=+vm.value;$('vmN').textContent=VOLM;applyVol();};if(vs){vs.oninput=()=>{VOLS=+vs.value;$('vsN').textContent=VOLS;applyVol();};vs.onchange=()=>sfx('hit');}}
  B.querySelectorAll('[data-title]').forEach(b=>b.onclick=()=>{P.title=b.dataset.title;sfx('coin');renderMenu();});
  B.querySelectorAll('[data-pt]').forEach(b=>b.onclick=()=>{addPt(b.dataset.pt);renderMenu();});B.querySelectorAll('[data-pt10]').forEach(b=>b.onclick=()=>{addPt(b.dataset.pt10,10);renderMenu();});
  B.querySelectorAll('[data-ivt]').forEach(b=>b.onclick=()=>{INVTAB=b.dataset.ivt;INVSEL='';renderMenu();});
@@ -4059,18 +4075,17 @@ const TUT=[
  [null,'👋 어서 와요!','도파민 RPG 화면을 하나씩 설명해 줄게요.\n노란 테두리가 가리키는 곳을 보면서 「다음」을 눌러요.'],
  ['#stat','📋 내 정보','이름 · 종족 · 직업과 레벨이에요.\n❤ 빨간 줄 = 체력(HP), 0이 되면 쓰러져요.\n💧 파란 줄 = 마나(MP), 스킬을 쓰면 줄어요.\n✨ 주황 줄 = 경험치(EXP), 꽉 차면 레벨 업!\n💰 아래는 가진 골드, ⭐SP는 남은 스킬 포인트예요.'],
  ['#mapname','📍 지금 있는 곳','지금 있는 맵 이름, 서버 번호, 같은 맵 사람 수/서버 전체 접속자 수예요.'],
- ['#bFold','☰ 버튼 접기','오른쪽 위 메뉴 버튼들을 접었다 폈다 해요. 화면이 좁을 때 쓰세요.'],
- ['#bMute','🔊 소리','배경 음악과 효과음을 켜고 꺼요.'],
+ ['#bFold','☰ 메뉴','모든 버튼이 여기 하나로 모여 있어요. 누르면 열리고, 버튼을 고르면 자동으로 닫혀요.'],
+ ['[data-tab=set]','⚙ 설정','음악과 효과음 크기를 따로 조절하고, 소리를 켜고 꺼요.'],
  ['#bChat','💬 채팅','같은 맵 사람들에게 말을 걸어요. 말이 머리 위에 말풍선으로 떠요. (PC: Enter)'],
  ['[data-tab=stat]','상태','능력치를 보고, 레벨 업 때 받은 능력치 포인트를 방어 · 물리 · 마법에 찍어요.'],
  ['[data-tab=skill]','스킬','배운 스킬을 보고 레벨을 올려요. 스킬을 아래 빈칸 슬롯 3개에 장착해서 써요.'],
  ['[data-tab=quest]','퀘스트','지금 하고 있는 퀘스트와 일일 의뢰를 보여 줘요.'],
- ['[data-tab=title]','칭호','모은 칭호를 보고 하나를 골라 이름 위에 달 수 있어요.'],
  ['[data-tab=sys]','저장','직접 저장하거나 타이틀로 돌아가요. 5분마다, 그리고 맵을 옮길 때마다 자동으로도 저장돼요. 이 설명은 여기서 다시 볼 수 있어요.'],
  ['#bFull','⛶ 전체 화면','화면을 꽉 채워서 크게 봐요.'],
  ['#bGuide','🧭 길안내','다음에 갈 곳을 화면에 노란 점선으로 알려 줘요. 누르면 켜고 꺼요.'],
  ['[data-tab=map]','지도','지금 맵 전체 모습과 다른 맵으로 가는 길, 몬스터 정보를 봐요.'],
- ['[data-tab=equip]','인벤토리','무기 · 갑옷 · 장신구를 끼고 빼고, 물약 · 재료 · 탈것을 관리해요. 안 쓰는 물건은 상점에서 팔 수 있어요.'],
+ ['[data-tab=equip]','인벤토리','무기 · 갑옷 · 장신구를 끼고 빼고, 물약 · 재료 · 탈것 · 칭호를 관리해요. 안 쓰는 물건은 상점에서 팔 수 있어요.'],
  ['[data-tab=party]','👥 파티','다른 사람과 파티를 맺어요. 파티원은 체력과 위치가 보여요.'],
  ['[data-tab=trade]','🤝 거래','가까이 있는 사람과 골드 · 아이템을 주고받아요.'],
  ['#qtrack','📜 할 일 알림','지금 퀘스트 진행 상황, 일일 의뢰, 길안내, 음식 효과 같은 걸 여기서 알려 줘요.'],
@@ -4084,7 +4099,7 @@ const TUT=[
  ['#log','🧾 알림 기록','받은 아이템, 경험치, 저장 같은 일이 여기에 잠깐 쌓여요.'],
  [null,'🎉 끝!','이제 모험을 떠나 봐요! 막히면 🧭 길안내를 켜고 따라가면 돼요.']];
 const TS2={i:0,after:null,shown:[]};
-function tutStart(after){TS2.i=0;TS2.after=after||null;paused=true;try{$('tbtns').classList.remove('hidden');}catch(e){}$('tut').classList.remove('hidden');tutShow();}
+function tutStart(after){TS2.i=0;TS2.after=after||null;paused=true;MENU1.open=true;try{$('tbtns').classList.remove('hidden');}catch(e){}$('tut').classList.remove('hidden');tutShow();}
 function tutRect(sel){if(!sel)return null;if(typeof sel==='function')return sel();const els=(Array.isArray(sel)?sel:[sel]).map(q=>document.querySelector(q)).filter(Boolean);let r=null;
  for(const el of els){if(el.id==='bAct'&&el.classList.contains('hidden')){el.classList.remove('hidden');TS2.shown.push(el);}const b=el.getBoundingClientRect();if(!b.width&&!b.height)continue;r=r?{left:Math.min(r.left,b.left),top:Math.min(r.top,b.top),right:Math.max(r.right,b.right),bottom:Math.max(r.bottom,b.bottom)}:{left:b.left,top:b.top,right:b.right,bottom:b.bottom};}
  return r?{left:r.left,top:r.top,width:r.right-r.left,height:r.bottom-r.top}:null;}
@@ -4092,16 +4107,19 @@ function tutShow(){for(const el of TS2.shown)el.classList.add('hidden');TS2.show
  if(r){const pd=5;H.style.left=(r.left-pd)+'px';H.style.top=(r.top-pd)+'px';H.style.width=(r.width+pd*2)+'px';H.style.height=(r.height+pd*2)+'px';}else{H.style.left=innerWidth/2+'px';H.style.top=innerHeight/2+'px';H.style.width='0px';H.style.height='0px';}
  $('tutT').textContent=st[1];$('tutX').textContent=st[2];$('tutN').textContent=(TS2.i+1)+' / '+TUT.length;$('tutPrev').style.visibility=TS2.i?'visible':'hidden';$('tutNext').textContent=TS2.i===TUT.length-1?'시작하기 ✔':'다음 ▶';
  const below=!r||r.top+r.height/2<innerHeight/2;B.style.top=below?Math.min(innerHeight-180,(r?r.top+r.height+16:innerHeight*.35))+'px':'auto';B.style.bottom=below?'auto':Math.max(8,innerHeight-r.top+16)+'px';}
-function tutEnd(){for(const el of TS2.shown)el.classList.add('hidden');TS2.shown=[];$('tut').classList.add('hidden');paused=false;P.flags.tut=1;save(true);const f=TS2.after;TS2.after=null;if(f)f();}
+function tutEnd(){for(const el of TS2.shown)el.classList.add('hidden');TS2.shown=[];MENU1.open=false;try{MENU1.ap&&MENU1.ap();}catch(e){}$('tut').classList.add('hidden');paused=false;P.flags.tut=1;save(true);const f=TS2.after;TS2.after=null;if(f)f();}
 $('tutNext').onclick=()=>{if(TS2.i>=TUT.length-1){tutEnd();return;}TS2.i++;tutShow();};
 $('tutPrev').onclick=()=>{if(TS2.i>0){TS2.i--;tutShow();}};
 $('tutSkip').onclick=()=>tutEnd();
 addEventListener('resize',()=>{if(!$('tut').classList.contains('hidden'))tutShow();});
 // 📜 패치노트: 새 패치가 나오면 처음 한 번만 띄운다 (이 기기 기준)
-const PATCH={v:'2026-11-27a',title:'📜 패치노트 · 11월 27일',lines:['💣 개틀링건(3차) 새 스킬 「폭탄 포탑」',
+const PATCH={v:'2026-11-27b',title:'📜 패치노트 · 11월 27일',lines:['💣 개틀링건(3차) 새 스킬 「폭탄 포탑」',
  '🔫 레인저 기본 공격 피해 1.5배',
  '🔨 대장장이에게 돈을 내면 다른 직업 무기를 내 직업 무기로 바꿀 수 있어요',
  '🏜 사막·설산 상인에게 귀환권을 사도 창이 닫히지 않아요',
+ '☰ 오른쪽 위 버튼들을 「메뉴」 하나로 묶었어요',
+ '⚙ 설정이 생겼어요 · 음악과 효과음(스킬) 소리를 따로 조절해요',
+ '🏅 칭호는 인벤토리 안에서 골라요',
  '⚔ PvP를 켠 사람끼리는 마을 안에서도 싸울 수 있어요',
  '⛰ 산은 Lv170부터 들어갈 수 있어요','🏦 은행 예금을 100억까지 넣을 수 있어요',
  '✨ 능력치를 한 번에 10개씩 찍는 「+10」 버튼이 생겼어요 (상태 창)',
