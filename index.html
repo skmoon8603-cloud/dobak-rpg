@@ -3123,7 +3123,7 @@ function dialog(who,lines,opts){if(!Array.isArray(lines))lines=[lines];dlgState=
 function renderDlg(){const d=$('dlg');d.classList.remove('hidden');d.querySelector('.who').textContent=dlgState.who;{const tx=d.querySelector('.txt');tx.style.maxHeight='';tx.style.overflow='';tx.textContent=dlgState.lines[dlgState.i];}const o=d.querySelector('.opts');o.innerHTML='';
  const last=dlgState.i>=dlgState.lines.length-1;
  if(!last||!dlgState.opts){const b=document.createElement('button');b.className='btn';b.textContent=last?'닫기':'다음 ▶';b.onclick=dlgNext;o.appendChild(b);}
- else dlgState.opts.forEach(op=>{const b=document.createElement('button');b.className='btn'+(op.c?' '+op.c:'');b.textContent=op.t;b.onclick=()=>{closeDlg();op.f&&op.f();};o.appendChild(b);});}
+ else dlgState.opts.forEach(op=>{const b=document.createElement('button');b.className='btn'+(op.c?' '+op.c:'');b.textContent=op.t;b.onclick=()=>{if(op.keep){op.f&&op.f();if(dlgState)renderDlg();return;}closeDlg();op.f&&op.f();};o.appendChild(b);});}
 function dlgNext(){if(!dlgState)return;if(dlgState.i<dlgState.lines.length-1){dlgState.i++;renderDlg();}else if(!dlgState.opts)closeDlg();}
 function closeDlg(){dlgState=null;$('dlg').classList.add('hidden');if($('menu').classList.contains('hidden'))paused=false;}
 
@@ -3141,9 +3141,9 @@ function interact(){
  if(n.type==='master3'){master3Talk(n);return;}
  if(n.type==='raid'){raidTalk(n);return;}
  if(n.type==='cafe'){cafeTalk(n);return;}
- if(n.type==='dshop'){dialog(n.name,['어서 오게, 사막은 호락호락하지 않아.','사막 로브가 없으면 모래 열기에 초당 5%씩 타들어 간다네.'],[{t:'🧥 사막 로브 사기 (8,000G)',c:'gold',f:()=>buyDesert('a_desert',8000)},{t:'🏜 사막마을 귀환권 (150G)',f:()=>{buyDesert('desertscroll',150);setTimeout(()=>{if(!dlgState)interact();},30);}},{t:'판매하기',f:()=>openMenu('sell')},{t:'나가기'}]);return;}
+ if(n.type==='dshop'){dialog(n.name,['어서 오게, 사막은 호락호락하지 않아.','사막 로브가 없으면 모래 열기에 초당 5%씩 타들어 간다네.'],[{t:'🧥 사막 로브 사기 (8,000G)',c:'gold',f:()=>buyDesert('a_desert',8000)},{t:'🏜 사막마을 귀환권 (150G)',keep:1,f:()=>{buyDesert('desertscroll',150);}},{t:'판매하기',f:()=>openMenu('sell')},{t:'나가기'}]);return;}
  if(n.type==='princess'){princessTalk(n);return;}
- if(n.type==='snowshop'){dialog(n.name,['어서 와요! 여긴 세상에서 제일 추운 마을이라오.','방한복 없이 마을을 돌아다니면 초당 5%씩 몸이 얼어 버려요. 모닥불 곁에서만 버틸 수 있지.'],[{t:'🧥 방한복 사기 (50,000G)',c:'gold',f:()=>buyDesert('a_snow',50000)},{t:'❄ 설산마을 귀환권 (300G)',f:()=>{buyDesert('snowscroll',300);setTimeout(()=>{if(!dlgState)interact();},30);}},{t:'판매하기',f:()=>openMenu('sell')},{t:'나가기'}]);return;}
+ if(n.type==='snowshop'){dialog(n.name,['어서 와요! 여긴 세상에서 제일 추운 마을이라오.','방한복 없이 마을을 돌아다니면 초당 5%씩 몸이 얼어 버려요. 모닥불 곁에서만 버틸 수 있지.'],[{t:'🧥 방한복 사기 (50,000G)',c:'gold',f:()=>buyDesert('a_snow',50000)},{t:'❄ 설산마을 귀환권 (300G)',keep:1,f:()=>{buyDesert('snowscroll',300);}},{t:'판매하기',f:()=>openMenu('sell')},{t:'나가기'}]);return;}
  if(n.type==='bonfire'){P.hp=P.st.hp;P.mp=P.st.mp;toast('🔥 따뜻하다… 체력과 마나가 회복되었다');sfx('lvl');save(true);return;}
  if(n.type==='ychief'){yChiefTalk(n);return;}
  if(n.type==='yetisleep'){yetiSleepTalk(n);return;}
@@ -3563,7 +3563,7 @@ function renderMenu(){
  const uh=$('useHorn');if(uh)uh.onclick=useDHorn;
  if(menuTab==='sign')signBind(B);
  if(menuTab==='cook')cookBind(B);
- if(menuTab==='smith'){B.querySelectorAll('[data-smith]').forEach(b=>b.onclick=()=>smithDo(b.dataset.smith));const cv=$('anvilCv');const e=P.eq.weapon||P.eq.armor;if(cv)drawAnvil(cv.getContext('2d'),{t:0,ham:-1.1,sp:[],it:e?ITEMS[e.id]:null});}
+ if(menuTab==='smith'){B.querySelectorAll('[data-smith]').forEach(b=>b.onclick=()=>smithDo(b.dataset.smith));B.querySelectorAll('[data-conv]').forEach(b=>b.onclick=()=>convDo(b.dataset.conv));const cv=$('anvilCv');const e=P.eq.weapon||P.eq.armor;if(cv)drawAnvil(cv.getContext('2d'),{t:0,ham:-1.1,sp:[],it:e?ITEMS[e.id]:null});}
  if(menuTab==='slot')slotBind(B);if(menuTab==='roul')roulBind(B);if(menuTab==='bank')bankBind(B);
  const ag=$('annGo');if(ag)ag.onclick=()=>{const v=($('annIn').value||'').trim();if(!v)return;if(NET.sock)NET.sock.emit('ann',v.slice(0,60));$('annIn').value='';toast('📢 공지를 보냈어요');};
 
@@ -3927,7 +3927,18 @@ const NOENH=new Set(['catsword','dalkong','baton']);
 function smithHtml(){let h=`<div>💰 ${P.gold.toLocaleString()} G · 성공하면 능력치 +15%, 무기는 모든 피해 +8%! (최대 +20 · +10부터는 50만 G 이상과 아주 희귀한 재료가 들어요)</div><div style="font-size:12px;color:${P.pots.protect>0?'#82b1ff':'#8d7bb3'}">🛡 강화 방지권 ${P.pots.protect||0}장 — 깨질 때 자동으로 1장 써서 막아요 (상점 100,000G)</div><canvas id="anvilCv" width="300" height="150" style="position:static;inset:auto;width:100%;max-width:300px;display:block;margin:8px auto;background:#1a1010;border-radius:8px;image-rendering:pixelated"></canvas><div id="smRes" style="min-height:22px;text-align:center;font-size:15px"></div>`;
  for(const [k,n] of [['weapon','무기'],['armor','방어구'],['acc','장신구']]){const e=P.eq[k];if(!e)continue;const it=ITEMS[e.id];if(NOENH.has(e.id)){h+=`<div class="row"><div class="t">${n}: ${itemName(e)}<small>이건 강화할 수 없는 특별한 물건이야</small></div></div>`;continue;}
   const o=enhOdds(e),cost=enhCost(e);h+=`<div class="row"><div class="t">${n}: ${itemName(e)}<small>${e.plus>=MAXPLUS?'최대 강화 (+'+MAXPLUS+')':`<span style="color:#7dff7d">성공 ${o.up}%</span> · <span style="color:#ccc">유지 ${o.keep}%</span> · <span style="color:#ff5252">깨짐 ${o.brk}%</span> · ${cost.toLocaleString()}G${enhMatTxt(e)}`}</small></div><button class="btn gold" data-smith="${k}" ${e.plus>=MAXPLUS||P.gold<cost||!enhMatOk(e)?'disabled':''}>🔨 강화</button></div>`;}
- if(!['weapon','armor','acc'].some(k=>P.eq[k]))h+='<div style="color:#999">장착한 장비가 없어요</div>';return h;}
+ if(!['weapon','armor','acc'].some(k=>P.eq[k]))h+='<div style="color:#999">장착한 장비가 없어요</div>';return h+convHtml();}
+// 다른 직업 무기를 내 직업 무기(같은 등급)로 바꾸기 · 값 = 무기 가격 ×10 (예티 무기 100만 G)
+function convTo(id){const m=/^w_([a-z]+)(\d)$/.exec(id||'');if(!m||m[1]===P.cls||m[1]==='novice'||!CLASSES[P.cls]||P.cls==='novice')return null;const to='w_'+P.cls+m[2];return ITEMS[to]?to:null;}
+function convCost(id){return (ITEMS[id].price||0)*10;}
+function convHtml(){let h='<div style="margin-top:10px;font-weight:bold;color:#ffd740">🔄 무기 직업 바꾸기</div><div style="font-size:11px;color:#b7a6d9">다른 직업 무기를 같은 등급의 내 직업 무기로 다시 벼려 줘요 · 강화 수치는 그대로</div>';
+ if(!P.cls||P.cls==='novice')return h+'<div style="color:#999;font-size:12px">직업을 배운 뒤에 바꿀 수 있어요</div>';
+ const L=[];const w=P.eq.weapon;if(w&&convTo(w.id))L.push(['eq',w]);P.bag.forEach((e,i)=>{if(convTo(e.id))L.push([String(i),e]);});
+ if(!L.length)return h+'<div style="color:#999;font-size:12px">바꿀 다른 직업 무기가 없어요</div>';
+ for(const [k,e] of L){const to=convTo(e.id),c=convCost(e.id);h+=`<div class="row"><div class="t">${itemName(e)} → ${itemName({id:to,plus:e.plus})}<small>${c.toLocaleString()}G</small></div><button class="btn gold" data-conv="${k}" ${P.gold<c?'disabled':''}>바꾸기</button></div>`;}
+ return h;}
+function convDo(k){const e=k==='eq'?P.eq.weapon:P.bag[+k];if(!e)return;const to=convTo(e.id);if(!to)return;const c=convCost(e.id);if(P.gold<c){toast('골드가 부족해요');return;}
+ const from=ITEMS[e.id].name;P.gold-=c;e.id=to;sfx('coin');clang();calc();save(true);toast('🔨 '+from+' → '+ITEMS[to].name+(e.plus?' +'+e.plus:''));log('🔨 대장장이가 '+from+'을(를) '+ITEMS[to].name+'(으)로 다시 벼렸다');renderMenu();}
 function clang(){try{if(!AC)return;if(muted)return;const t=AC.currentTime;for(const[f,v]of[[1760,.25],[2637,.12],[3520,.07]]){const o=AC.createOscillator(),g=AC.createGain();o.type='triangle';o.frequency.value=f;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+.45);o.connect(g);g.connect(sfxOut());o.start(t);o.stop(t+.5);}noise(t,.08,.3,3000);}catch(e){}}
 function drawAnvil(g,st){const W2=300,H2=150;g.clearRect(0,0,W2,H2);const glow=st.glow||0;
  g.fillStyle='#2b1a14';g.fillRect(0,0,W2,H2);g.fillStyle='rgba(255,120,40,'+(.08+.06*Math.sin(st.t*6))+')';g.fillRect(0,90,W2,60);
