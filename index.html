@@ -1410,7 +1410,7 @@ function saveLoss(){save(true);try{netFlush();}catch(e){}} // 도박에서 잃�
 function hasSave(){try{return !!localStorage.getItem(SAVEKEY);}catch(e){return false;}}
 function applySave(d){if(!d||!d.race||!RACES[d.race]||!CLASSES[d.cls])return false;P=Object.assign(newPlayer(d.name,d.race,d.cls),d);fixPlayer();return true;}
 function load(){try{return applySave(JSON.parse(localStorage.getItem(SAVEKEY)));}catch(e){return false;}}
-function fixPlayer(){monReset();take2x();if(!P.pets||typeof P.pets!=='object')P.pets={};for(const t in P.pets){if(!PETS[t])delete P.pets[t];else{const p=P.pets[t];p.lv=Math.max(0,Math.min(PET_MAX,p.lv|0));p.xp=Math.max(0,p.xp|0);}}if(!petCur()){P.petOn='';P.petRide=false;}
+function fixPlayer(){monReset();take2x();if(!P.pets||typeof P.pets!=='object')P.pets={};for(const t in P.pets){if(!PETS[pb(t)])delete P.pets[t];else{const p=P.pets[t];p.lv=Math.max(0,Math.min(PET_MAX,p.lv|0));p.xp=Math.max(0,p.xp|0);}}if(!petCur()){P.petOn='';P.petRide=false;}
  delete P.say;delete P.sayT;
  if(!P.skl)P.skl={};(P.sk||[]).forEach((v,i)=>{if(v)P.skl[P.cls+i]=Math.max(v,P.skl[P.cls+i]||0);});
  delete P.sk;
@@ -1612,12 +1612,14 @@ const PETS={
  spider:{food:{silk:2,sleg:1,mblood:1,sfang:6,seye:30,aheart2:60},col:'#ab47bc',sz:22}};
 const PET_MAX=20,PET_RIDE=15;
 const petNeed=lv=>lv<1?10:10*lv; // 다음 레벨까지 필요한 먹이 점수 (알 → Lv1은 10점)
-const petName=t=>ENEMIES[t]?ENEMIES[t].name:t;
+const pb=t=>String(t||'').split('#')[0]; // 'spider#2' → 'spider'
+const petName=t=>ENEMIES[pb(t)]?ENEMIES[pb(t)].name:t;
+function petNewKey(t){if(!P.pets[t])return t;let i=2;while(P.pets[t+'#'+i])i++;return t+'#'+i;}
 const petOf=t=>P&&P.pets&&P.pets[t];
-const petDmg=(t,lv)=>Math.round((ENEMIES[t].atk||10)*1.2*(1+lv*.15)); // 원래 보스가 셀수록, 레벨이 높을수록 세다
+const petDmg=(t,lv)=>Math.round((ENEMIES[pb(t)].atk||10)*1.2*(1+lv*.15)); // 원래 보스가 셀수록, 레벨이 높을수록 세다
 function petCur(){const t=P&&P.petOn,p=t&&petOf(t);return p&&p.lv>=1?t:null;}
 function petRiding(){const t=petCur();return !!(t&&P.petRide&&petOf(t).lv>=PET_RIDE&&!rideBan());}
-function petFeed(t,k,all){const p=petOf(t),F=PETS[t];if(!p||!F||!F.food[k]||!(P.mats[k]>0))return;if(p.lv>=PET_MAX){toast('이미 최고 레벨(Lv'+PET_MAX+')이에요');return;}
+function petFeed(t,k,all){const p=petOf(t),F=PETS[pb(t)];if(!p||!F||!F.food[k]||!(P.mats[k]>0))return;if(p.lv>=PET_MAX){toast('이미 최고 레벨(Lv'+PET_MAX+')이에요');return;}
  let n=0;const was=p.lv;while(P.mats[k]>0&&p.lv<PET_MAX&&(all||n<1)){P.mats[k]--;n++;p.xp+=F.food[k];while(p.lv<PET_MAX&&p.xp>=petNeed(p.lv)){p.xp-=petNeed(p.lv);p.lv++;}}
  if(p.lv>=PET_MAX)p.xp=0;sfx('coin');
  if(was<1&&p.lv>=1){toast('🥚 알이 깨어났어요! '+petName(t)+'의 새끼');log('🥚 보스알에서 '+petName(t)+'의 새끼가 깨어났다!');sfx('lvl');}
@@ -1633,16 +1635,16 @@ function petTick(dt){const t=petCur();if(!t||P.dead)return;const p=petOf(t);PETS
  PETST.t-=dt;if(PETST.t>0)return;
  let best=null,bd=300;for(const e of enemies){if(e.pv||e.dead||e.intro>0)continue;const q=Math.hypot(e.x-PETST.x,e.y-PETST.y);if(q<bd){bd=q;best=e;}}
  if(!best){PETST.t=.2;return;}PETST.t=1;const sy=PETST.y-(petRiding()?14:10),n=norm(best.x-PETST.x,best.y-8-sy);PETST.fx=n.x<0?-1:1;
- const pv=SKTAG;SKTAG=null;try{shoot({x:PETST.x,y:sy,vx:n.x*560,vy:n.y*560,dmg:petDmg(t,p.lv),life:.7,r:6,color:PETS[t].col,kind:'orb',glow:1});}finally{SKTAG=pv;}}
+ const pv=SKTAG;SKTAG=null;try{shoot({x:PETST.x,y:sy,vx:n.x*560,vy:n.y*560,dmg:petDmg(t,p.lv),life:.7,r:6,color:PETS[pb(t)].col,kind:'orb',glow:1});}finally{SKTAG=pv;}}
 // 보스 그림을 작게 그린다 (보스 그리기 코드를 그대로 쓰고 크기만 줄인다)
-function petScale(t,lv,ride){const B=ENEMIES[t];return (ride?PETS[t].sz*1.35:PETS[t].sz*(.55+lv*.025))/(B.r||20);}
-function drawPet(t,lv,x,y,fx,ride,anim){const B=ENEMIES[t];if(!B)return;const k=petScale(t,lv,ride);
+function petScale(t,lv,ride){t=pb(t);const B=ENEMIES[t];return (ride?PETS[t].sz*1.35:PETS[t].sz*(.55+lv*.025))/(B.r||20);}
+function drawPet(t,lv,x,y,fx,ride,anim){t=pb(t);const B=ENEMIES[t];if(!B)return;const k=petScale(t,lv,ride);
  const e={type:t,b:B,x:0,y:0,r:B.r,hp:1,max:1,anim:anim||0,hitT:0,dead:false,face:fx,fx,state:'',st:'',phase:0,pet:1};
  const px0=P.x,py0=P.y;ctx.save();ctx.translate(x,y);ctx.scale(fx<0?-k:k,k);try{P.x=x+(fx<0?-1:1)*1000;P.y=y;drawEnemy(e);}catch(er){}finally{P.x=px0;P.y=py0;ctx.restore();}}
-function petTop(t){return Math.round(PETS[t].sz*1.35*1.3);} // 탔을 때 사람이 올라가는 높이
+function petTop(t){return Math.round(PETS[pb(t)].sz*1.35*1.3);} // 탔을 때 사람이 올라가는 높이
 // 인벤토리 아이콘: 보스 모습을 작은 그림으로 (한 번만 만들어 둔다)
 const PETIC={};
-function petIcon(t,sz,egg){const key=t+(egg?'e':'');if(!PETIC[key]){if(egg){PETIC[key]=pxIcon('egg',PETS[t].col);}else{const c=document.createElement('canvas');c.width=c.height=64;const g=c.getContext('2d'),old=ctx;ctx=g;try{const B=ENEMIES[t],k=24/(B.r||20);g.translate(32,50);g.scale(k,k);const e={type:t,b:B,x:0,y:0,r:B.r,hp:1,max:1,anim:0,hitT:0,face:1,fx:1,pet:1};const px0=P.x;P.x=1000;try{drawEnemy(e);}finally{P.x=px0;}}catch(er){}ctx=old;PETIC[key]=c.toDataURL();}}
+function petIcon(t,sz,egg){t=pb(t);const key=t+(egg?'e':'');if(!PETIC[key]){if(egg){PETIC[key]=pxIcon('egg',PETS[t].col);}else{const c=document.createElement('canvas');c.width=c.height=64;const g=c.getContext('2d'),old=ctx;ctx=g;try{const B=ENEMIES[t],k=24/(B.r||20);g.translate(32,50);g.scale(k,k);const e={type:t,b:B,x:0,y:0,r:B.r,hp:1,max:1,anim:0,hitT:0,face:1,fx:1,pet:1};const px0=P.x;P.x=1000;try{drawEnemy(e);}finally{P.x=px0;}}catch(er){}ctx=old;PETIC[key]=c.toDataURL();}}
  return `<img class="pxi" src="${PETIC[key]}" style="width:${sz}px;height:${sz}px">`;}
 function killEnemy(e){ // 방장(또는 혼자일 때)만 부른다
  e.dead=true;enemies=enemies.filter(x=>x!==e);
@@ -1674,7 +1676,7 @@ function rewardKill(i){
  if(b.boss&&i.sh!=null){const g2=Math.round(g*i.sh);if(g2>0){const coins=Math.min(8,Math.ceil(g2/8));for(let k=0;k<coins;k++)pickups.push({k:'gold',v:Math.ceil(g2/coins),x:i.x+rnd(-14,14),y:i.y+rnd(-10,10),t:0});}log(`👑 보스 기여도 ${Math.round(i.sh*100)}% → 골드 ${g2.toLocaleString()}G (전체 ${g.toLocaleString()}G 중)`);toast(`👑 기여도 ${Math.round(i.sh*100)}% · 골드 ${g2.toLocaleString()}G`);}
  else if(g>0){const coins=Math.min(6,Math.ceil(g/8));for(let k=0;k<coins;k++)pickups.push({k:'gold',v:Math.ceil(g/coins),x:i.x+rnd(-10,10),y:i.y+rnd(-10,10),t:0});}
  if(Math.random()<.1/3)pickups.push({k:Math.random()<.6?'potHp':'potMp',x:i.x,y:i.y,t:0});
- if(b.boss&&PETS[i.t]&&!petOf(i.t)&&Math.random()<.005){P.pets[i.t]={lv:0,xp:0};P.flags.egg=1;setTimeout(()=>{sfx('lvl');flashA=.3;dialog('🥚 보스알!',[petName(i.t)+'이(가) 알을 떨어뜨렸다! (0.5%)\n\n인벤토리 「보스」 칸에서 이 지역 재료를 먹이로 주면 깨어나요.\n먹이를 많이 주면 Lv'+PET_MAX+'까지 자라고, Lv'+PET_RIDE+'부터는 올라탈 수 있어요.']);},1500);log('🥚 '+petName(i.t)+'의 보스알을 얻었다!');save(true);}
+ if(b.boss&&PETS[i.t]&&Math.random()<.005){P.pets[petNewKey(i.t)]={lv:0,xp:0};P.flags.egg=1;setTimeout(()=>{sfx('lvl');flashA=.3;dialog('🥚 보스알!',[petName(i.t)+'이(가) 알을 떨어뜨렸다! (0.5%)\n\n인벤토리 「보스」 칸에서 이 지역 재료를 먹이로 주면 깨어나요.\n먹이를 많이 주면 Lv'+PET_MAX+'까지 자라고, Lv'+PET_RIDE+'부터는 올라탈 수 있어요.']);},1500);log('🥚 '+petName(i.t)+'의 보스알을 얻었다!');save(true);}
  for(const d of DROPS[i.t]||[]){if(Math.random()>=d[3])continue;const n=ri(d[1],d[2]);pickups.push({k:CONS[d[0]]?'cons':'mat',id:d[0],n,x:i.x+rnd(-18,18),y:i.y+rnd(-6,18),t:0});}
  const tier=map.tier||1;
  if(i.t==='lich'){if(ITEMS['w_'+P.cls+'3'])pickups.push({k:'item',id:'w_'+P.cls+'3',x:i.x-20,y:i.y,t:0});pickups.push({k:'item',id:'r3',x:i.x+20,y:i.y,t:0});pickups.push({k:'mat',id:'bone',n:Math.random()<.5?2:3,x:i.x+rnd(-30,30),y:i.y+26,t:0});if(Math.random()<.1)pickups.push({k:'item',id:'cloak',x:i.x,y:i.y-24,t:0});}
@@ -3494,7 +3496,7 @@ function invHtml(){const sel=INVSEL;let d='';const SELL=menuTab==='sell';if(SELL
  if(INVTAB==='veh')P.veh.forEach(k=>{const W=VEH[k];if(!W)return;const key='v:'+k,on=P.ride===k;n++;g+=cell(key,vehIcon(k,28),0,on?'t7':'',0,W.name);
   if(sel===key||(sel==='veh'&&on))d=`<div class="dh">${vehIcon(k,30)}<div><b>${W.name}</b>${on?' <span style="color:#4dd0e1">탑승 중</span>':''}<br><small style="color:#cfc3ee">이동 속도 +${Math.round(W.spd*100)}%${W.seats?` · 뒤에 ${W.seats}명`:''}</small></div></div><div><button class="btn ${on?'':'gold'}" data-mount="${k}">${on?'내리기':'타기'}</button></div>`;});
  const pad=INVTAB==='title'?0:Math.max(0,Math.ceil(Math.max(n,20)/5)*5-n);for(let i=0;i<pad;i++)g+='<div class="ivc empty"></div>';
- if(INVTAB==='pet')for(const t of Object.keys(P.pets||{})){const p=P.pets[t],F=PETS[t];if(!F)continue;const key='p:'+t,egg=p.lv<1;n++;g+=cell(key,petIcon(t,28,egg),0,P.petOn===t?'t7':'t'+Math.min(8,1+Math.floor(p.lv/3)),0,egg?'보스알':'Lv'+p.lv);
+ if(INVTAB==='pet')for(const t of Object.keys(P.pets||{}).sort()){const p=P.pets[t],F=PETS[pb(t)];if(!F)continue;const key='p:'+t,egg=p.lv<1;n++;g+=cell(key,petIcon(t,28,egg),0,P.petOn===t?'t7':'t'+Math.min(8,1+Math.floor(p.lv/3)),0,egg?'보스알':'Lv'+p.lv);
   if(sel===key){const need=petNeed(p.lv),pc=p.lv>=PET_MAX?100:Math.floor(p.xp/need*100);
    d=`<div class="dh">${petIcon(t,36,egg)}<div><b style="color:${F.col}">${egg?petName(t)+'의 보스알':petName(t)+' Lv'+p.lv}</b>${P.petOn===t?` <span style="color:#4dd0e1">${petRiding()?'타는 중':'데리고 다니는 중'}</span>`:''}<br><small style="color:#cfc3ee">${egg?'먹이를 '+need+'점 주면 깨어나요':'근처 적을 자동으로 공격 · 공격력 '+petDmg(t,p.lv).toLocaleString()+' · '+(p.lv>=PET_RIDE?'탈 수 있어요 (속도 150%)':'Lv'+PET_RIDE+'부터 탈 수 있어요')}</small></div></div>`+
    `<div style="font-size:11px;margin:4px 0">${p.lv>=PET_MAX?'⭐ 최고 레벨':`먹이 ${p.xp}/${need}점 (${pc}%)`}<div style="height:5px;background:#2a1c4a;border-radius:3px;margin-top:2px"><div style="height:5px;width:${pc}%;background:${F.col};border-radius:3px"></div></div></div>`+
@@ -4209,6 +4211,7 @@ function startGame(isNew){
  if(String(P.map).startsWith('arena')){P.map='village';P.x=33.5*TS;P.y=19.6*TS;}
  fixPlayer();calc();if(isNew){P.hp=P.st.hp;P.mp=P.st.mp;}P.pk=pkForced();pkBtn();$('bAdm').classList.toggle('hidden',!NET.admin);$('iHp').innerHTML=consIcon('hp',22);$('iMp').innerHTML=consIcon('mp',22);
  if(NET.admin&&NET.token&&!P.flags.admin)adminGift();
+ if(NET.admin&&NET.token&&!P.flags.eggs2){P.flags.eggs2=1;if(!P.pets)P.pets={};for(const t in PETS)for(let n=0;n<2;n++)P.pets[petNewKey(t)]={lv:0,xp:0};setTimeout(()=>{toast('🥚 관리자: 모든 보스알 2개씩 지급!');log('🥚 관리자 지급: 보스알 '+Object.keys(PETS).length*2+'개 (인벤토리 「보스」 칸)');},2600);save(true);}
  if(NET.token&&(NET.admin||NET.nick==='이태희')&&!(P.eq.weapon&&P.eq.weapon.id==='baton')&&!P.bag.some(x=>x.id==='baton')){P.bag.push({id:'baton',plus:0});setTimeout(()=>toast('🚓 경찰봉 지급! (인벤토리에서 장착)'),2200);}
  if(P.flags.dragon&&!P.flags.dhorn){P.flags.dhorn=1;P.mats.dhorn=(P.mats.dhorn||0)+1;}
  if(NET.admin&&NET.token&&!(P.eq.weapon&&P.eq.weapon.id==='dalkong')&&!P.bag.some(x=>x.id==='dalkong')){P.bag.push({id:'dalkong',plus:0});setTimeout(()=>{toast('🐶 관리자의 달콩빔 지급! (인벤토리에서 장착)');},1500);}
@@ -4321,7 +4324,7 @@ function netConnect(){if(!NET.token||NET.sock)return;
  if(window.io)go();else{const sc=document.createElement('script');sc.src=NET.base+'/socket.io/socket.io.js';sc.onload=go;document.head.appendChild(sc);}}
 let netLastMove=0;
 setInterval(()=>{const k=NET.sock;if(!k||!k.connected||!P||!map||!NET.playing)return;const mv=getMove();
- const SO={m:map.key,n:P.name,r:P.race,c:P.cls,j:P.job||'',l:P.lv,x:P.x,y:P.y,f:P.fx<0?-1:1,a:P.atkAnim>0?1:0,w:mv.l>0&&!paused?1:0,wp:P.eq.weapon?P.eq.weapon.id:'',ar:P.eq.armor?P.eq.armor.id:'',t:P.title||'',hp:P.dead?0:Math.max(1,Math.round(clamp(P.hp/P.st.hp*100,0,100))),v:P.rideOn||rideBan()?'':P.ride||'',hd:P.ride==='fixie'&&P.hd!=null?Math.round(P.hd*100)/100:0,sp:spirits.map(x=>[SPI.indexOf(x.t),Math.round(x.x),Math.round(x.y)]),wl:P.eq.weapon?P.eq.weapon.plus||0:0,pk:P.pk||pkForced()?1:0,pt:petCur()?[petCur(),petOf(petCur()).lv,petRiding()?1:0,Math.round(PETST.x),Math.round(PETST.y)]:0};SO.x=Math.round(SO.x);SO.y=Math.round(SO.y);{const sg=JSON.stringify(SO),now=Date.now();if(sg!==NET.sLast||now-(NET.sT||0)>2000){NET.sLast=sg;NET.sT=now;k.volatile.emit('s',SO);}} // 그대로면 안 보냄 (2초마다 한 번은 보냄)
+ const SO={m:map.key,n:P.name,r:P.race,c:P.cls,j:P.job||'',l:P.lv,x:P.x,y:P.y,f:P.fx<0?-1:1,a:P.atkAnim>0?1:0,w:mv.l>0&&!paused?1:0,wp:P.eq.weapon?P.eq.weapon.id:'',ar:P.eq.armor?P.eq.armor.id:'',t:P.title||'',hp:P.dead?0:Math.max(1,Math.round(clamp(P.hp/P.st.hp*100,0,100))),v:P.rideOn||rideBan()?'':P.ride||'',hd:P.ride==='fixie'&&P.hd!=null?Math.round(P.hd*100)/100:0,sp:spirits.map(x=>[SPI.indexOf(x.t),Math.round(x.x),Math.round(x.y)]),wl:P.eq.weapon?P.eq.weapon.plus||0:0,pk:P.pk||pkForced()?1:0,pt:petCur()?[pb(petCur()),petOf(petCur()).lv,petRiding()?1:0,Math.round(PETST.x),Math.round(PETST.y)]:0};SO.x=Math.round(SO.x);SO.y=Math.round(SO.y);{const sg=JSON.stringify(SO),now=Date.now();if(sg!==NET.sLast||now-(NET.sT||0)>2000){NET.sLast=sg;NET.sT=now;k.volatile.emit('s',SO);}} // 그대로면 안 보냄 (2초마다 한 번은 보냄)
  if(VQ.length){const v=VQ.splice(0,30);VQ.length=0;k.emit('ev',{k:'sk',v});}
  if(NET.host&&NET.hostMap===map.key){const L=enemies.filter(e=>!e.mirror&&!e.dead&&!e.pv&&!e.dummy).map(e=>[e.id,e.type,Math.round(e.x),Math.round(e.y),Math.round(e.hp),e.max,(e.strong?1:0)|(e.summon?2:0)|(e.slow>0?4:0)|(e.root>0?8:0)|(e.burn>0?16:0)|(e.aggroed?32:0)|(e.tel?64:0)|(e.fly>0?128:0)|(e.intro>0?256:0),Math.round(e.atk)]);
   // 전송량 줄이기: 1.5초마다 전체, 그 사이엔 바뀐 몬스터만
