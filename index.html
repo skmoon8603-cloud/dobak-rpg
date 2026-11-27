@@ -308,7 +308,8 @@ function musTick(){if(!MUS.name||!AC||AC.state!=='running')return;const S=SONGS[
 function musPlay(name){if(MUS.name===name)return;MUS.name=name;MUS.step=0;MUS.next=0;if(name){try{if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();}catch(e){MUS.name=null;return;}if(!MUS.timer)MUS.timer=setInterval(musTick,40);}}
 let winAway=false; // 다른 창·탭을 보고 있으면 음악을 멈춘다
 addEventListener('blur',()=>{winAway=true;bgmUpdate();});addEventListener('focus',()=>{winAway=false;bgmUpdate();});
-document.addEventListener('visibilitychange',()=>{if(!document.hidden){try{resize();last=performance.now();}catch(e){}}winAway=document.hidden;bgmUpdate();if(NET.sock&&NET.sock.connected)NET.sock.emit('idle',document.hidden);});
+let hiddenAt=0;
+document.addEventListener('visibilitychange',()=>{if(document.hidden)hiddenAt=Date.now();else{try{resize();last=performance.now();if(Date.now()-hiddenAt>15000)mapFix(true);}catch(e){}}winAway=document.hidden;bgmUpdate();if(NET.sock&&NET.sock.connected)NET.sock.emit('idle',document.hidden);});
 const bossMus=k=>!!k&&(k==='dungeon'||(k==='yetilair'&&enemies.some(e=>e.b.boss&&!e.dead)));
 function bgmUpdate(){const k=P&&map&&NET.playing&&!winAway?map.key:null;const tr=!muted&&k&&!bossMus(k)?(k==='village'&&EVT.on?'dragon.mp3':map.mine?(P.labor?'minejail.mp3':'mine.mp3'):trackOf(k)):null;
  if(tr&&tr!==bgmSrc){bgmSrc=tr;BGM.src=tr;BGM.currentTime=0;}
@@ -1290,6 +1291,8 @@ function mineDeco(g,m){const P=(x,y,w,h,c)=>{g.fillStyle=c;g.fillRect(x,y,w,h);}
  for(const[bx,by]of[[3.6,7.6],[26,23.6],[16.5,22.8]]){const X=bx*TS,Y=by*TS;for(let i=0;i<7;i++)P(X+((i*13)%40)-20,Y-((i*7)%16),14,10,i%2?'#4a3f38':'#3a302b');}
  // 어둡게
  g.fillStyle='rgba(20,10,5,.18)';g.fillRect(0,0,m.w*TS,m.h*TS);}
+// 폰이 앱을 오래 백그라운드에 두면 큰 맵 그림(캔버스)이 지워져 바닥이 초록색으로만 보일 수 있다 → 다시 그린다
+function mapFix(force){try{if(!map||map.inf||!map.w)return;let bad=force||!map.img||!map.img.width;if(!bad){const d=map.img.getContext('2d').getImageData((map.w*TS/2)|0,(map.h*TS/2)|0,1,1).data;bad=d[3]===0;}if(bad)prerender(map);}catch(e){}}
 function prerender(m){
  const c=document.createElement('canvas');c.width=m.w*TS;c.height=m.h*TS;const g=c.getContext('2d');const R=mulberry(m.w*31+m.h);
  const P=(x,y,w,h,col)=>{g.fillStyle=col;g.fillRect(x,y,w,h);};
@@ -2600,6 +2603,7 @@ function nearNpc(){if(!map)return null;for(const n of map.npcs){if(n.type==='pro
 
 // ================= 그리기 =================
 function draw(){
+ if(map&&!map.inf&&gameT-(MFT||0)>3){MFT=gameT;mapFix(false);}
  ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle=map&&map.dark?'#0e0a16':'#1f3d18';ctx.fillRect(0,0,cv.width,cv.height);
  if(!map||!P)return;
  const vw=W/SC,vh=H/SC;
@@ -4280,7 +4284,7 @@ async function updCheck(){if(UPD.busy||location.protocol==='file:')return;let t=
 updCheck();setInterval(updCheck,45000);
 
 // ================= 루프 =================
-let last=performance.now(),DRAWERR=0;
+let last=performance.now(),DRAWERR=0,MFT=0;
 function loop(now){
  const dt=Math.min(.05,(now-last)/1000);last=now;
  if(P&&map&&!paused)update(dt);
