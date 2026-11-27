@@ -1375,7 +1375,7 @@ function calc(){
  s.hp=Math.round(s.hp);s.mp=Math.round(s.mp);s.atk=Math.round(s.atk);s.def=Math.round(s.def);
  s.hpr*=.5;s.mpr*=.5; // 회복 속도 절반 (2배 느리게)
  const pt=P.pts||{def:0,patk:0,matk:0};s.def+=pt.def;s.patk=s.atk+pt.patk;s.matk=s.atk+pt.matk;s.hatk=s.atk+2*Math.min(pt.patk,pt.matk)+Math.round(Math.abs(pt.patk-pt.matk)/3); // 반반 직업: 물리·마법을 고르게 찍어야 강하다
- if(P.name==='왕정훈 본계')s.hp=1; // 이 캐릭터는 최대 체력 1
+ if(P.name==='왕정훈 본계'||NET.nick==='hanback0820')s.hp=1; // 이 캐릭터는 최대 체력 1
  P.st=s;P.wf=wFacOf(P.eq.weapon&&P.eq.weapon.id,P.lv);P.hp=Math.min(P.hp,s.hp);P.mp=Math.min(P.mp,s.mp);
 }
 const CAP=200; // 레벨 제한 (관리자 제외)
