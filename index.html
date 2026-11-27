@@ -416,7 +416,7 @@ SKILLS.tradbow=[{name:'속사',ic:'🏹',lv:20,mp:20,cd:10,desc:'3초간 화살�
 SKILLS.expert=[{name:'연속 베기',ic:'⚔',lv:20,mp:18,cd:5,desc:'전방을 6번 빠르게 벤다'},{name:'소드 스톰',ic:'🌪',lv:23,mp:38,cd:14,desc:'5초간 몸 주위에 칼날 폭풍'}];
 SKILLS.peak=[{name:'검강',ic:'☄',lv:20,mp:24,cd:6,desc:'거대한 검기 3갈래'},{name:'무아지경',ic:'🧘',lv:23,mp:40,cd:25,desc:'8초간 공격력 +50%, 받는 피해 65% 감소'}];
 SKILLS.sniper=[{name:'헤드샷',ic:'💢',lv:20,mp:22,cd:6,desc:'조준한 적에게 반드시 치명타'},{name:'관통탄',ic:'🚀',lv:23,mp:36,cd:11,desc:'모든 적을 꿰뚫는 강력한 탄환 3연발'}];
-SKILLS.assault=[{name:'돌격 사격',ic:'🏃',lv:20,mp:20,cd:6,desc:'돌진한 뒤 산탄 발사'},{name:'융단 폭격',ic:'🛩',lv:23,mp:42,cd:14,desc:'지정한 곳에 연쇄 폭발'}];
+SKILLS.assault=[{name:'돌격 사격',ic:'🏃',lv:20,mp:20,cd:6,desc:'돌진한 뒤 산탄 발사'},{name:'융단 폭격',ic:'🛩',lv:23,mp:42,cd:14,desc:'지정한 곳에 연쇄 폭발'},{name:'폭탄 포탑',ic:'💣',lv:26,mp:40,cd:18,desc:'근처 적에게 폭탄을 던지는 포탑 설치 (폭발 범위 피해 · 최대 1개)'}];
 // ===== 3차 전직 스킬 (공격 2 · 유틸 1, 개틀링은 2개) =====
 SKILLS.swordmaster=[{name:'세계를 가르는 참격',ic:'🌌',lv:100,mp:45,cd:9,desc:'화면을 가로지르는 거대한 참격 + 여진 2번'},{name:'천검난무',ic:'⚔',lv:100,mp:35,cd:7,desc:'몸을 돌며 주변을 12번 벤다'},{name:'검신강림',ic:'🗡',lv:100,mp:40,cd:24,desc:'8초간 공격력 +50% · 받는 피해 65% 감소 · 빨라짐'}];
 SKILLS.plum=[{name:'이십사수매화검법',ic:'🌸',lv:100,mp:45,cd:9,desc:'매화가 흩날리며 주변 적을 24번 벤다'},{name:'매화난분',ic:'🌺',lv:100,mp:30,cd:6,desc:'관통하는 매화 검기 7갈래'},{name:'암향부동',ic:'🍃',lv:100,mp:35,cd:22,desc:'체력 30% 회복 + 6초간 받는 피해 65% 감소'}];
@@ -1897,8 +1897,8 @@ function basicAttack(){
  if(P.eq.weapon&&P.eq.weapon.id==='dalkong'&&!NET.admin&&NET.dkLeft===0){P.acd=.6;if(gameT-(P.dkMsg||0)>2){P.dkMsg=gameT;toast('🐶 오늘은 달콩빔을 다 썼어요 (내일 다시 10번)');}return;}
  if(P.eq.weapon&&P.eq.weapon.id==='dalkong'){let tu=null,td=650,dd=d;if(NET.live)for(const[uid,o]of NET.others){const q=Math.hypot(o.x-P.x,o.y-P.y);if(q<td){td=q;tu=uid;}}if(tu){const o=NET.others.get(tu);dd=norm(o.x-P.x,o.y-14-P.y);P.fx=dd.x;P.fy=dd.y;}shoot({vx:dd.x*620,vy:dd.y*620,dkT:tu,dmg:1,pierce:99,life:.9,r:12,color:'#ff80ab',kind:'dalkong',glow:1,tier:2,dk:1,hitP:new Set()});sfx('lvl');return;}
  if(P.eq.weapon&&P.eq.weapon.id==='catsword'){shoot({vx:d.x*520,vy:d.y*520,dmg:dmgOf(1),pierce:99,life:.9,r:12,color:'#ffb3d9',kind:'cat',glow:1,tier:2});sfx('meow');return;}
- if(P.job3==='gatling'){const bl=P.skl.ranger3||1;P.acd=(P.gatBoost>0?.03:.06)*(P.rage>0||P.haste>0?.75:1);const sp2=rnd(-.12,.12);shoot({x:P.x+d.x*14,y:P.y-8+d.y*14,vx:(d.x-d.y*sp2)*820,vy:(d.y+d.x*sp2)*820,dmg:dmgOf(.4/4,bl),life:.4,r:4,color:'#ffe066',kind:'bullet'});return;}
- if(P.job3==='headhunter'){shoot({vx:d.x*1100,vy:d.y*1100,dmg:dmgOf(1.3*4),life:.5,r:5,color:'#ff1744',kind:'bullet',big:1,glow:1,eff:P.hhCrit?{crit:1}:undefined});P.hhCrit=0;shake=Math.max(shake,.08);return;}
+ if(P.job3==='gatling'){const bl=P.skl.ranger3||1;P.acd=(P.gatBoost>0?.03:.06)*(P.rage>0||P.haste>0?.75:1);const sp2=rnd(-.12,.12);shoot({x:P.x+d.x*14,y:P.y-8+d.y*14,vx:(d.x-d.y*sp2)*820,vy:(d.y+d.x*sp2)*820,dmg:dmgOf(.4/4*1.5,bl),life:.4,r:4,color:'#ffe066',kind:'bullet'});return;}
+ if(P.job3==='headhunter'){shoot({vx:d.x*1100,vy:d.y*1100,dmg:dmgOf(1.3*4*1.5),life:.5,r:5,color:'#ff1744',kind:'bullet',big:1,glow:1,eff:P.hhCrit?{crit:1}:undefined});P.hhCrit=0;shake=Math.max(shake,.08);return;}
  if(P.cls==='spirit')shoot({vx:d.x*400,vy:d.y*400,dmg:dmgOf(1),life:.75,r:6,color:'#9ccc65',kind:'orb'});
  else if(P.cls==='mage')shoot({vx:d.x*420,vy:d.y*420,dmg:dmgOf(1.05),life:.7,r:6,color:j==='dark'?'#7b3fd1':j==='white'?'#fff3a8':'#a98bff',kind:'orb'});
  else if(P.cls==='novice'){slash(Math.atan2(d.y,d.x),58,dmgOf(1));}
@@ -1906,7 +1906,7 @@ function basicAttack(){
  else if(P.cls==='msword'){slash(Math.atan2(d.y,d.x),70,dmgOf(1.2));if(j==='msorder')shoot({vx:d.x*420,vy:d.y*420,dmg:dmgOf(.6),pierce:2,life:.4,r:12,color:'#b388ff',kind:'wave'});}
  else if(P.cls==='sword'){slash(Math.atan2(d.y,d.x),j==='expert'?86:66,dmgOf(1.15));if(j==='peak')shoot({vx:d.x*400,vy:d.y*400,dmg:dmgOf(.6),pierce:2,life:.4,r:12,color:'#dfe6ee',kind:'wave'});}
  else if(P.cls==='archer'){if(j==='magicbow')shoot({vx:d.x*660,vy:d.y*660,dmg:dmgOf(1.2),pierce:2,life:.6,r:5,color:'#8ab4ff',kind:'arrow',glow:1});else shoot({vx:d.x*620,vy:d.y*620,dmg:dmgOf(1.1),life:.6,r:5,color:'#e8d39a',kind:'arrow'});}
- else{const one=(s,m)=>{const dd=norm(d.x-d.y*s,d.y+d.x*s);shoot({vx:dd.x*(j==='sniper'?1000:760),vy:dd.y*(j==='sniper'?1000:760),dmg:dmgOf(m),life:j==='sniper'?.45:.32,r:4,color:'#ffe066',kind:'bullet',big:j==='sniper'});};
+ else{const one=(s,m)=>{const dd=norm(d.x-d.y*s,d.y+d.x*s);shoot({vx:dd.x*(j==='sniper'?1000:760),vy:dd.y*(j==='sniper'?1000:760),dmg:dmgOf(m*1.5),life:j==='sniper'?.45:.32,r:4,color:'#ffe066',kind:'bullet',big:j==='sniper'});};
   if(j==='assault'){one(-.07,.65);one(.07,.65);}else one(rnd(-.06,.06),j==='sniper'?1.3:.8);}
 }
 let armed=-1;
@@ -2121,6 +2121,7 @@ function castInner(id,pt){if(CUT.t>0)return;if(map&&map.pvp&&(gameT<(P.pvStart||
   case 'spiritking1':summonSpirit('wind',lv);break;
   case 'special3':{const dm=dmgOf(1.4,lv);explode(P.x,P.y-6,95,dm,'#ff80ab',{});const h=Math.round(P.st.hp*.15);P.hp=Math.min(P.st.hp,P.hp+h);addText(P.x,P.y-34,'+'+h,'#7dff7d',12);P.spin=.8;for(let i=0;i<36;i++){const a=i/36*Math.PI*2;parts.push({x:P.x,y:P.y-14,vx:Math.cos(a)*rnd(80,160),vy:Math.sin(a)*rnd(80,160)-40,g:120,life:rnd(.6,1.1),color:['#ff80ab','#ffffff','#f8bbd0','#ffe066'][i%4],s:3});}break;}
   case 'assault0':{const dm=dmgOf(1.1,lv);P.dash={t:.2,x:d.x,y:d.y,hit:new Set(),dmg:dmgOf(1.5,lv)};timers.push({t:.22,f:()=>{if(!P.dead){fan(7,.7,{sp:700,dmg:dm,life:.3,r:4,color:'#ffe066',kind:'bullet'});shake=.15;}}});break;}
+  case 'assault2':{for(let i=turrets.length-1;i>=0;i--)if(turrets[i].bomb)turrets.splice(i,1);turrets.push({x:P.x,y:P.y,life:12+lv*2,t:.3,dmg:dmgOf(1.4,lv),bomb:1});sfx('hit');break;}
   case 'assault1':{const tx=a.px,ty=a.py,dm=dmgOf(2,lv);vfx({k:'warn',x:tx,y:ty,r:110,life:1.6,max:1.6,color:'#ff9f43'});for(let n=0;n<8;n++)timers.push({t:.3+n*.16,f:()=>explode(tx+rnd(-70,70),ty+rnd(-70,70),60,dm,'#ff9f43',{})});break;}
  }
  {const j3=id.replace(/\d+$/,'');if(EPICC[j3])epic(S.name,EPICC[j3]);}
@@ -2216,7 +2217,8 @@ function update(dt){
   if(z.t<=0&&!z.ghost){z.t=z.tick;for(const e of enemies.slice())if(Math.hypot(e.x-z.x,e.y-z.y)<z.r+e.r)hurtEnemy(e,z.dmg,z.eff,true);}
   if(Math.random()<.5)parts.push({x:z.x+rnd(-z.r,z.r)*.7,y:z.y+rnd(-z.r,z.r)*.7,vx:0,vy:-30,life:.4,color:z.color,s:3});
   if(z.life<=0){zones.splice(i,1);if(z.end)z.end(z);}}
- for(let i=turrets.length-1;i>=0;i--){const tu=turrets[i];SKTAG=tu.sk||null;tu.life-=dt;tu.t-=dt;if(tu.t<=0){const e=nearest(tu,280);if(e){tu.t=.35;const n=norm(e.x-tu.x,e.y-6-(tu.y-12));tu.fx=n.x;shoot({x:tu.x,y:tu.y-12,vx:n.x*700,vy:n.y*700,dmg:tu.dmg,life:.45,r:4,color:'#9be7ff',kind:'bullet'});}}if(tu.life<=0){puff(tu.x,tu.y,'#999');turrets.splice(i,1);}}
+ for(let i=turrets.length-1;i>=0;i--){const tu=turrets[i];SKTAG=tu.sk||null;tu.life-=dt;tu.t-=dt;if(tu.t<=0&&tu.bomb){const e=nearest(tu,320);if(e){tu.t=1.1;const n=norm(e.x-tu.x,e.y-tu.y);tu.fx=n.x;const tx=e.x,ty=e.y,dm=tu.dmg,sk=tu.sk;vfx({k:'warn',x:tx,y:ty,r:70,life:.45,max:.45,color:'#ff7043'});timers.push({t:.45,f:()=>{const pv=SKTAG;SKTAG=sk||null;try{explode(tx,ty,70,dm,'#ff7043',{});}finally{SKTAG=pv;}}});}}
+ else if(tu.t<=0){const e=nearest(tu,280);if(e){tu.t=.35;const n=norm(e.x-tu.x,e.y-6-(tu.y-12));tu.fx=n.x;shoot({x:tu.x,y:tu.y-12,vx:n.x*700,vy:n.y*700,dmg:tu.dmg,life:.45,r:4,color:'#9be7ff',kind:'bullet'});}}if(tu.life<=0){puff(tu.x,tu.y,'#999');turrets.splice(i,1);}}
  SKTAG=null;grannyTick(dt);
  if(map.sea&&Math.random()<.5)parts.push({x:cam.x+rnd(0,W/SC),y:cam.y+rnd(.3,1.05)*H/SC,vx:rnd(-6,6),vy:rnd(-60,-30),life:rnd(1.2,2.6),color:'#d6f3ff',s:rnd(2,4)});
  if(map.key==='village')for(let i=0;i<2;i++)parts.push({x:30*TS+rnd(-3,3),y:21.4*TS,vx:rnd(-48,48),vy:rnd(-170,-100),g:420,life:rnd(.55,.75),color:i?'#cfe8ff':'#6fb8ff',s:3});
@@ -2608,7 +2610,7 @@ function draw(){
  // 경고
  for(const f of fx)if(f.k==='warn'){ctx.globalAlpha=.25+.2*Math.sin(gameT*20);ctx.fillStyle=f.color;ctx.beginPath();ctx.arc(f.x,f.y,f.r*(1-f.life/f.max*.3),0,7);ctx.fill();ctx.globalAlpha=1;}
  for(const z of zones){ctx.save();ctx.translate(z.x,z.y);ctx.rotate(gameT*(z.pull||z.pv?-2.5:1.2));ctx.globalAlpha=.75;ctx.strokeStyle=z.color;ctx.lineWidth=2;ctx.setLineDash([10,8]);ctx.beginPath();ctx.arc(0,0,z.r*.8,0,7);ctx.stroke();ctx.setLineDash([]);ctx.beginPath();for(let i=0;i<4;i++)ctx.lineTo(Math.cos(i*2.094)*z.r*.8,Math.sin(i*2.094)*z.r*.8);ctx.stroke();ctx.restore();ctx.globalAlpha=.22+.08*Math.sin(gameT*12);ctx.fillStyle=z.color;ctx.beginPath();ctx.arc(z.x,z.y,z.r,0,7);ctx.fill();ctx.globalAlpha=.7;ctx.strokeStyle=z.color;ctx.lineWidth=2;ctx.beginPath();ctx.arc(z.x,z.y,z.pull?z.r*(1-(gameT*1.5%1)):z.r,0,7);ctx.stroke();ctx.globalAlpha=1;}
- for(const tu of turrets){px(tu.x-8,tu.y-6,16,6,'#555');px(tu.x-6,tu.y-16,12,10,'#8a8f99');px(tu.x+((tu.fx||1)<0?-14:4),tu.y-13,10,3,'#333');px(tu.x-2,tu.y-13,4,4,'#9be7ff');}
+ for(const tu of turrets){if(tu.bomb){px(tu.x-9,tu.y-6,18,6,'#4e342e');px(tu.x-7,tu.y-16,14,10,'#6d4c41');px(tu.x+((tu.fx||1)<0?-12:2),tu.y-20,10,8,'#263238');px(tu.x-3,tu.y-13,6,4,'#ff7043');continue;}px(tu.x-8,tu.y-6,16,6,'#555');px(tu.x-6,tu.y-16,12,10,'#8a8f99');px(tu.x+((tu.fx||1)<0?-14:4),tu.y-13,10,3,'#333');px(tu.x-2,tu.y-13,4,4,'#9be7ff');}
  // 엔티티 정렬
  const ents=[...enemies.filter(e=>!e.pv).map(e=>({y:e.y,f:()=>drawEnemy(e)})),...map.npcs.filter(n=>!n.invisible&&(n.type!=='rock'||(n.x>cam.x-40&&n.x<cam.x+W/SC+40&&n.y>cam.y-20&&n.y<cam.y+H/SC+60))).map(n=>({y:n.y,f:()=>drawNpc(n)}))];
  if(!P.dead)ents.push({y:P.y,f:()=>drawPlayer()});
@@ -3422,7 +3424,7 @@ function invHtml(){const sel=INVSEL;let d='';
 function bagStacks(){const m=new Map();P.bag.forEach((e,i)=>{const k=e.id+':'+(e.plus||0);let st=m.get(k);if(!st){st={id:e.id,plus:e.plus||0,n:0,i};m.set(k,st);}st.n++;});return [...m.values()];}
 function bagCanAdd(id,plus){return P.bag.some(e=>e.id===id&&(e.plus||0)===(plus||0))||bagStacks().length<24;}
 const fmtA=v=>v>=1e8?'∞':v;
-function basicHitMult(wid){const j=P.job,c=P.cls;if(wid==='catsword')return 1;if(c==='mage')return 1.05;if(c==='msword')return 1.2+(j==='msorder'?.6:0);if(c==='sword')return 1.15+(j==='peak'?.6:0);if(c==='archer')return j==='magicbow'?1.2:1.1;if(c==='ranger')return j==='assault'||j==='sniper'?1.3:.8;return 1;}
+function basicHitMult(wid){const j=P.job,c=P.cls;if(wid==='catsword')return 1;if(c==='mage')return 1.05;if(c==='msword')return 1.2+(j==='msorder'?.6:0);if(c==='sword')return 1.15+(j==='peak'?.6:0);if(c==='archer')return j==='magicbow'?1.2:1.1;if(c==='ranger')return (j==='assault'||j==='sniper'?1.3:.8)*1.5;return 1;}
 // DPS = 이 무기로 1분 동안 기본 공격만 했을 때 넣는 피해 ÷ 60 (치명타 확률·배율, 공격 속도, 직업 보너스, 강화 포함)
 function wDps(it,plus){if(!P||!P.st||it.slot!=='weapon'||(it.cls&&it.cls!==P.cls))return 0;const id=Object.keys(ITEMS).find(k=>ITEMS[k]===it);if(!id||id==='dalkong'||id==='baton')return 0;
  const keep=P.eq.weapon,hp=P.hp,mp=P.mp;P.eq.weapon={id,plus:plus||0};calc();const k=basicKind(),s=P.st,stat=(k==='m'?s.matk:k==='h'?s.hatk:s.patk)*(P.wf||1),luck=s.luck||0;P.eq.weapon=keep;calc();P.hp=hp;P.mp=mp;
@@ -4092,7 +4094,10 @@ $('tutPrev').onclick=()=>{if(TS2.i>0){TS2.i--;tutShow();}};
 $('tutSkip').onclick=()=>tutEnd();
 addEventListener('resize',()=>{if(!$('tut').classList.contains('hidden'))tutShow();});
 // 📜 패치노트: 새 패치가 나오면 처음 한 번만 띄운다 (이 기기 기준)
-const PATCH={v:'2026-11-26a',title:'📜 패치노트 · 11월 26일',lines:['🏦 은행 예금을 100억까지 넣을 수 있어요',
+const PATCH={v:'2026-11-27a',title:'📜 패치노트 · 11월 27일',lines:['💣 돌격대장 새 스킬 「폭탄 포탑」 (Lv26)',
+ '🔫 레인저 기본 공격 피해 1.5배',
+ '🔨 대장장이에게 돈을 내면 다른 직업 무기를 내 직업 무기로 바꿀 수 있어요',
+ '🏜 사막·설산 상인에게 귀환권을 사도 창이 닫히지 않아요','🏦 은행 예금을 100억까지 넣을 수 있어요',
  '✨ 능력치를 한 번에 10개씩 찍는 「+10」 버튼이 생겼어요 (상태 창)',
  '🌑 주간 레이드에서 보스가 안 나오거나 못 움직이던 문제를 고쳤어요',
  '🛡 게임 조작·해킹 방지를 강화했어요'].join('\n\n')};
