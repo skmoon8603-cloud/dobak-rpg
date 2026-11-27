@@ -3453,7 +3453,8 @@ function itemDesc(it,plus){const m=1+.15*(plus||0);const d=wDps(it,plus);const c
 function itemName(e,noIc){const it=ITEMS[e.id];return `${noIc?'':itIcon(e.id,18)+' '}<span class="r${it.tier}">${it.name}${e.plus?' +'+e.plus:''}</span>`;}
 function renderMenu(){
  const inTown=safeHere();
- const tabs=[['stat','상태'],['skill','스킬'+(P.sp?' ⭐':'')],['quest','퀘스트'],['sys','저장']];
+ const tabs=[['stat','상태'],['skill','스킬'+(P.sp?' ⭐':'')]];
+ if(menuTab==='quest')tabs.splice(0,9,['quest','퀘스트']);if(menuTab==='sys')tabs.splice(0,9,['sys','저장']);
  if(menuTab==='shop'||menuTab==='sell')tabs.splice(0,9,['shop','구매'],['sell','판매']);
  if(menuTab==='gamble')tabs.splice(0,9,['gamble','도박장']);if(menuTab==='admin')tabs.splice(0,9,['admin','👑 관리자']);
  if(menuTab==='book')tabs.splice(0,9,['book','📚 스킬북']);
