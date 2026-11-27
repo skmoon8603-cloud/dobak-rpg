@@ -3539,7 +3539,7 @@ function renderMenu(){
 <div class="row" style="flex-direction:column;align-items:stretch"><div class="t">🎵 음악 <b id="vmN">${VOLM}</b>%</div><input type="range" id="vmR" min="0" max="100" step="5" value="${VOLM}"></div>
 <div class="row" style="flex-direction:column;align-items:stretch"><div class="t">✨ 효과음 (스킬·공격 소리) <b id="vsN">${VOLS}</b>%</div><input type="range" id="vsR" min="0" max="100" step="5" value="${VOLS}"></div>`;
  }else if(menuTab==='sys'){
-  h=``+`<div style="margin-bottom:8px;font-size:12px;color:${NET.token?'#7dff7d':'#b7a6d9'}">${NET.token?'👤 '+esc(NET.nick)+' 계정 · 서버에 저장돼요'+(NET.live?' · 실시간 접속 중':''):'이 기기에만 저장돼요'}</div><button class="btn gold" id="mSave">💾 저장하기</button> <span style="font-size:11px;color:#b7a6d9">(5분마다, 그리고 맵을 옮길 때도 자동 저장돼요)</span><br><br><button class="btn" id="mTut">📖 화면 설명 다시 보기</button><br><br><button class="btn red" id="mTitleBtn">타이틀로</button>
+  h=``+`<div style="margin-bottom:8px;font-size:12px;color:${NET.token?'#7dff7d':'#b7a6d9'}">${NET.token?'👤 '+esc(NET.nick)+' 계정 · 서버에 저장돼요'+(NET.live?' · 실시간 접속 중':''):'이 기기에만 저장돼요'}</div><button class="btn gold" id="mSave">💾 저장하기</button> <span style="font-size:11px;color:#b7a6d9">(5분마다, 그리고 맵을 옮길 때도 자동 저장돼요)</span><br><br>${P.flags.tut?'':'<button class="btn" id="mTut">📖 화면 설명 보기</button>'}<br><br><button class="btn red" id="mTitleBtn">타이틀로</button>
   <br><br><div style="font-size:12px;color:#b7a6d9;line-height:1.7">PC: WASD/방향키 이동 · Space/클릭 공격(마우스 방향 조준) · 1~3 스킬 · Shift 대쉬 · E 대화 · Z/X 물약 · I 인벤토리 · M 메뉴 · Enter 채팅<br>폰: 왼쪽 화면을 누르고 드래그해서 이동 · 오른쪽 버튼으로 공격/스킬 (가까운 적 자동 조준)</div>`;
  }else if(menuTab==='shop'){
   h=`<div>💰 ${P.gold.toLocaleString()} G</div>`;
