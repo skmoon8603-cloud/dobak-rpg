@@ -3409,7 +3409,7 @@ const vehIcon=(k,sz)=>{const[s,c]=vehSpr(k);return pxImg(s,c,sz);};
 let INVSEL='',INVTAB='gear';
 const EDIBLE=k=>!!FOOD[k]||['hp','mp','haste','lifepot','manapot','dragonelix','burger'].includes(k)||['fish','meat','bowl','jelly','burger','cup','potion'].includes(consSpr(k)[0]);
 let INVAUTO=0;
-function invHtml(){const sel=INVSEL;let d='';
+function invHtml(){const sel=INVSEL;let d='';const SELL=menuTab==='sell';if(SELL&&INVTAB!=='gear'&&INVTAB!=='item')INVTAB='gear';
  const cell=(key,img,cnt,cls,pl,nm)=>`<div class="ivc ${cls||''}${sel===key?' sel':''}" data-sel="${key}">${img}<div class="nm">${nm||''}</div>${pl?`<div class="p">+${pl}</div>`:''}${cnt>1?`<div class="c">${cnt}</div>`:''}</div>`;
  const slot=(key,lab,img,nm,on,tag)=>`<div class="eqs${on?' on':''}${sel===key?' sel':''}" data-sel="${key}"><div class="k">${lab}${tag?` <span class="tg">${tag}</span>`:''}</div><div class="b">${img||''}</div><div class="n">${nm||'<span class="z">비어 있음</span>'}</div></div>`;
  let L='';
@@ -3419,23 +3419,23 @@ function invHtml(){const sel=INVSEL;let d='';
  {const V=P.ride&&VEH[P.ride];L+=slot('veh',' 탈것',V?vehIcon(P.ride,34):'',V?V.name:'',!!V,V?'탑승':'');if(sel==='veh'){INVTAB='veh';}}
  {const q=P.quick&&CONS[P.quick]?P.quick:'',F=foodOn();L+=slot('food','빠른 장비',q?consIcon(q,34):'',q?CONS[q][0]+' ×'+(P.pots[q]||0):'',!!q,q?'C키':'');
   if(sel==='food')d=`<div><b>빠른 장비 (C키)</b><br><small style="color:#cfc3ee">「먹을것」 칸에서 물약·음식을 눌러 「빠른 장비에 두기」를 하면 여기에 들어가요</small></div>`+(F?`<div style="color:#ffd740;margin-top:4px">${consIcon(P.food.id,18)} ${CONS[P.food.id][0]} 효과 중 · ${Math.ceil((P.food.until-Date.now())/1000)}초 남음</div>`:'')+(q?`<div><button class="btn gold" data-use="${q}">사용</button><button class="btn" data-quick="${q}">비우기</button></div>`:'');}
- const st=bagStacks().filter(e=>ITEMS[e.id]),cons=Object.keys(CONS).filter(k=>P.pots[k]>0),food=cons.filter(EDIBLE),items=cons.filter(k=>!EDIBLE(k)),mats=Object.keys(MATS).filter(k=>P.mats[k]>0);
- const tabs=[['gear','장비',st.length],['item','아이템',items.length+mats.length],['veh','탈것',P.veh.length],['food','먹을것',food.length],['title','칭호',P.titles.length]];
+ const st=bagStacks().filter(e=>ITEMS[e.id]),cons=Object.keys(CONS).filter(k=>P.pots[k]>0),food=cons.filter(EDIBLE),items=SELL?[]:cons.filter(k=>!EDIBLE(k)),mats=Object.keys(MATS).filter(k=>P.mats[k]>0&&(!SELL||MATP[k]));
+ const tabs=SELL?[['gear','장비',st.length],['item','재료',mats.length]]:[['gear','장비',st.length],['item','아이템',items.length+mats.length],['veh','탈것',P.veh.length],['food','먹을것',food.length],['title','칭호',P.titles.length]];
  if(INVAUTO){INVAUTO=0;const cnt={gear:st.length,item:items.length+mats.length,veh:P.veh.length,food:food.length};if(!cnt[INVTAB]){const f=['gear','item','food','veh'].find(k=>cnt[k]);if(f)INVTAB=f;}}
  let g='',n=0;
  if(INVTAB==='gear')st.forEach(e=>{const it=ITEMS[e.id],key='g:'+e.id+':'+e.plus;n++;g+=cell(key,itIcon(e.id,28),e.n,'t'+it.tier,e.plus,it.name);
-  if(sel===key){const ok=!it.cls||it.cls===P.cls;d=`<div class="dh">${itIcon(e.id,30)}<div><b>${itemName(e,1)}</b>${e.n>1?` ×${e.n}`:''}<br><small style="color:#cfc3ee">${itemDesc(it,e.plus)}${it.cls&&!ok?' · '+CLASSES[it.cls].name+' 전용':''}</small></div></div><div>${ok?`<button class="btn gold" data-eq="${e.i}">장착</button>`:''}</div>`;}});
+  if(sel===key){const ok=!it.cls||it.cls===P.cls;d=`<div class="dh">${itIcon(e.id,30)}<div><b>${itemName(e,1)}</b>${e.n>1?` ×${e.n}`:''}<br><small style="color:#cfc3ee">${itemDesc(it,e.plus)}${it.cls&&!ok?' · '+CLASSES[it.cls].name+' 전용':''}</small></div></div><div>${SELL?`<button class="btn gold" data-sell="${e.i}">판매 ${Math.floor(it.price*.4*EARN*(1+e.plus*.3)).toLocaleString()}G</button>`:ok?`<button class="btn gold" data-eq="${e.i}">장착</button>`:''}</div>`;}});
  const consCell=k=>{const c=CONS[k],key='c:'+k;n++;g+=cell(key,consIcon(k,28),P.pots[k],P.quick===k?'t7':'',0,c[0]);
   if(sel===key)d=`<div class="dh">${consIcon(k,30)}<div><b>${c[0]}</b> ×${P.pots[k]}${P.quick===k?' <span style="color:#4dd0e1">빠른 장비</span>':''}<br><small style="color:#cfc3ee">${c[1]}</small></div></div><div><button class="btn gold" data-use="${k}">사용</button>${EDIBLE(k)?`<button class="btn" data-quick="${k}">${P.quick===k?'빠른 장비에서 빼기':'빠른 장비에 두기'}</button>`:''}</div>`;};
  if(INVTAB==='item'){items.forEach(consCell);mats.forEach(k=>{const M=MATS[k],key='m:'+k;n++;g+=cell(key,matIcon(k,28),P.mats[k],'',0,M[0]);
-  if(sel===key)d=`<div class="dh">${matIcon(k,30)}<div><b>${M[0]}</b> ×${P.mats[k]}<br><small style="color:#cfc3ee">${M[2]}</small></div></div>${k==='conch'?'<div><button class="btn gold" id="useConch">불어 보기</button></div>':k==='dhorn'?'<div><button class="btn gold" id="useHorn">불어 보기</button></div>':''}`;});}
+  if(sel===key)d=`<div class="dh">${matIcon(k,30)}<div><b>${M[0]}</b> ×${P.mats[k]}<br><small style="color:#cfc3ee">${M[2]}</small></div></div>${SELL?`<div><button class="btn" data-msell="${k}:1">1개 ${MATP[k]}G</button><button class="btn gold" data-msell="${k}:all">전부 ${(MATP[k]*P.mats[k]).toLocaleString()}G</button></div>`:k==='conch'?'<div><button class="btn gold" id="useConch">불어 보기</button></div>':k==='dhorn'?'<div><button class="btn gold" id="useHorn">불어 보기</button></div>':''}`;});}
  if(INVTAB==='food')food.forEach(consCell);
  if(INVTAB==='veh')P.veh.forEach(k=>{const W=VEH[k];if(!W)return;const key='v:'+k,on=P.ride===k;n++;g+=cell(key,vehIcon(k,28),0,on?'t7':'',0,W.name);
   if(sel===key||(sel==='veh'&&on))d=`<div class="dh">${vehIcon(k,30)}<div><b>${W.name}</b>${on?' <span style="color:#4dd0e1">탑승 중</span>':''}<br><small style="color:#cfc3ee">이동 속도 +${Math.round(W.spd*100)}%${W.seats?` · 뒤에 ${W.seats}명`:''}</small></div></div><div><button class="btn ${on?'':'gold'}" data-mount="${k}">${on?'내리기':'타기'}</button></div>`;});
  const pad=INVTAB==='title'?0:Math.max(0,Math.ceil(Math.max(n,20)/5)*5-n);for(let i=0;i<pad;i++)g+='<div class="ivc empty"></div>';
  if(INVTAB==='title'){checkTitles();const T=P.titles.filter(id=>TITLES[id]);g=`<div style="grid-column:1/-1"><div style="font-size:12px">지금 칭호: <b style="color:${TITLES[P.title]?TITLES[P.title][1]:'#fff'}">${TITLES[P.title]?TITLES[P.title][0]:'없음'}</b></div><div style="color:#b7a6d9;font-size:11px;margin:3px 0 6px">머리 위에 보여줄 칭호를 고르세요.</div>`+T.map(id=>{const t=TITLES[id];return `<div class="row"><div class="t"><b style="color:${t[1]}">${t[0]}</b><small>${t[2]}</small></div><button class="btn ${P.title===id?'gold':''}" data-title="${id}" ${P.title===id?'disabled':''}>${P.title===id?'사용 중':'달기'}</button></div>`;}).join('')+'</div>';n=T.length;}
  const R=`<div class="ivtabs">${tabs.map(([k,t,c])=>`<button class="ivt${INVTAB===k?' on':''}" data-ivt="${k}">${t}${c?` <small>${c}</small>`:''}</button>`).join('')}</div><div class="invg">${g}</div>`+(INVTAB==='gear'?`<div style="font-size:10px;color:#9a8cc4;margin-top:4px">장비 ${st.length}/24칸</div>`:'')+(n?'':`<div style="color:#777;font-size:11px;margin-top:4px">${INVTAB==='veh'?'탈것이 없어요 · 탈것 가게에서 살 수 있어요':'비어 있음'}</div>`);
- return `<div class="inv2"><div class="invL">${L}</div><div class="invR">${R}</div></div>`+(d?`<div class="invD">${d}</div>`:'');}
+ return `<div class="inv2">${SELL?'':`<div class="invL">${L}</div>`}<div class="invR">${R}</div></div>`+(d?`<div class="invD">${d}</div>`:'');}
 function bagStacks(){const m=new Map();P.bag.forEach((e,i)=>{const k=e.id+':'+(e.plus||0);let st=m.get(k);if(!st){st={id:e.id,plus:e.plus||0,n:0,i};m.set(k,st);}st.n++;});return [...m.values()];}
 function bagCanAdd(id,plus){return P.bag.some(e=>e.id===id&&(e.plus||0)===(plus||0))||bagStacks().length<24;}
 const fmtA=v=>v>=1e8?'∞':v;
@@ -3549,10 +3549,7 @@ function renderMenu(){
   Object.keys(ITEMS).filter(k=>ITEMS[k].tier<=3&&!ITEMS[k].craft&&(!ITEMS[k].cls||ITEMS[k].cls===P.cls)).forEach(k=>{const it=ITEMS[k];h+=`<div class="row"><div class="t">${itemName({id:k,plus:0})}<small>${itemDesc(it,0)}</small></div><button class="btn gold" data-buy="${k}" ${P.gold<it.price?'disabled':''}>${it.price}G</button></div>`;});
  h+='<div style="color:#ffe9a8;margin-top:10px">🛵 탈것 (한 번 사면 계속 탈 수 있어요)</div>';for(const k in VEH){const V=VEH[k],own=P.veh.includes(k);h+=`<div class="row"><div class="t">${vehIcon(k,22)} <b>${V.name}</b><small>이동 속도 +${Math.round(V.spd*100)}%${V.seats?` · 뒤에 ${V.seats}명 탈 수 있음`:''}</small></div><button class="btn gold" data-veh="${k}" ${own||P.gold<V.price?'disabled':''}>${own?'보유 중':V.price.toLocaleString()+'G'}</button></div>`;}
  }else if(menuTab==='sell'){
-  h=`<div>💰 ${P.gold.toLocaleString()} G · 장비는 원래 가격의 40%에 팔아요</div>`;
-  {const own=Object.keys(MATS).filter(k=>P.mats[k]>0&&MATP[k]);if(own.length){h+='<div style="color:#ffe9a8;margin-top:8px">재료</div>';own.forEach(k=>{const M=MATS[k];h+=`<div class="row"><div class="t">${matIcon(k,20)} ${M[0]} <b style="color:#ffe066">×${P.mats[k]}</b><small>1개 ${MATP[k]}G</small></div><button class="btn" data-msell="${k}:1">1개</button><button class="btn gold" data-msell="${k}:all">전부 ${(MATP[k]*P.mats[k]).toLocaleString()}G</button></div>`;});}}
-  if(P.bag.length)h+='<div style="color:#ffe9a8;margin-top:8px">장비</div>';else if(!Object.keys(MATS).some(k=>P.mats[k]>0))h+='<div style="color:#777">팔 물건이 없어요</div>';
-  bagStacks().forEach(e=>{const it=ITEMS[e.id];const v=Math.floor(it.price*.4*EARN*(1+e.plus*.3));h+=`<div class="row"><div class="t">${itemName(e)}${e.n>1?` <b style="color:#ffe066">×${e.n}</b>`:''}<small>${itemDesc(it,e.plus)}</small></div><button class="btn" data-sell="${e.i}">1개 ${v}G</button></div>`;});
+  h=`<div>💰 ${P.gold.toLocaleString()} G · 팔 물건을 눌러 고르세요 (장비는 원래 가격의 40%)</div>`+invHtml();
  }else if(menuTab==='gamble'){
   const luck=P.st.luck;
   h=`<div>💰 <b id="gGold">${P.gold.toLocaleString()}</b> G ${luck?`· 🍀 행운 +${luck}%`:''}</div>
