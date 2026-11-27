@@ -1605,7 +1605,7 @@ function bossGold(i,pot){bdSend(true);const id=i.id,mk=map.key,x=i.x,y=i.y;
 // 보스를 잡으면 0.5% 확률로 보스알 → 그 지역 재료(먹이)를 먹이면 깨어나 자란다 (최대 Lv20) · Lv15부터 탈 수 있다
 const PETS={
  lich:{food:{bone:6,bone2:1,slime:1,hide:1},col:'#b388ff',sz:20},
- leviathan:{food:{ltooth:8,scale:2,horn:4,fish:1,bigfish:3},col:'#29b6f6',sz:22},
+ leviathan:{food:{ltooth:8,scale:2,horn:4,fish:1,bigfish:3},col:'#29b6f6',sz:22,k:.55,flip:1},
  dragon:{food:{dscale:3,dtooth:10,dheart:40},col:'#ff5722',sz:24},
  anubis:{food:{ahide:4,poisongland:2,centleg:2,aheart:40},col:'#ffca28',sz:22},
  yeti:{food:{yfur:3,yhand:6,yeye:40},col:'#e0f7fa',sz:22},
@@ -1637,10 +1637,10 @@ function petTick(dt){const t=petCur();if(!t||P.dead)return;const p=petOf(t);PETS
  if(!best){PETST.t=.2;return;}PETST.t=1;const sy=PETST.y-(petRiding()?14:10),n=norm(best.x-PETST.x,best.y-8-sy);PETST.fx=n.x<0?-1:1;
  const pv=SKTAG;SKTAG=null;try{shoot({x:PETST.x,y:sy,vx:n.x*560,vy:n.y*560,dmg:petDmg(t,p.lv),life:.7,r:6,color:PETS[pb(t)].col,kind:'orb',glow:1});}finally{SKTAG=pv;}}
 // 보스 그림을 작게 그린다 (보스 그리기 코드를 그대로 쓰고 크기만 줄인다)
-function petScale(t,lv,ride){t=pb(t);const B=ENEMIES[t];return (ride?PETS[t].sz*1.35:PETS[t].sz*(.55+lv*.025))/(B.r||20);}
+function petScale(t,lv,ride){t=pb(t);const B=ENEMIES[t];return (PETS[t].k||1)*(ride?PETS[t].sz*1.35:PETS[t].sz*(.55+lv*.025))/(B.r||20);}
 function drawPet(t,lv,x,y,fx,ride,anim){t=pb(t);const B=ENEMIES[t];if(!B)return;const k=petScale(t,lv,ride);
- const e={type:t,b:B,x:0,y:0,r:B.r,hp:1,max:1,anim:anim||0,hitT:0,dead:false,face:fx,fx,state:'',st:'',phase:0,pet:1};
- const px0=P.x,py0=P.y;ctx.save();ctx.translate(x,y);ctx.scale(fx<0?-k:k,k);try{P.x=x+(fx<0?-1:1)*1000;P.y=y;drawEnemy(e);}catch(er){}finally{P.x=px0;P.y=py0;ctx.restore();}}
+ const e={type:t,b:B,x:0,y:0,r:B.r,hp:1,max:1,anim:anim||0,hitT:0,dead:false,face:fx,fx,state:'',st:'',phase:0,pet:1};if(t==='leviathan')e.trail=Array.from({length:13},(_,i)=>({x:i*9,y:Math.sin(i*.45)*16})); // 레비아탄은 몸을 짧게
+ const px0=P.x,py0=P.y;ctx.save();ctx.translate(x,y);ctx.scale((fx<0)!==!!PETS[t].flip?-k:k,k);try{P.x=x+1000;P.y=y;drawEnemy(e);}catch(er){}finally{P.x=px0;P.y=py0;ctx.restore();}}
 const PETBACK={};
 function petBack(t){t=pb(t);if(PETBACK[t]!=null)return PETBACK[t];let h=Math.round(PETS[t].sz*1.35*1.2);
  try{const c=document.createElement('canvas');c.width=240;c.height=240;const g=c.getContext('2d'),old=ctx;ctx=g;try{drawPet(t,20,120,200,1,true,0);}finally{ctx=old;}
