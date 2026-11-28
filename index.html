@@ -1462,7 +1462,7 @@ function enterMap(k,x,y){
  const same=fromKey===k&&NET.live;if(!same&&NET.live){NET.host=false;NET.hostMap=null;}if(!same)enemies=[];projs=[];pickups=[];traps=[];timers=[];fx=[];parts=[];texts=[];zones=[];turrets=[];
  map.spawnT=map.spawns.map(()=>0);
  if(!same)map.spawns.forEach(s=>{let left=s.max;while(left>0){const before=enemies.length;spawnIn(s,left);const made=enemies.length-before;if(!made)break;left-=made;}});
- if(k==='plain'){P.flags.plain=1;homeSync();}
+ if(k==='plain'){P.flags.plain=1;homeSync();homesSync();if(gameT-HOMES.t>15)homesLoad();}
  if(k==='clonearena')cloneStart();else{P.cloneFight=0;P.cloneSpawned=0;}
  if(!map.inf&&blocked(P.x,P.y,8)){P.x=map.start.x;P.y=map.start.y;}
  if(k==='sandstorm'||k==='anubislair'||k==='dunes')P.portalLock=Math.max(P.portalLock||0,1.5);
@@ -1863,15 +1863,20 @@ for(const k in CROPS){const c=CROPS[k];MATS[k]=[c.n,'🌱',`밭에서 기른 ${c
 const fmtS=s=>{s=Math.max(0,Math.ceil(s));return s>=3600?Math.floor(s/3600)+'시간'+(s%3600>=60?' '+Math.floor(s%3600/60)+'분':''):s>=60?Math.floor(s/60)+'분'+(s%60?' '+s%60+'초':''):s+'초';};
 const homeKey=()=>{let h=7;for(const ch of String(P&&P.name||'me'))h=(h*31+ch.charCodeAt(0))>>>0;return 'hm'+h.toString(36);}; // 집 안은 사람마다 따로
 const landPrice=()=>Math.round(200000*Math.pow(1.5,P.land|0));
-function plotPos(i){const h=P.home,H=HOUSES[h.t];return{x:h.x+H.w/2+30+(i%6)*TS+TS/2,y:h.y-2*TS+Math.floor(i/6)*TS+TS/2};}
+const plotPos=i=>plotPosOf(P.home,i);
+function plotPosOf(h,i){const H=HOUSES[h.t];return{x:h.x+H.w/2+30+(i%6)*TS+TS/2,y:h.y-2*TS+Math.floor(i/6)*TS+TS/2};}
 function cropState(f){if(!f||!CROPS[f.c])return -1;return Math.min(1,Math.max(0,(Date.now()-f.t)/(CROPS[f.c].g*1000)));}
 function homeFix(){if(!P.homes||typeof P.homes!=='object')P.homes={};for(const t in P.homes)if(!HOUSES[t])delete P.homes[t];if(P.home&&(!HOUSES[P.home.t]||!P.homes[P.home.t]||!isFinite(P.home.x)||!isFinite(P.home.y)))P.home=null;
  P.land=Math.max(0,P.land|0);if(!Array.isArray(P.farm))P.farm=[];P.farm=P.farm.slice(0,P.land).map(f=>f&&CROPS[f.c]&&isFinite(f.t)?f:null);while(P.farm.length<P.land)P.farm.push(null);}
-function homeSync(){const m=MAPS.plain;if(!m||!P)return;m.portals=m.portals.filter(p=>!p.home);m.npcs=m.npcs.filter(n=>n.type!=='myhouse'&&n.type!=='plot');const h=P.home;if(!h||!HOUSES[h.t])return;const H=HOUSES[h.t];
+function homeSync(){const m=MAPS.plain;if(!m||!P)return;m.portals=m.portals.filter(p=>!p.home);m.npcs=m.npcs.filter(n=>n.oh||(n.type!=='myhouse'&&n.type!=='plot'));const h=P.home;if(!h||!HOUSES[h.t])return;const H=HOUSES[h.t];
  m.portals.push({home:1,door:1,x:h.x,y:h.y+4,to:homeKey(),tx:H.iw/2*TS,ty:(H.ih-2.6)*TS});
  m.npcs.push({type:'myhouse',x:h.x,y:h.y,t:h.t,name:H.ic+' '+P.name+'의 '+H.n});
  for(let i=0;i<P.land;i++){const q=plotPos(i);m.npcs.push({type:'plot',i,x:q.x,y:q.y-14,cy:q.y,name:''});}}
-function homeHit(x,y){if(!map||map.key!=='plain'||!P||!P.home)return false;const h=P.home,H=HOUSES[h.t];if(!H)return false;return Math.abs(x-h.x)<H.w/2-6&&y>h.y-H.h*.5&&y<h.y-10;}
+function homeHit(x,y){if(!map||map.key!=='plain'||!P)return false;const hit=h=>{const H=HOUSES[h.t];return H&&Math.abs(x-h.x)<H.w/2-6&&y>h.y-H.h*.5&&y<h.y-10;};if(P.home&&hit(P.home))return true;for(const h of HOMES.list)if(hit(h))return true;return false;}
+// 다른 사람들의 집·밭 (서버가 모든 저장에서 모아 준다 · 주인이 없어도 보인다)
+const HOMES={list:[],t:-99,off:0,busy:0};
+async function homesLoad(){if(HOMES.busy||!P)return;HOMES.busy=1;HOMES.t=gameT;try{const r=await fetch((NET.base||'')+'/api/rpg/homes',{cache:'no-store'});if(r.ok){const j=await r.json();HOMES.off=(+j.now||Date.now())-Date.now();HOMES.list=(Array.isArray(j.list)?j.list:[]).filter(h=>h&&HOUSES[h.t]&&isFinite(h.x)&&isFinite(h.y)&&h.u!==NET.uid&&h.n!==P.name);homesSync();}}catch(e){}HOMES.busy=0;}
+function homesSync(){const m=MAPS.plain;if(!m)return;m.npcs=m.npcs.filter(n=>!n.oh);for(const h of HOMES.list){const H=HOUSES[h.t];m.npcs.push({type:'myhouse',oh:1,x:h.x,y:h.y,t:h.t,name:H.ic+' '+h.n+'의 '+H.n});(Array.isArray(h.f)?h.f:[]).slice(0,80).forEach((f,i)=>{const q=plotPosOf(h,i);m.npcs.push({type:'plot',oh:1,of:Array.isArray(f)&&CROPS[f[0]]?{c:f[0],t:f[1]-HOMES.off}:null,i,x:q.x,y:q.y-14,cy:q.y,name:''});});}}
 function homeDrop(){for(const k in MAPS)if(k.startsWith('hm'))delete MAPS[k];}
 function homeInstall(t){if(!map||map.key!=='plain'){toast('🌾 끝없는 평야에서만 집을 세울 수 있어요');return;}if(!P.homes[t])return;const tx=P.x/TS,ty=P.y/TS;if(tx<200||tx>2780||ty<200||ty>2780){toast('너무 멀리 왔어요. 조금 더 안쪽에 세워 주세요');return;}
  if(Math.hypot(P.x-map.start.x,P.y-map.start.y)<300){toast('🚧 입구 근처는 길이라 못 지어요. 조금 떨어져서 세워 주세요');return;}
@@ -1935,14 +1940,14 @@ function homeFurn(i,w,h){const F=[],f=(k,x,y,deco)=>F.push({type:'furn',k,x:x*TS
 // ---- 그리기 ----
 const SPAL=c=>({k:'#140c1c',1:c,2:shade(c,.45),3:shade(c,-.35),w:'#ffffff',y:'#ffd54f',b:'#8d5a2b',g:'#9e9e9e',r:'#e53935',G:'#43a047'});
 function sprW(spr,col,cx,cy,s){const A=SPR[spr];if(!A)return;const Pp=SPAL(col);A.forEach((row,y)=>{for(let x=0;x<row.length;x++){const ch=row[x];if(ch==='.')continue;px(cx-6*s+x*s,cy-6*s+y*s,s,s,Pp[ch]||col);}});}
-function drawPlot(n){const x=n.x,y=n.cy,f=P.farm&&P.farm[n.i],st=cropState(f);
+function drawPlot(n){const x=n.x,y=n.cy,f=n.oh?n.of:P.farm&&P.farm[n.i],st=cropState(f);
  px(x-15,y-15,30,30,'#5d4027');px(x-14,y-14,28,28,'#6d4c2f');for(let i=0;i<3;i++)px(x-13,y-9+i*9,26,2,'#53381f');
  if(st<0)return;const c=CROPS[f.c];
  if(st<.2){for(const[dx,dy]of[[-6,-6],[5,-4],[-3,4],[6,5]])px(x+dx,y+dy,2,2,'#e8d6a8');}
  else if(st<.55){px(x-1,y-6,2,6,'#66bb6a');px(x-5,y-8,4,3,'#81c784');px(x+1,y-9,4,3,'#81c784');}
  else if(st<1){px(x-1,y-14,2,14,'#43a047');px(x-8,y-12,7,4,'#66bb6a');px(x+1,y-16,7,4,'#66bb6a');px(x-6,y-6,5,3,'#81c784');px(x+2,y-8,5,3,'#81c784');px(x-2,y-17,4,4,shade(c.c,.4));}
  else{px(x-1,y-12,2,12,'#2e7d32');px(x-8,y-10,7,4,'#43a047');px(x+1,y-14,7,4,'#43a047');sprW(CROPSPR[f.c],c.c,x,y-14+Math.sin(gameT*3+n.i)*1.5,2);if(Math.random()<.03)parts.push({x:x+rnd(-10,10),y:y-20,vx:0,vy:-20,life:.6,color:'#fff59d',s:2});}
- if(st<1&&Math.hypot(P.x-x,P.y-y)<90){px(x-12,y+11,24,3,'#000a');px(x-12,y+11,24*st,3,'#9ccc65');}}
+ if(!n.oh&&st<1&&Math.hypot(P.x-x,P.y-y)<90){px(x-12,y+11,24,3,'#000a');px(x-12,y+11,24*st,3,'#9ccc65');}}
 function hRoof(xl,xr,yb,yt,ins,col){ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(xl,yb);ctx.lineTo(xl+ins,yt);ctx.lineTo(xr-ins,yt);ctx.lineTo(xr,yb);ctx.closePath();ctx.fill();}
 function hWin(x,y,w,h,f){px(x-1,y-1,w+2,h+2,f||'#5d4037');px(x,y,w,h,'#90caf9');px(x,y,w,2,'#e3f2fd');px(x+w/2-1,y,2,h,f||'#5d4037');px(x,y+h/2-1,w,2,f||'#5d4037');}
 function drawHomeExt(n){const H=HOUSES[n.t];if(!H)return;const x=n.x,y=n.y,w=H.w,h=H.h,L=x-w/2,R=x+w/2;
@@ -2798,7 +2803,7 @@ function grannyTick(dt){if(!map||map.key!=='village')return;const g=map.npcs.fin
  }else if(g.rT>nowS()){const k=Math.min(1,dt*14);g.x+=(g.rx-g.x)*k;g.y+=(g.ry-g.y)*k;g.moving=true;if(Math.random()<.5)parts.push({x:g.x+rnd(-6,6),y:g.y,vx:rnd(-30,30),vy:rnd(-30,0),life:.3,color:'#d9c49a',s:3});
  }else{const dx=g.hx-g.x,dy=g.hy-g.y,d=Math.hypot(dx,dy);if(d>2){const sp=110*dt;g.x+=dx/d*Math.min(sp,d);g.y+=dy/d*Math.min(sp,d);g.moving=true;}else{g.moving=false;if(g.chase&&g.chase<=gameT){g.chase=0;g.mad=0;}}}
  g.walk=(g.walk||0)+(g.moving?dt*(g.chase>gameT||g.rT>nowS()?22:9):0);}
-function nearNpc(){if(!map)return null;let best=null,bd=1e9;for(const n of map.npcs){if(n.type==='prop'||n.type==='rock'||n.type==='myhouse'||(n.type==='furn'&&n.deco))continue;let d,r;if(n.type==='plot'){d=Math.hypot(n.x-P.x,n.cy-P.y);r=22;}else if(n.type==='furn'){d=Math.hypot(n.x-P.x,n.ry-12-P.y);r=40;}else{const dy=n.type==='fountain'?-20:0;d=Math.hypot(n.x-P.x,n.y+dy-P.y);r=n.type==='fountain'?60:46;}if(d<r&&d<bd){bd=d;best=n;}}return best;}
+function nearNpc(){if(!map)return null;let best=null,bd=1e9;for(const n of map.npcs){if(n.type==='prop'||n.type==='rock'||n.type==='myhouse'||n.oh||(n.type==='furn'&&n.deco))continue;let d,r;if(n.type==='plot'){d=Math.hypot(n.x-P.x,n.cy-P.y);r=22;}else if(n.type==='furn'){d=Math.hypot(n.x-P.x,n.ry-12-P.y);r=40;}else{const dy=n.type==='fountain'?-20:0;d=Math.hypot(n.x-P.x,n.y+dy-P.y);r=n.type==='fountain'?60:46;}if(d<r&&d<bd){bd=d;best=n;}}return best;}
 
 // ================= 그리기 =================
 function draw(){
@@ -4496,7 +4501,7 @@ setInterval(()=>{const k=NET.sock;if(!k||!k.connected||!P||!map||!NET.playing)re
   const ES=NET.esS||(NET.esS={n:0,last:new Map(),mk:''});if(ES.mk!==map.key){ES.mk=map.key;ES.n=0;ES.last.clear();}
   const n0=ES.n++;if(n0%15===0){k.emit('es',L);ES.last=new Map(L.map(a=>[a[0],a.join(',')]));}
   else if(n0%2===0){const d=[],now=new Map();for(const a of L){const sg=a.join(',');now.set(a[0],sg);const ls=ES.last.get(a[0]);if(ls===undefined)d.push(a);else if(ls!==sg)d.push([a[0],a[2],a[3],a[4],a[6]]);}const g=[];for(const id of ES.last.keys())if(!now.has(id))g.push(id);ES.last=now;if(d.length||g.length)k.emit('es',{d,g});}}},100);
-function netTick(dt){plainWrap();if(P){evtTick(dt);bdTick();}for(const o of NET.others.values())if(o.skid>0){o.skT=(o.skT||0)+dt;o.sk=Math.max(.35,1-o.skT/SKID_STOP);const a=o.skA,rx=o.x-Math.cos(a)*11,ry=o.y-1-Math.sin(a)*5;if(!o.lastSk||Math.hypot(rx-o.lastSk.x,ry-o.lastSk.y)>3){skidMark(rx,ry,a);o.lastSk={x:rx,y:ry};}if(Math.random()<.4)parts.push({x:rx,y:ry-2,vx:rnd(-30,30),vy:rnd(-40,-10),life:rnd(.3,.5),color:'#bdbdbd',s:3});}for(const o of NET.others.values()){const k=Math.min(1,dt*12);if(o.spc&&o.spt)o.spc.forEach((c,i)=>{const t=o.spt[i];if(!t)return;c[0]=t[0];c[1]+=(t[1]-c[1])*k;c[2]+=(t[2]-c[2])*k;});if(o.thd!=null&&o.hd!=null){const da=((o.thd-o.hd+Math.PI*3)%(Math.PI*2))-Math.PI;const st=da*Math.min(1,dt*10);o.hd+=st;o.lean=(o.lean||0)*.85+(st/Math.max(dt,.001))*.06;}o.x+=(o.tx-o.x)*k;o.y+=(o.ty-o.y)*k;if(o.w)o.walk+=dt*10;}}
+function netTick(dt){plainWrap();if(map&&map.key==='plain'&&gameT-HOMES.t>30)homesLoad();if(P){evtTick(dt);bdTick();}for(const o of NET.others.values())if(o.skid>0){o.skT=(o.skT||0)+dt;o.sk=Math.max(.35,1-o.skT/SKID_STOP);const a=o.skA,rx=o.x-Math.cos(a)*11,ry=o.y-1-Math.sin(a)*5;if(!o.lastSk||Math.hypot(rx-o.lastSk.x,ry-o.lastSk.y)>3){skidMark(rx,ry,a);o.lastSk={x:rx,y:ry};}if(Math.random()<.4)parts.push({x:rx,y:ry-2,vx:rnd(-30,30),vy:rnd(-40,-10),life:rnd(.3,.5),color:'#bdbdbd',s:3});}for(const o of NET.others.values()){const k=Math.min(1,dt*12);if(o.spc&&o.spt)o.spc.forEach((c,i)=>{const t=o.spt[i];if(!t)return;c[0]=t[0];c[1]+=(t[1]-c[1])*k;c[2]+=(t[2]-c[2])*k;});if(o.thd!=null&&o.hd!=null){const da=((o.thd-o.hd+Math.PI*3)%(Math.PI*2))-Math.PI;const st=da*Math.min(1,dt*10);o.hd+=st;o.lean=(o.lean||0)*.85+(st/Math.max(dt,.001))*.06;}o.x+=(o.tx-o.x)*k;o.y+=(o.ty-o.y)*k;if(o.w)o.walk+=dt*10;}}
 async function netInit(){
  renderTitle();
  {let hasTok=false;try{hasTok=!!(localStorage.getItem('dobakrpg_session')||localStorage.getItem('rf_auth'));}catch(e){}const t0=Date.now();
