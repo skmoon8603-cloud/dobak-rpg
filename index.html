@@ -43,7 +43,7 @@ button{font-family:inherit;cursor:pointer}
 #qtrack div{background:rgba(20,10,40,.72);border-left:3px solid #ffe066;border-radius:4px;padding:2px 7px;margin-bottom:3px;display:table}
 #qtrack div.h{border-left-color:#c58bff;color:#e3c8ff}
 #qtrack div.ok{border-left-color:#7dff7d;color:#b8ffb8}
-#toast{position:fixed;top:30%;left:50%;transform:translate(-50%,-50%);font-size:22px;color:#ffe066;text-shadow:0 2px 0 #000,0 0 12px #c08bff;pointer-events:none;text-align:center;transition:opacity .4s;opacity:0;white-space:nowrap}
+#toast{position:fixed;top:30%;left:50%;transform:translate(-50%,-50%);font-size:22px;color:#ffe066;text-shadow:0 2px 0 #000,0 0 12px #c08bff;pointer-events:none;text-align:center;transition:opacity .4s;opacity:0;z-index:9000;max-width:94vw;width:max-content;background:rgba(13,8,24,.72);border-radius:10px;padding:4px 12px}
 #chatlog{position:fixed;left:calc(env(safe-area-inset-left) + 8px);bottom:calc(env(safe-area-inset-bottom) + 215px);font-size:11px;pointer-events:none;max-width:55vw;text-shadow:0 1px 0 #000;background:rgba(10,5,25,.35);border-radius:6px;padding:0 4px}#chatlog:empty{display:none}
 #log{position:fixed;left:calc(env(safe-area-inset-left) + 8px);bottom:calc(env(safe-area-inset-bottom) + 290px);font-size:11px;pointer-events:none;max-width:55vw;text-shadow:0 1px 0 #000}
 #log div{opacity:.9;margin-top:2px}
@@ -1412,7 +1412,7 @@ function saveLoss(){save(true);try{netFlush();}catch(e){}} // 도박에서 잃�
 function hasSave(){try{return !!localStorage.getItem(SAVEKEY);}catch(e){return false;}}
 function applySave(d){if(!d||!d.race||!RACES[d.race]||!CLASSES[d.cls])return false;P=Object.assign(newPlayer(d.name,d.race,d.cls),d);fixPlayer();return true;}
 function load(){try{return applySave(JSON.parse(localStorage.getItem(SAVEKEY)));}catch(e){return false;}}
-function fixPlayer(){monReset();take2x();homeFix();if(!P.pets||typeof P.pets!=='object')P.pets={};for(const t in P.pets){if(!PETS[pb(t)])delete P.pets[t];else{const p=P.pets[t];p.lv=Math.max(0,Math.min(PET_MAX,p.lv|0));p.xp=Math.max(0,p.xp|0);}}if(!petCur()){P.petOn='';P.petRide=false;}
+function fixPlayer(){monReset();take2x();homeRefund();homeFix();if(!P.pets||typeof P.pets!=='object')P.pets={};for(const t in P.pets){if(!PETS[pb(t)])delete P.pets[t];else{const p=P.pets[t];p.lv=Math.max(0,Math.min(PET_MAX,p.lv|0));p.xp=Math.max(0,p.xp|0);}}if(!petCur()){P.petOn='';P.petRide=false;}
  delete P.say;delete P.sayT;
  if(!P.skl)P.skl={};(P.sk||[]).forEach((v,i)=>{if(v)P.skl[P.cls+i]=Math.max(v,P.skl[P.cls+i]||0);});
  delete P.sk;
@@ -1863,14 +1863,17 @@ for(const k in CROPS){const c=CROPS[k];MATS[k]=[c.n,'🌱',`밭에서 기른 ${c
 ].forEach(([id,n,d,need,g,f])=>{CONS[id]=[n,d,0,'🍽'];COOK.push([id,need,g]);FOOD[id]=f;});
 const fmtS=s=>{s=Math.max(0,Math.ceil(s));return s>=3600?Math.floor(s/3600)+'시간'+(s%3600>=60?' '+Math.floor(s%3600/60)+'분':''):s>=60?Math.floor(s/60)+'분'+(s%60?' '+s%60+'초':''):s+'초';};
 const homeKey=()=>{let h=7;for(const ch of String(P&&P.name||'me'))h=(h*31+ch.charCodeAt(0))>>>0;return 'hm'+h.toString(36).padStart(7,'0');}; // 집 안은 사람마다 따로 · 2층은 끝에 u
-const landPrice=()=>Math.round(200000*Math.pow(1.5,P.land|0));
+const LAND_MAX=60;const landPrice=()=>Math.round(10000*Math.pow(1.5,P.land|0)); // 첫 땅 1만, 살 때마다 1.5배
 const plotPos=i=>plotPosOf(P.home,i);
 function plotPosOf(h,i){const H=HOUSES[h.t];return{x:h.x+H.w/2+30+(i%6)*TS+TS/2,y:h.y-2*TS+Math.floor(i/6)*TS+TS/2};}
 function cropRaw(f){return (Date.now()-f.t)/(CROPS[f.c].g*1000);}
 function cropState(f){if(!f||!CROPS[f.c])return -1;let r=cropRaw(f);if(!f.w)r=Math.min(r,.5);return Math.min(1,Math.max(0,r));} // 물을 안 주면 반쯤 자라고 멈춘다 (죽지는 않는다)
 const thirsty=f=>!!(f&&CROPS[f.c]&&!f.w&&cropRaw(f)>=.5);
 function waterAll(){let n=0;P.farm.forEach((f,i)=>{if(f&&!f.w){if(cropRaw(f)>.5)f.t=Date.now()-.5*CROPS[f.c].g*1000;f.w=1;n++;const q=plotPos(i);for(let j=0;j<4;j++)parts.push({x:q.x+rnd(-10,10),y:q.y-18,vx:rnd(-10,10),vy:rnd(20,60),life:.5,color:'#4fc3f7',s:3});}});if(n){sfx('coin');toast(`💧 ${n}칸에 물을 줬다! 다시 쑥쑥 자란다`);save(true);}else toast('물을 줄 밭이 없어요');renderMenu();return n;}
-function homeFix(){if(!P.homes||typeof P.homes!=='object')P.homes={};for(const t in P.homes)if(!HOUSES[t])delete P.homes[t];if(P.home&&(!HOUSES[P.home.t]||!P.homes[P.home.t]||!isFinite(P.home.x)||!isFinite(P.home.y)))P.home=null;
+function homeRefund(){if(!P.flags||P.flags.homeRef1)return;P.flags.homeRef1=1;let g=0;const hs=P.homes&&typeof P.homes==='object'?Object.keys(P.homes).filter(t=>HOUSES[t]):[];for(const t of hs)g+=HOUSES[t].p;const L=Math.max(0,P.land|0);for(let i=0;i<L;i++)g+=Math.round(200000*Math.pow(1.5,i));
+ if(Array.isArray(P.farm))for(const f of P.farm)if(f&&CROPS[f.c])P.mats[f.c]=(P.mats[f.c]||0)+1; // 심어 둔 씨앗도 돌려준다
+ if(!g)return;P.homes={};P.home=null;P.land=0;P.farm=[];P.gold+=g;homeDrop();setTimeout(()=>{toast(`🏠 집·밭 환불 ${g.toLocaleString()} G`);log(`🏠 집·땅 규칙이 바뀌어서 산 집 ${hs.length}채와 땅 ${L}평 값 ${g.toLocaleString()} G를 돌려받았어요 (심은 씨앗도 돌려받음)`);},2500);}
+function homeFix(){if(!P.homes||typeof P.homes!=='object')P.homes={};P.land=Math.min(LAND_MAX,Math.max(0,P.land|0));for(const t in P.homes)if(!HOUSES[t])delete P.homes[t];if(P.home&&(!HOUSES[P.home.t]||!P.homes[P.home.t]||!isFinite(P.home.x)||!isFinite(P.home.y)))P.home=null;
  P.land=Math.max(0,P.land|0);if(!Array.isArray(P.farm))P.farm=[];P.farm=P.farm.slice(0,P.land).map(f=>f&&CROPS[f.c]&&isFinite(f.t)?(f.w===undefined&&(f.w=1),f):null);if(!P.chest||typeof P.chest!=='object')P.chest={m:{},p:{},g:[]};for(const k of['m','p'])if(!P.chest[k]||typeof P.chest[k]!=='object')P.chest[k]={};if(!Array.isArray(P.chest.g))P.chest.g=[];while(P.farm.length<P.land)P.farm.push(null);}
 function homeSync(){const m=MAPS.plain;if(!m||!P)return;m.portals=m.portals.filter(p=>!p.home);m.npcs=m.npcs.filter(n=>n.oh||(n.type!=='myhouse'&&n.type!=='plot'));const h=P.home;if(!h||!HOUSES[h.t])return;const H=HOUSES[h.t];
  m.portals.push({home:1,door:1,x:h.x,y:h.y+4,to:homeKey(),tx:H.iw/2*TS,ty:(H.ih-2.6)*TS});
@@ -1882,16 +1885,16 @@ const HOMES={list:[],t:-99,off:0,busy:0};
 async function homesLoad(){if(HOMES.busy||!P)return;HOMES.busy=1;HOMES.t=gameT;try{const r=await fetch((NET.base||'')+'/api/rpg/homes',{cache:'no-store'});if(r.ok){const j=await r.json();HOMES.off=(+j.now||Date.now())-Date.now();HOMES.list=(Array.isArray(j.list)?j.list:[]).filter(h=>h&&HOUSES[h.t]&&isFinite(h.x)&&isFinite(h.y)&&h.u!==NET.uid&&h.n!==P.name);homesSync();}}catch(e){}HOMES.busy=0;}
 function homesSync(){const m=MAPS.plain;if(!m)return;m.npcs=m.npcs.filter(n=>!n.oh);for(const h of HOMES.list){const H=HOUSES[h.t];m.npcs.push({type:'myhouse',oh:1,x:h.x,y:h.y,t:h.t,name:H.ic+' '+h.n+'의 '+H.n});(Array.isArray(h.f)?h.f:[]).slice(0,80).forEach((f,i)=>{const q=plotPosOf(h,i);m.npcs.push({type:'plot',oh:1,of:Array.isArray(f)&&CROPS[f[0]]?{c:f[0],t:f[1]-HOMES.off,w:f[2]===0?0:1}:null,i,x:q.x,y:q.y-14,cy:q.y,name:''});});}}
 function homeDrop(){for(const k in MAPS)if(k.startsWith('hm'))delete MAPS[k];}
-function homeClaim(h){const H=HOUSES[h.t];return{x0:h.x-H.w/2-16,x1:h.x+H.w/2+30+6*TS+16,y0:h.y-H.h-16,y1:h.y+8*TS};}
+function homeClaim(h){const H=HOUSES.grand;return{x0:h.x-H.w/2-16,x1:h.x+H.w/2+30+6*TS+16,y0:h.y-H.h-16,y1:h.y+9*TS};} // 어떤 집이든 대저택+밭 60평 자리를 차지한다 → 언제든 집을 바꿔도 겹치지 않는다
 function homeClash(h){const a=homeClaim(h);for(const o of HOMES.list){const b=homeClaim(o);if(a.x0<b.x1&&b.x0<a.x1&&a.y0<b.y1&&b.y0<a.y1)return o;}return null;}
 function homeInstall(t){if(!map||map.key!=='plain'){toast('🌾 끝없는 평야에서만 집을 세울 수 있어요');return;}if(!P.homes[t]||P.home)return;const tx=P.x/TS,ty=P.y/TS;if(tx<200||tx>2780||ty<200||ty>2780){toast('너무 멀리 왔어요. 조금 더 안쪽에 세워 주세요');return;}
  if(Math.hypot(P.x-map.start.x,P.y-map.start.y)<300){toast('🚧 입구 근처는 길이라 못 지어요. 조금 떨어져서 세워 주세요');return;}
  const spot={t,x:Math.round(P.x),y:Math.round(P.y-40)};
  (async()=>{await homesLoad();const o=homeClash(spot);if(o){toast(`🚧 ${o.n} 님의 집·밭과 겹쳐요. 다른 곳에 세워 주세요`);return;}
   $('menu').classList.add('hidden');dialog('🏠 집 세우기',[`여기에 ${HOUSES[t].ic} ${HOUSES[t].n}을(를) 세울까요?`,'⚠ 한 번 세우면 다시는 옮길 수 없어요! (밭도 집 옆에 생겨요)'],[{t:'🔨 여기에 세운다',c:'gold',f:()=>{if(P.home)return;if(homeClash(spot)){toast('🚧 다른 집과 겹쳐요');return;}P.home=spot;homeDrop();homeSync();sfx('win');toast(`${HOUSES[t].ic} ${HOUSES[t].n}을(를) 세웠다! 문으로 들어가 보세요`);save(true);}},{t:'다시 생각할게'}]);})();}
-function homeSwap(t){if(!P.home||!P.homes[t])return;const nh={t,x:P.home.x,y:P.home.y},o=homeClash(nh);if(o){toast(`🚧 더 큰 집이 ${o.n} 님의 집·밭과 겹쳐서 바꿀 수 없어요`);return;}P.home.t=t;homeDrop();homeSync();sfx('win');toast(`${HOUSES[t].ic} ${HOUSES[t].n}(으)로 바꿨다! (자리는 그대로)`);save(true);renderMenu();}
+function homeSwap(t){if(!P.home||!P.homes[t])return;P.home.t=t;homeDrop();homeSync();sfx('win');toast(`${HOUSES[t].ic} ${HOUSES[t].n}(으)로 바꿨다! (자리는 그대로)`);save(true);renderMenu();}
 function homeBuy(t){const H=HOUSES[t];if(!H||P.homes[t])return;if(P.gold<H.p){toast('💰 골드가 모자라요');return;}P.gold-=H.p;P.homes[t]=1;sfx('win');toast(`${H.ic} ${H.n} 구입! 평야에서 메뉴 「🏠 집」 → 「여기에 설치」`);save(true);renderMenu();}
-function landBuy(){if(!P.home){toast('먼저 집을 세워야 그 옆 땅을 살 수 있어요');return;}const c=landPrice();if(P.gold<c){toast('💰 골드가 모자라요');return;}P.gold-=c;P.land++;P.farm.push(null);homeSync();sfx('coin');toast(`🟫 땅 1평을 샀다! (총 ${P.land}평)`);save(true);renderMenu();}
+function landBuy(){if(!P.home){toast('먼저 집을 세워야 그 옆 땅을 살 수 있어요');return;}if(P.land>=LAND_MAX){toast(`🟫 땅은 ${LAND_MAX}평까지 살 수 있어요`);return;}const c=landPrice();if(P.gold<c){toast('💰 골드가 모자라요');return;}P.gold-=c;P.land++;P.farm.push(null);homeSync();sfx('coin');toast(`🟫 땅 1평을 샀다! (총 ${P.land}평)`);save(true);renderMenu();}
 function seedBuy(k,n){const c=CROPS[k];if(!c)return;const cost=c.p*n;if(P.gold<cost){toast('💰 골드가 모자라요');return;}P.gold-=cost;P.mats[k]=(P.mats[k]||0)+n;sfx('coin');toast(`🌱 ${c.n} 씨앗 ${n}개를 샀다`);save(true);renderMenu();}
 function cropSell(k){const n=P.mats[k]|0;if(!n||!CROPS[k])return;const g=n*CROPS[k].s;P.mats[k]=0;P.gold+=g;sfx('coin');toast(`🧺 ${CROPS[k].n} ${n}개 → ${g.toLocaleString()} G`);save(true);renderMenu();}
 function plantAt(i,k){if(!CROPS[k]||i>=P.land||P.farm[i]||!(P.mats[k]>0))return false;P.mats[k]--;P.farm[i]={c:k,t:Date.now(),w:0};P.lastCrop=k;for(let j=0;j<6;j++){const q=plotPos(i);parts.push({x:q.x+rnd(-8,8),y:q.y,vx:rnd(-30,30),vy:rnd(-60,-20),life:.5,color:'#8d6e63',s:3});}return true;}
@@ -1921,10 +1924,10 @@ function homeHtml(){homeFix();const nearShop=!!(map&&map.key==='plain'&&map.npcs
  h+=`<div style="color:#ffe9a8;margin-top:10px">🟫 밭 ${P.land}평</div>`;
  if(P.home){const F=P.farm,ripe=F.filter(f=>cropState(f)>=1).length,grow=F.filter(f=>f&&cropState(f)<1).length;
   const dryN=F.filter(f=>f&&!f.w).length;h+=`<div style="font-size:12px">🧺 다 익음 ${ripe} · 🌱 자라는 중 ${grow} · 빈 밭 ${F.length-ripe-grow}${dryN?` · <span style="color:#4fc3f7">💧 물 필요 ${dryN}</span>`:''}</div><div style="font-size:11px;color:#8d7bb3">💧 반쯤 자라면 물을 줘야 끝까지 자라요 (안 주면 멈출 뿐 죽지 않아요)</div>`;
-  if(nearShop)h+=`<div class="row"><div class="t">🟫 땅 1평 더 사기<small>다음 가격 ${landPrice().toLocaleString()} G · 살 때마다 1.5배</small></div><button class="btn gold" data-land="1" ${P.gold>=landPrice()?'':'disabled'}>사기</button></div>`;
+  if(nearShop)h+=`<div class="row"><div class="t">🟫 땅 1평 더 사기<small>${P.land>=LAND_MAX?'최대 '+LAND_MAX+'평까지 샀어요':'다음 가격 '+landPrice().toLocaleString()+' G · 살 때마다 1.5배 · 최대 '+LAND_MAX+'평'}</small></div><button class="btn gold" data-land="1" ${P.gold>=landPrice()&&P.land<LAND_MAX?'':'disabled'}>사기</button></div>`;
   if(map.key==='plain'&&Math.hypot(P.x-P.home.x,P.y-P.home.y)<520){h+=`<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px"><button class="btn gold" data-harv="1" ${ripe?'':'disabled'}>🧺 모두 수확</button><button class="btn" data-water="1" ${dryN?'':'disabled'}>💧 모두 물 주기</button>`;for(const k in CROPS)if(P.mats[k]>0)h+=`<button class="btn" data-pall="${k}">🌱 빈 밭에 ${CROPS[k].n}</button>`;h+='</div>';}
   else h+=`<div style="font-size:11px;color:#8d7bb3">밭 근처에 가면 여기서 한꺼번에 심고 거둘 수 있어요 · 밭을 눌러도 돼요</div>`;}
- else h+=`<div style="font-size:12px;color:#b7a6d9">집을 세우면 그 옆 땅을 살 수 있어요 (첫 땅 20만 G, 살 때마다 1.5배)</div>`;
+ else h+=`<div style="font-size:12px;color:#b7a6d9">집을 세우면 그 옆 땅을 살 수 있어요 (첫 땅 1만 G, 살 때마다 1.5배)</div>`;
  h+=`<div style="color:#ffe9a8;margin-top:10px">🌱 작물</div>`;let any=0;
  for(const k in CROPS){const c=CROPS[k],n=P.mats[k]|0;if(!nearShop&&!n)continue;any=1;
   h+=`<div class="row"><div class="t">${matIcon(k,20)} <b>${c.n}</b> <span style="color:#b7a6d9;font-size:11px">보유 ${n}</span><small>${fmtS(c.g)} 뒤 익음 · 수확 ${c.y[0]}~${c.y[1]}개 · 1개 ${c.s.toLocaleString()} G에 팔림</small>${nearShop?`<small>씨앗 ${c.p.toLocaleString()} G</small>`:''}</div>`;
@@ -4400,7 +4403,7 @@ $('tutPrev').onclick=()=>{if(TS2.i>0){TS2.i--;tutShow();}};
 $('tutSkip').onclick=()=>tutEnd();
 addEventListener('resize',()=>{if(!$('tut').classList.contains('hidden'))tutShow();});
 // 📜 패치노트: 새 패치가 나오면 처음 한 번만 띄운다 (이 기기 기준)
-const PATCH={v:'2026-11-28c',title:'📜 패치노트 · 11월 28일',lines:['🏠 끝없는 평야 입구의 「집·농사 상인 한씨」에게서 집을 살 수 있어요 · 텐트 70만 ~ 대저택 10억 · 평야 아무 데나 세우고 들어가 쉴 수 있어요 (비쌀수록 안이 넓어요)','🟫 집 옆 땅을 사서 농사! (첫 땅 20만, 살 때마다 1.5배) · 거두면 1~3개 · 💧 반쯤 자라면 물을 줘야 끝까지 자라요 (안 주면 멈출 뿐 죽지 않아요)','📦 집 안 상자에 물건 보관 (텐트 10칸 ~ 대저택 200칸) · 🪜 저택·대저택은 2층 · ⚠ 집은 한 번 세우면 못 옮기고, 남의 집과 겹치게 지을 수 없어요','🍳 작물 요리 8가지 추가 (요리사 쿡 · 집 안 부엌) · 집 침대에서 자면 체력·마나가 가득 차요','🥚 보스를 잡으면 0.5% 확률로 「보스알」이 나와요 · 그 지역 재료를 먹이로 주면 깨어나 Lv20까지 자라고, 근처 적을 자동으로 공격해요',
+const PATCH={v:'2026-11-28d',title:'📜 패치노트 · 11월 28일',lines:['🏠 끝없는 평야 입구의 「집·농사 상인 한씨」에게서 집을 살 수 있어요 · 텐트 70만 ~ 대저택 10억 · 평야 아무 데나 세우고 들어가 쉴 수 있어요 (비쌀수록 안이 넓어요)','🟫 집 옆 땅을 사서 농사! (첫 땅 1만, 살 때마다 1.5배, 최대 60평) · 거두면 1~3개 · 💧 반쯤 자라면 물을 줘야 끝까지 자라요 (안 주면 멈출 뿐 죽지 않아요)','📦 집 안 상자에 물건 보관 (텐트 10칸 ~ 대저택 200칸) · 🪜 저택·대저택은 2층 · ⚠ 집은 한 번 세우면 못 옮겨요 · 남의 집 근처(대저택+밭 크기)에는 못 지어서 언제든 더 큰 집으로 바꿀 수 있어요','💰 규칙이 바뀌어서 지금까지 산 집·땅 값은 전부 돌려드렸어요','🍳 작물 요리 8가지 추가 (요리사 쿡 · 집 안 부엌) · 집 침대에서 자면 체력·마나가 가득 차요','🥚 보스를 잡으면 0.5% 확률로 「보스알」이 나와요 · 그 지역 재료를 먹이로 주면 깨어나 Lv20까지 자라고, 근처 적을 자동으로 공격해요',
  '🐾 보스가 Lv15가 되면 올라탈 수 있어요 (이동 속도 150%)',
  '🕸 거미 지역 장비가 생겼어요 · 대장장이 제작에서 거미 무기(모든 직업)와 거미줄 갑옷을 만들 수 있어요','💣 개틀링건(3차) 새 스킬 「폭탄 포탑」',
  '🔫 레인저 기본 공격 피해 1.5배',
