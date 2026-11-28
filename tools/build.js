@@ -12,12 +12,12 @@ const guard = `document.addEventListener('contextmenu',e=>{if(!(e.target&&/INPUT
 document.addEventListener('keydown',e=>{const k=(e.key||'').toLowerCase();if(k==='f12'||((e.ctrlKey||e.metaKey)&&e.shiftKey&&['i','j','c'].includes(k))||((e.ctrlKey||e.metaKey)&&k==='u')){e.preventDefault();e.stopPropagation();}},true);`;
 const code = '(function(){\n' + guard + '\n' + parts.map((p) => p.code).join('\n;\n') + '\n})();';
 const ob = JO.obfuscate(code, {
-  compact: true, controlFlowFlattening: false, deadCodeInjection: false, debugProtection: false, selfDefending: false,
-  identifierNamesGenerator: 'mangled-shuffled', renameGlobals: false, stringArray: true, stringArrayThreshold: 0.35,
-  stringArrayEncoding: [], stringArrayWrappersCount: 1, splitStrings: false, transformObjectKeys: false, unicodeEscapeSequence: false,
+  compact: true, controlFlowFlattening: false, deadCodeInjection: false, debugProtection: false,
+  identifierNamesGenerator: 'mangled-shuffled', renameGlobals: false, stringArray: true, stringArrayThreshold: 0.8, stringArrayRotate: true, stringArrayShuffle: true, stringArrayIndexShift: true, selfDefending: true,
+  stringArrayEncoding: ['base64'], stringArrayWrappersCount: 2, stringArrayWrappersType: 'function', splitStrings: false, transformObjectKeys: false, unicodeEscapeSequence: false,
   numbersToExpressions: false, simplify: true, target: 'browser',
 }).getObfuscatedCode();
-html = html.replace(parts[0].full, '<script>' + ob + '</script>');
+html = html.replace(parts[0].full, () => '<script>' + ob + '</script>'); // 함수로 넘겨야 코드 속 $' 같은 글자가 바뀌지 않는다
 for (const p of parts.slice(1)) html = html.replace(p.full, '');
 fs.writeFileSync(out, html);
 console.log('built', out, (html.length / 1024).toFixed(0) + 'KB');

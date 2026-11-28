@@ -31,6 +31,7 @@ button{font-family:inherit;cursor:pointer}
 .trow{display:flex;gap:4px;justify-content:flex-end;flex-wrap:wrap;max-width:100%}
 #chatbar{position:fixed;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top) + 150px);width:min(360px,94vw);display:flex;gap:6px;z-index:15;background:rgba(20,10,40,.9);border:2px solid #a585e8;border-radius:10px;padding:6px}
 #chatbar input{flex:1;min-width:0;font-size:14px;padding:6px}
+#boss.raidb{top:auto;bottom:calc(env(safe-area-inset-bottom) + 2px);width:min(94vw,560px);z-index:4}#boss.raidb #bossDrop{display:none}#bossTime{font-size:13px;color:#ffe066;text-shadow:0 1px 0 #000,0 0 6px #000;margin-top:3px}#bossTime:empty{display:none}
 #bossRank{margin-top:4px;font-size:11px;line-height:1.45;color:#fff;text-shadow:0 1px 0 #000;background:rgba(20,6,30,.6);border-radius:6px;padding:2px 6px;display:inline-block}#bossRank:empty{display:none}#bossRank .me{color:#ffe066}
 #tut{position:fixed;inset:0;z-index:10050;pointer-events:auto}
 #tutHole{position:absolute;border:2px solid #ffd740;border-radius:10px;box-shadow:0 0 0 9999px rgba(0,0,0,.72),0 0 18px #ffd740;transition:all .25s;pointer-events:none}
@@ -156,15 +157,15 @@ input[type=text],input[type=password]{font-family:inherit;background:#120a24;bor
     <div class="trow"><button class="tbtn" id="bFold" title="메뉴 열기/닫기">☰ 메뉴</button></div>
     <div id="tbtns" class="hidden">
     <button class="tbtn" data-tab="stat">상태·스킬</button><button class="tbtn" data-tab="quest">퀘스트</button><button class="tbtn" data-tab="equip">인벤토리</button>
-    <button class="tbtn" data-tab="map">지도</button><button class="tbtn" data-tab="home">🏠 집</button><button class="tbtn" id="bGuide">🧭 길안내</button>
-    <button class="tbtn" data-tab="party">👥 파티</button><button class="tbtn" data-tab="trade">🤝 거래</button><button class="tbtn" id="bCh">📡 서버</button>
+    <button class="tbtn" data-tab="map">지도</button><button class="tbtn" id="bGuide">🧭 길안내</button>
+    <button class="tbtn" data-tab="party">👥 파티·거래</button><button class="tbtn" id="bCh">📡 서버</button>
     <button class="tbtn" id="bChat">💬 채팅</button><button class="tbtn hidden" id="bVoice">🎤</button><button class="tbtn" id="bPk">🕊 PvP 끔</button>
-    <button class="tbtn" data-tab="set">⚙ 설정</button><button class="tbtn" data-tab="sys">저장</button><button class="tbtn" id="bFull">⛶ 전체화면</button>
+    <button class="tbtn" data-tab="set">⚙ 설정·저장</button><button class="tbtn" id="bFull">⛶ 전체화면</button>
     <button class="tbtn hidden" id="bAdm">👑 관리자</button>
     </div>
   </div>
 </div>
-<div id="boss" class="hidden"><div id="bossDrop" style="font-size:10px;color:#ffe9a8;margin-bottom:3px;text-shadow:0 1px 0 #000">드랍: 🦴 모르간의 뼈 2~3개 · 🧥 모르간의 망토 10% · 내 직업 무기 · 행운의 부적</div><div id="bossName">Lv12 리치 모르간</div><div class="bar"><i></i></div><div id="bossRank"></div></div>
+<div id="boss" class="hidden"><div id="bossDrop" style="font-size:10px;color:#ffe9a8;margin-bottom:3px;text-shadow:0 1px 0 #000">드랍: 🦴 모르간의 뼈 2~3개 · 🧥 모르간의 망토 10% · 내 직업 무기 · 행운의 부적</div><div id="bossName">Lv12 리치 모르간</div><div class="bar"><i></i></div><div id="bossTime"></div><div id="bossRank"></div></div>
 <div id="qtrack"></div>
 <div id="chatbar" class="hidden"><input type="text" id="chatIn" maxlength="40" placeholder="할 말을 쓰고 Enter" autocomplete="off"><button class="btn gold" id="chatSend">보내기</button><button class="btn" id="chatRep" title="신고·차단">🚩</button></div>
 <div id="chBox" class="hidden" style="position:fixed;inset:12vh 6vw auto;z-index:60;background:#1d1236;border:3px solid #8a6bd1;border-radius:12px;padding:12px;font-size:13px;max-height:76vh;overflow:auto"></div>
@@ -598,7 +599,7 @@ const DROPS={spider:[['silk',3,6,1],['sfang',1,2,1],['sleg',4,8,1],['seye',1,1,.
 const RECIPES=[['a_hide',{hide:8,bone2:4},200],['r_slime',{slime:30},150],['a_bone',{bone2:20,hide:5},500],['r_heart',{heart:3,flesh:10},800],
  ['r_lich',{bone:6},1500],['r_horn',{horn:4,scale:6},1500],['w_{cls}5',{dscale:50,dtooth:13,dheart:3},0],['a_dragon',{dscale:100,dheart:5},0],['a_scale',{scale:35,hide:20,horn:3,ltooth:2},4000],['w_{cls}4',{ltooth:12,scale:45,horn:8,bone:4},9000],['w_{cls}6',{ahide:40,aheart:2,aspear:1},50000],['w_{cls}7',{yfur:60,yhand:15,yeye:2},100000],['a_anubis',{ahide:60,aheart:2},80000],['a_yeti',{yfur:80,yhand:20,yeye:1},150000],['w_{cls}8',{silk:80,sfang:20,seye:3},180000],['a_spider',{silk:100,sleg:60,aheart2:1},220000]];
 const EARN=1; // 일반 수입 배율 (원래대로)
-const MINE_K=.5,MINE_ORD=.25; // 탄광 가격은 절반, 빚 없는 일반인은 거기서 또 4분의 1
+const MINE_K=.5,MINE_ORD=.25,LABOR_MUL=3; // 탄광 가격은 절반, 빚 없는 일반인은 거기서 또 4분의 1
 const earnG=v=>Math.floor(v*EARN+Math.random()); // 소수는 확률로 올림
 const MATP={dscale:300,dtooth:1500,dheart:6000,bone:50,slime:2,hide:6,bone2:4,heart:60,flesh:3,scale:25,horn:80,ltooth:150,fish:12,bigfish:60,goldfish:400,poisongland:600,centleg:800,ahide:3000,aheart:20000,yfur:3500,yhand:8000,yeye:30000}; // 재료 판매가 (아누비스의 창은 못 팜)
 for(const k in MATP)MATP[k]=Math.max(1,Math.round(MATP[k]*EARN));
@@ -886,7 +887,7 @@ function makeMine(){const w=44,h=30,t=grid(w,h,'M');
  const npcs=[
   {x:13.5*TS,y:10.6*TS,name:'광부 관리인',type:'talk',color:'#263238',hat:'#fbc02d',hatType:'miner',lines:['어서 와, 여기는 아오지 탄광이다.','왼쪽 「제 1갱도」로 들어가면 넓은 채광장이 있다.','바위 옆에서 곡괭이(공격 버튼)를 휘두르면 1초에 한 번, 바위 하나씩 캘 수 있어. 바위가 빽빽해서 속에 뭐가 들었는지는 깨 봐야 알아.','캔 광석은 바로 돈으로 바꿔 주지. 다만 빚 없는 일반인은 빚쟁이의 4분의 1만 받는다!']},
   {x:31.5*TS,y:11.6*TS,name:'작업반장',type:'foreman',color:'#1a237e',hat:'#263238',hatType:'cap'},
-  {x:37.5*TS,y:21.5*TS,name:'안내소',type:'talk',color:'#263238',hat:'#fbc02d',hatType:'miner',lines:()=>['바위 속에 뭐가 들었는지는 깨 봐야 알아요!\n'+ORES.map(o=>`${o[2]} ${o[1]} ${o[3]}% · ${Math.round(o[4]*MINE_K*MINE_ORD).toLocaleString()}G`).join('\n'),'위는 빚 없는 일반인 가격이에요. 빚 때문에 끌려온 사람은 4배(빚 갚는 데 들어가요)를 받아요.']},
+  {x:37.5*TS,y:21.5*TS,name:'안내소',type:'talk',color:'#263238',hat:'#fbc02d',hatType:'miner',lines:()=>['바위 속에 뭐가 들었는지는 깨 봐야 알아요!\n'+ORES.map(o=>`${o[2]} ${o[1]} ${o[3]}% · ${Math.round(o[4]*MINE_K*MINE_ORD).toLocaleString()}G`).join('\n'),'위는 빚 없는 일반인 가격이에요. 빚 때문에 끌려온 사람은 12배(빚 갚는 데 들어가요)를 받아요.']},
   {x:22*TS,y:3.9*TS,type:'prop',w:150,h:34,bg:'#5d4030',edge:'#3e2a1e',lines:[['아오지 탄광',18,'#f5deb3']]},
   {x:12.5*TS,y:8.2*TS,type:'prop',w:72,h:70,stand:14,bg:'#2b2118',edge:'#5d4030',lines:[['오늘도',12,'#e8dcc0'],['무사히',12,'#e8dcc0'],['돌아오자',12,'#e8dcc0'],['- 아오지 -',9,'#cbb994']]},
   {x:35.5*TS,y:4.6*TS,type:'prop',w:84,h:24,bg:'#5d4030',edge:'#3e2a1e',lines:[['석탄 창고',13,'#f5deb3']]},
@@ -918,7 +919,7 @@ function mineSwing(){P.atkAnim=.25;
  if(NET.live&&NET.sock&&NET.sock.connected){o.gone=now+30000;rockBreakFx(o);NET.sock.emit('rock:hit',{i:o.ri});return;}
  o.gone=now+30000;mineGive(o,rollOre()[0]);}
 function mineGive(o,oid){const ore=ORES.find(q=>q[0]===oid)||ORES[ORES.length-1];
- const full=!!P.labor,got=Math.floor(ore[4]*MINE_K*(full?1:MINE_ORD));P.mined=(P.mined||0)+1;P.mineEarn=(P.mineEarn||0)+got;
+ const full=!!P.labor,got=Math.floor(ore[4]*MINE_K*(full?LABOR_MUL:MINE_ORD)); // 빚 때문에 갇힌 사람은 3배P.mined=(P.mined||0)+1;P.mineEarn=(P.mineEarn||0)+got;
  rockBreakFx(o,ore[0]==='stone'?'#948b84':ore[5]);
  let msg=`${ore[2]} ${ore[1]} +${got.toLocaleString()}G`;
  if(full&&P.bank&&P.bank.loan>0){const B2=P.bank,bf=B2.loan,pay=Math.min(B2.loan,got);B2.loan-=pay;B2.prin=B2.loan>0?Math.round((B2.prin||bf)*B2.loan/bf):0;P.gold+=G2(got)-pay;msg=`${ore[2]} ${ore[1]} → 빚 -${pay.toLocaleString()}G`;}else P.gold+=got;
@@ -1593,7 +1594,7 @@ const bdMe=()=>NET.uid||'me';
 function bdReset(id){BD.id=id;BD.m=new Map();BD.last=-1;}
 function bdAdd(e,v){if(BD.id!==e.id)bdReset(e.id);BD.m.set(bdMe(),(BD.m.get(bdMe())||0)+v);}
 function bdSend(force){if(!BD.id)return;const v=Math.round(BD.m.get(bdMe())||0);if(v!==BD.last&&(force||gameT-BD.sent>.7)){BD.sent=gameT;BD.last=v;netEv({k:'bd',id:BD.id,v});}}
-function bdTick(){bdSend(false);const el=$('bossRank');if(!el)return;let h='';
+function bdTick(){bdSend(false);const el=$('bossRank');if(!el)return;let h='';if(map&&map.raid){if(el.innerHTML)el.innerHTML='';return;} // 주간 보스는 기여도 대신 시간
  const boss=enemies.find(e=>e.b&&e.b.boss&&!e.b.evt&&!e.dead);
  if(boss&&BD.id===boss.id&&[...BD.m.keys()].some(u=>!(NET.admin&&u===bdMe()))){const tot=[...BD.m.values()].reduce((a,c)=>a+c,0)||1;const L=[...BD.m.entries()].filter(q=>!(NET.admin&&q[0]===bdMe())).sort((a,b)=>b[1]-a[1]);
   const nm=u=>u===bdMe()?'나':(NET.others.get(u)||{}).name||'?';const row=([u,v],i)=>`<span class="${u===bdMe()?'me':''}">${i+1}. ${esc(String(nm(u)))} ${Math.round(v/tot*100)}%</span>`;
@@ -2064,7 +2065,7 @@ function aucErr(e){return{low:'다른 사람이 먼저 더 높게 입찰했어�
 function aucBind(B){const on=(a,f)=>B.querySelectorAll('['+a+']').forEach(b=>b.onclick=()=>f(b.getAttribute(a)));
  on('data-av',v=>{AUCV.v=v;renderMenu();});on('data-arf',()=>aucLoad());on('data-adur',v=>{const p=$('aucP'),q=$('aucN');if(p&&AUCV.sel)AUCV.sel.price=+p.value;if(q&&AUCV.sel)AUCV.sel.n=+q.value;AUCV.dur=+v;renderMenu();});on('data-acx',()=>{AUCV.sel=null;renderMenu();});
  on('data-asel',v=>{const[k,id]=v.split(':');if(k==='g'){const e=P.bag[+id];if(!e)return;AUCV.sel={k,i:+id,id:e.id,plus:e.plus|0,max:1};}else{const src=k==='m'?P.mats:P.pots;AUCV.sel={k,id,max:src[id]|0};}renderMenu();});
- on('data-ago',async()=>{const S=AUCV.sel;if(!S||AUCV.busy)return;if(inDebt()){toast('💳 Lv100 전에는 빚이 있으면 경매장을 쓸 수 없어요');return;}
+ on('data-ago',async()=>{const S=AUCV.sel;if(!S||AUCV.busy)return;if(hasLoan()){toast('💳 돈을 빌린 상태에서는 경매장을 쓸 수 없어요');return;}
   const n=S.k==='g'?1:Math.floor(+($('aucN')||{}).value||0),price=Math.floor(+($('aucP')||{}).value||0);
   if(!(price>=1)){toast('시작가를 1 G 이상으로 정해 주세요');return;}
   if(S.k==='g'){const e=P.bag[S.i];if(!e||e.id!==S.id||(e.plus|0)!==S.plus){toast('그 물건이 가방에 없어요');AUCV.sel=null;renderMenu();return;}}
@@ -2073,7 +2074,7 @@ function aucBind(B){const on=(a,f)=>B.querySelectorAll('['+a+']').forEach(b=>b.o
   if(!r.ok){toast('🔨 '+aucErr(r.j&&r.j.error));return;}
   if(S.k==='g')P.bag.splice(S.i,1);else{const src=S.k==='m'?P.mats:P.pots;src[S.id]-=n;}
   AUCV.sel=null;AUCV.v='mine';sfx('coin');toast('🔨 경매에 올렸어요! ('+AUC_DUR.find(d=>d[0]===AUCV.dur)[1]+')');save(true);try{netFlush();}catch(e){}aucLoad();});
- on('data-abid',async id=>{if(AUCV.busy)return;if(inDebt()){toast('💳 Lv100 전에는 빚이 있으면 경매장을 쓸 수 없어요');return;}const r0=AUCV.list.find(x=>x.id===id);if(!r0)return;const amt=Math.floor(+(($('ab_'+id)||{}).value)||0);
+ on('data-abid',async id=>{if(AUCV.busy)return;if(hasLoan()){toast('💳 돈을 빌린 상태에서는 경매장을 쓸 수 없어요');return;}const r0=AUCV.list.find(x=>x.id===id);if(!r0)return;const amt=Math.floor(+(($('ab_'+id)||{}).value)||0);
   if(amt<aucNeed(r0)){toast(`최소 ${aucNeed(r0).toLocaleString()} G 이상 입찰해야 해요`);return;}if(P.gold<amt){toast('💰 골드가 모자라요');return;}
   AUCV.busy=1;const r=await netApi('/api/rpg/auc/bid',{id,amt,n:P.name}).catch(()=>({}));AUCV.busy=0;
   if(!r.ok){toast('🔨 '+aucErr(r.j&&r.j.error));aucLoad();return;}
@@ -2618,7 +2619,10 @@ function webHit(k){if(k===1){P.webS=Math.max(P.webS||0,2.5);addText(P.x,P.y-40,'
 addEventListener('pointerdown',()=>{if(P&&P.webN>0){P.webN--;shake=Math.max(shake,.08);if(P.webN<=0){P.webN=0;toast('✂ 거미줄을 끊었다!');puff(P.x,P.y,'#ffffff');}}},true);
 addEventListener('keydown',e=>{if(P&&P.webN>0&&!e.repeat){P.webN--;if(P.webN<=0){P.webN=0;toast('✂ 거미줄을 끊었다!');}}},true);
 function eShot(o){projs.push(Object.assign({owner:'e',kind:'orb',hit:new Set()},o));netEv({k:'ep',wb:o.wb||0,w:o.wob?1:0,h:o.eh?1:0,x:Math.round(o.x),y:Math.round(o.y),vx:Math.round(o.vx),vy:Math.round(o.vy),r:o.r,life:o.life,dmg:Math.round(o.dmg),color:o.color});}
-function bossBar(e){const bb=$('boss');{const dt2=BOSSDROP[e.type]||'';if($('bossDrop').textContent!==dt2)$('bossDrop').textContent=dt2;}if(!e.aggroed||P.dead){bb.classList.add('hidden');return;}bb.classList.remove('hidden');const bn='Lv'+e.b.lv+' '+e.b.name+(e.strong?' ★2배 강화':'');if($('bossName').textContent!==bn)$('bossName').textContent=bn;bb.querySelector('i').style.width=clamp(e.hp/e.max*100,0,100)+'%';}
+function bossBar(e){const bb=$('boss');{const dt2=BOSSDROP[e.type]||'';if($('bossDrop').textContent!==dt2)$('bossDrop').textContent=dt2;}if(!e.aggroed||P.dead){bb.classList.add('hidden');return;}bb.classList.remove('hidden');const bn='Lv'+e.b.lv+' '+e.b.name+(e.strong?' ★2배 강화':'');if($('bossName').textContent!==bn)$('bossName').textContent=bn;bb.querySelector('i').style.width=clamp(e.hp/e.max*100,0,100)+'%';
+ const rt=$('bossTime');if(map&&map.raid){bb.classList.add('raidb');if(RAIDT.id!==e.id){RAIDT.id=e.id;RAIDT.t0=Date.now()-(e.fightT||0)*1000;}const el=(Date.now()-RAIDT.t0)/1000,left=RAID_ENR-el,mm=v=>{v=Math.max(0,Math.floor(v));return Math.floor(v/60)+':'+String(v%60).padStart(2,'0');};
+  const tx=e.enr||left<=0?`🔥 광폭화! · 싸운 시간 ${mm(el)}`:`⏱ 광폭화까지 ${mm(left)} · 싸운 시간 ${mm(el)}`;if(rt.textContent!==tx)rt.textContent=tx;rt.style.color=left<60||e.enr?'#ff5252':'#ffe066';}else{bb.classList.remove('raidb');if(rt.textContent)rt.textContent='';}}
+const RAIDT={id:null,t0:0};
 // 방장이 아닐 때: 방장이 보내준 몬스터 상태를 따라 그린다
 function mirrorUpd(a){if(!Array.isArray(a)||!ENEMIES[a[1]]||NET.dead.has(a[0]))return false;let e=enemies.find(x=>x.id===a[0]);
   if(!e){const b=ENEMIES[a[1]];e={id:a[0],mirror:1,type:a[1],x:a[2],y:a[3],hx:a[2],hy:a[3],r:b.r,b,def:b.def,spd:b.spd,acd:1,slow:0,root:0,burn:0,hitT:0,wander:{x:0,y:0,t:0},ph:0,pt:2,anim:Math.random()*9};enemies.push(e);}
@@ -3013,7 +3017,26 @@ function drawMythWeapon(o,wx,wy,fl,wt){const sw=o.atk?6:0,X=wx+fl*sw,A=wt===6,li
   if(A){px(gx+4,wy-3,2,h,c2);px(gx+10,wy-3,2,h,c2);px(gx+15,wy-2,2,2,c3);}else{px(gx+3,wy-2,L-6,2,'#4fc3f7');px(gx+6,wy-6,3,3,'#e1f5fe');px(gx+12,wy-6,3,3,'#e1f5fe');}
   px(wx+(fl<0?-2:0),wy+2,3,5,A?'#3e2723':'#eceff1');const mx=wx+(fl<0?-L:L-1);glow(6,wy-1,.4);spark(wy);return true;}
  return false;}
-function drawHiWeapon(o,wx,wy,fl,wt){if(wt>=6)return drawMythWeapon(o,wx,wy,fl,wt);const sw=o.atk?6:0,X=wx+fl*sw,D=wt===5,glow=(c,a,r,yy)=>{ctx.globalCompositeOperation='lighter';ctx.globalAlpha=a*(.75+.25*Math.sin(gameT*6));ctx.fillStyle=c;ctx.beginPath();ctx.arc(X,yy,r,0,7);ctx.fill();ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';};
+// 거미 무기(8단계): 보라·검정 몸체 + 독 초록 + 거미줄
+function drawSpiderWeapon(o,wx,wy,fl){const sw=o.atk?6:0,X=wx+fl*sw,live=ctx.canvas===cv,V='#76ff03',B='#2a0f3d',M='#7b1fa2',L2='#ce93d8';
+ const glow=(r,yy,a)=>{ctx.globalCompositeOperation='lighter';ctx.globalAlpha=a*(.75+.25*Math.sin(gameT*5));ctx.fillStyle='#aa00ff';ctx.beginPath();ctx.arc(X,yy,r,0,7);ctx.fill();ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';};
+ const drip=(x,y)=>{if(live&&Math.random()<.12)parts.push({x:x+rnd(-2,2),y,vx:0,vy:rnd(30,60),life:.45,color:Math.random()<.7?V:'#b2ff59',s:2});};
+ const web=(cx,cy,r)=>{ctx.strokeStyle='rgba(255,255,255,.55)';ctx.lineWidth=1;ctx.beginPath();for(let i=0;i<6;i++){const a=i*Math.PI/3;ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r);}ctx.stroke();ctx.beginPath();for(let i=0;i<=6;i++){const a=i*Math.PI/3,rr=r*.6;i?ctx.lineTo(cx+Math.cos(a)*rr,cy+Math.sin(a)*rr):ctx.moveTo(cx+rr,cy);}ctx.stroke();};
+ if(o.weapon==='sword'){const Lb=32;glow(11,wy-Lb/2,.22);px(X-3,wy-Lb,6,Lb,B);px(X-3+(fl>0?4:0),wy-Lb,2,Lb,V);px(X-2,wy-Lb+4,1,Lb-8,M);
+  px(X-2+fl*2,wy-Lb-3,4,3,B);px(X-1+fl*3,wy-Lb-6,3,3,B);px(X+fl*4,wy-Lb-8,2,2,V); // 독니처럼 휜 끝
+  for(let i=0;i<3;i++){px(X-8-i*2,wy-3+i*2,5,1,B);px(X+4+i*2,wy-3+i*2,5,1,B);} // 거미 다리 날밑
+  px(X-4,wy-2,9,4,M);px(X-1,wy-1,3,2,V);px(X,wy+2,2,6,B);px(X-1,wy+7,4,2,M);web(X,wy-Lb*.55,5);drip(X+(fl>0?3:-3),wy-Lb*.3);return true;}
+ if(o.weapon==='staff'){const h=wy-24;px(X-1,h,3,30,B);px(X-1,h+8,3,2,M);px(X-1,h+16,3,2,M);glow(11,h-5,.35);
+  ctx.strokeStyle=B;ctx.lineWidth=2;ctx.beginPath();for(const s of[-1,1])for(let i=0;i<4;i++){const a=(-.9+i*.55);ctx.moveTo(X,h-5);ctx.lineTo(X+s*Math.cos(a)*11,h-5+Math.sin(a)*9);ctx.lineTo(X+s*Math.cos(a)*13,h-5+Math.sin(a)*9+4);}ctx.stroke();
+  px(X-5,h-10,10,9,M);px(X-4,h-9,8,7,'#4a148c');px(X-3,h-8,2,2,V);px(X+1,h-8,2,2,V);px(X-1,h-6,2,1,'#ff1744');px(X-3,h-1,6,4,B);drip(X,h+2);return true;}
+ if(o.weapon==='bow'){const R=15,cx=X-fl*2,cy=wy-2;glow(R,cy,.2);ctx.strokeStyle=B;ctx.lineWidth=3.5;ctx.beginPath();ctx.arc(cx,cy,R,fl>0?-1.3:1.84,fl>0?1.3:4.44);ctx.stroke();
+  ctx.strokeStyle=M;ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(cx,cy,R,fl>0?-1.1:2.04,fl>0?1.1:4.24);ctx.stroke();
+  ctx.strokeStyle='rgba(255,255,255,.6)';ctx.lineWidth=1;ctx.beginPath();for(let i=-2;i<=2;i++){const a=(fl>0?0:Math.PI)+i*.5;ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(a)*R,cy+Math.sin(a)*R);}ctx.stroke();px(cx,cy-R,1,R*2,'#f3e5f5');
+  const ex=cx+fl*Math.cos(1.3)*R;px(ex-2,cy-R-3,4,4,V);px(ex-2,cy+R-1,4,4,V);drip(ex,cy+R+2);return true;}
+ if(o.weapon==='gun'){const Lg=20,h=6,gx=wx-(fl<0?Lg-1:0);px(gx,wy-3,Lg,h,B);px(gx,wy-3,Lg,1,M);px(gx+4,wy-7,7,4,'#33691e');px(gx+5,wy-6,5,2,V);for(let i=0;i<3;i++)px(gx+3+i*6,wy+2,1,3,M);
+  px(wx+(fl<0?-2:0),wy+2,3,5,'#1a0826');const mx=wx+(fl<0?-Lg:Lg-1);glow(5,wy-1,.3);px(mx-1,wy-2,3,4,V);drip(mx,wy+2);return true;}
+ return false;}
+function drawHiWeapon(o,wx,wy,fl,wt){if(wt===8)return drawSpiderWeapon(o,wx,wy,fl);if(wt>=6)return drawMythWeapon(o,wx,wy,fl,wt);const sw=o.atk?6:0,X=wx+fl*sw,D=wt===5,glow=(c,a,r,yy)=>{ctx.globalCompositeOperation='lighter';ctx.globalAlpha=a*(.75+.25*Math.sin(gameT*6));ctx.fillStyle=c;ctx.beginPath();ctx.arc(X,yy,r,0,7);ctx.fill();ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';};
  if(o.weapon==='sword'){const ms=o.wcol!=null;const L=D?30:26,bw=D?6:5;const blade=ms?(D?'#880e4f':'#283593'):(D?'#b71c1c':'#26c6da'),edge=ms?(D?'#ff4081':'#8c9eff'):(D?'#ff5252':'#e0f7fa');
   glow(D?'#ff1744':(ms?'#536dfe':'#18ffff'),D?.35:.22,D?13:10,wy-L/2);px(X-bw/2,wy-L,bw,L,blade);px(X-bw/2+(fl>0?bw-2:0),wy-L,2,L,edge);if(D)px(X-bw/2+(fl>0?0:bw-1),wy-L,1,L,'#212121');px(X-1,wy-L-3,3,3,blade);px(X,wy-L-5,1,2,edge);
   px(X-6,wy,13,3,D?'#ffd740':'#00838f');px(X-1,wy,3,3,D?'#ff1744':'#80deea');px(X-7,wy-2,2,4,D?'#ffd740':'#00acc1');px(X+6,wy-2,2,4,D?'#ffd740':'#00acc1');px(X,wy+3,2,6,D?'#3e2723':'#004d40');px(X-1,wy+8,4,2,D?'#ffd740':'#00838f');
@@ -3083,7 +3106,7 @@ function drawChar(o){
  const r=RACES[o.race]||RACES.human,c=CLASSES[o.cls]||CLASSES.mage,J=(o.job3&&JOBS3[o.job3])||JOBS[o.job];
  const ht={ninja:'ninja',mage:'wiz',sword:'helm',archer:'hood',ranger:'cow',msword:'hood',novice:'cap',spirit:'hood'}[o.cls];
  const wp={mage:'staff',sword:'sword',archer:'bow',ranger:'gun',msword:'sword',novice:'stick',spirit:'staff',ninja:'sword'}[o.cls];
- drawHuman(o.x,o.y,{skin:r.skin,hair:r.hair,outfit:J?J.color:c.color,hat:J?J.hat:{mage:'#3a2a8a',sword:'#999',archer:'#1f5e3a',ranger:'#6b4423',msword:'#1d1440',novice:'#a1887f',spirit:'#1b5e20'}[o.cls],wcol:o.cls==='ninja'?'#cfd8dc':o.cls==='msword'?(['#b388ff','#d1b3ff','#ffd1ff'][((ITEMS[o.wp]||{}).tier||1)-1]||'#b388ff'):null,wt:['catsword','baton','dalkong'].includes(o.wp)?1:Math.min(7,(ITEMS[o.wp]||{}).tier||1),armor:ITEMS[o.ar]&&ITEMS[o.ar].slot==='armor'?o.ar:null,hatType:map&&map.mine?'miner':ht,left:o.fx<0,up:o.fy<-.7,walk:o.walk,ear:r.ear,beard:r.beard,horn:r.horn,wl:map&&map.mine?0:o.wl||0,weapon:map&&map.mine?'pick':o.wp==='catsword'?'cat':o.wp==='baton'?'baton':o.wp==='dalkong'?'dkwand':wp,atk:o.atk});
+ drawHuman(o.x,o.y,{skin:r.skin,hair:r.hair,outfit:J?J.color:c.color,hat:J?J.hat:{mage:'#3a2a8a',sword:'#999',archer:'#1f5e3a',ranger:'#6b4423',msword:'#1d1440',novice:'#a1887f',spirit:'#1b5e20'}[o.cls],wcol:o.cls==='ninja'?'#cfd8dc':o.cls==='msword'?(['#b388ff','#d1b3ff','#ffd1ff'][((ITEMS[o.wp]||{}).tier||1)-1]||'#b388ff'):null,wt:['catsword','baton','dalkong'].includes(o.wp)?1:Math.min(8,(ITEMS[o.wp]||{}).tier||1),armor:ITEMS[o.ar]&&ITEMS[o.ar].slot==='armor'?o.ar:null,hatType:map&&map.mine?'miner':ht,left:o.fx<0,up:o.fy<-.7,walk:o.walk,ear:r.ear,beard:r.beard,horn:r.horn,wl:map&&map.mine?0:o.wl||0,weapon:map&&map.mine?'pick':o.wp==='catsword'?'cat':o.wp==='baton'?'baton':o.wp==='dalkong'?'dkwand':wp,atk:o.atk});
 }
 function drawPlayer(){
  if(P.inv>0&&!(P.holy>0)&&(gameT*20|0)%2)return;
@@ -3698,6 +3721,7 @@ const pxImg=(spr,col,sz,bg)=>`<img class="pxi" src="${pxIcon(spr,col,bg)}" style
 function themeCol(n,def){const T=[[/용|드래곤|화염|불|마그마|호화구|불사조|레드/,'#ff5722'],[/심해|해룡|레비아탄|바다|물|비늘|청새치/,'#29b6f6'],[/아누비스|사막|자칼|황금|금/,'#ffc107'],[/예티|만년설|눈|빙|서리|설|얼음|프로스트/,'#80deea'],[/그림자|명계|심연|리치|어둠|죽음|영혼|블랙홀|차원/,'#7e57c2'],[/번개|뇌|전기|낙뢰/,'#ffeb3b'],[/독|지네/,'#9ccc65'],[/매화|꽃/,'#f48fb1'],[/바람|풍|질풍/,'#a5d6a7'],[/신성|천사|빛|대현자/,'#fff59d'],[/마력|마검|룬|마나|마도|원소/,'#b388ff'],[/정령|풀|새싹/,'#66bb6a'],[/땅/,'#a1887f'],[/철/,'#90a4ae']];for(const[r,c]of T)if(r.test(n))return c;return def;}
 const TIERC={1:'#bdbdbd',2:'#64b5f6',3:'#ba68c8',4:'#ffb74d',5:'#ef5350',6:'#ffd740',7:'#4dd0e1',8:'#ce93d8'};
 function itemSpr(id){const it=ITEMS[id];if(!it)return['star','#bdbdbd'];const n=it.name,c=themeCol(n,TIERC[it.tier]||'#bdbdbd');
+ if(it.slot==='weapon'&&it.tier===8&&it.cls){const cl=it.cls;return[cl==='mage'||cl==='spirit'?'spstaff':cl==='archer'?'spbow':cl==='ranger'?'spgun':cl==='ninja'?'spkunai':'spsword','#8e24aa'];}
  if(it.slot==='weapon'){if(id==='baton')return['stick','#37474f'];if(id==='catsword')return['sword','#f8bbd0'];const cl=it.cls||'';
   const s=cl==='mage'||cl==='spirit'?'staff':cl==='archer'?'bow':cl==='ranger'?(/캐논|포|소총/.test(n)?'cannon':'gun'):cl==='ninja'?'kunai':cl==='novice'?'stick':/대검|슬레이어/.test(n)?'bigsword':'sword';return[s,cl==='novice'?'#8d6e63':c];}
  if(it.slot==='armor')return[/로브|수의|방한복|망토/.test(n)?'robe':'armor',c];
@@ -3711,6 +3735,11 @@ const MATSPR={mblood:['drop','#c62828'],sleg:['leg','#8d6e63'],seye:['eye','#d50
  bone:['bone','#b39ddb'],slime:['slime','#66bb6a'],hide:['hide','#8d6e63'],bone2:['bone','#eeeeee'],heart:['heart','#ec407a'],flesh:['meat','#e57373'],scale:['scale','#4fc3f7'],horn:['horn','#90caf9'],ltooth:['fang','#e0e0e0'],poisongland:['drop','#9c27b0'],centleg:['leg','#ff7043'],ahide:['hide','#37474f'],aheart:['heart','#424242'],aspear:['spear','#ffc107'],
  yhand:['hand','#e0f7fa'],yfur:['hide','#f5f5f5'],yeye:['eye','#00b0ff'],ytalis:['charm','#00bcd4']};
 Object.assign(SPR,{
+ spsword:['..........kk','.........kGk','........k1Gk','.......k12k.','......k12k..','.....k12k...','.k.kk12k....','.kG3k1k.....','..k3kk......','.kGk.Gk.....','kGk...k.....','kk..........'],
+ spstaff:['.k..kk..k...','..kk11kk....','.kk1GG1kk...','..k1111k....','.k.k33k.k...','....kbk.....','...kbk......','..kbk.......','.kbk........','kbk.........','kk..........','............'],
+ spbow:['...kkk......','..k13Gk.....','..k3kwwk....','.k3kw.w.w...','.k1kww...w..','.k1k.w....w.','.k1kww...w..','.k3kw.w.w...','..k3kwwk....','..k13Gk.....','...kkk......','............'],
+ spgun:['............','..kkk.......','.kGGGk......','kkkkkkkkkkk.','k3111111111k','k1kGk1kGk11k','kk11kkkkkkk.','.kbbk.......','.kbbk..G....','kbbk........','kkk....G....','............'],
+ spkunai:['.........kk.','........kGk.','.......k1Gk.','......k12k..','.....k12k...','....kk2k....','...k3kk.....','..k3k.......','.kwk........','k.k.........','kk..........','............'],
  potato:['............','............','...kkkkk....','..k22111k...','.k2211111k..','.k21131111k.','.k11111131k.','.k13111111k.','..k1111133k.','...k3333kk..','....kkkk....','............'],
  carrot:['.....G.G....','...G.GGG.G..','....GGGGG...','...kk111kk..','...k21111k..','....k2113k..','....k2113k..','.....k13k...','.....k13k...','......k3k...','......kk....','............'],
  tomato:['.....GG.....','...GGGGGG...','..kkkGGkkk..','.k22111111k.','k2w11111113k','k2111111113k','k1111111113k','k1111111133k','.k11111133k.','..k333333k..','...kkkkkk...','............'],
@@ -3790,23 +3819,20 @@ function itemName(e,noIc){const it=ITEMS[e.id];return `${noIc?'':itIcon(e.id,18)
 function renderMenu(){
  const inTown=safeHere();
  const tabs=[['stat','상태'],['skill','스킬'+(P.sp?' ⭐':'')]];
- if(menuTab==='quest')tabs.splice(0,9,['quest','퀘스트']);if(menuTab==='sys')tabs.splice(0,9,['sys','저장']);
+ if(menuTab==='quest')tabs.splice(0,9,['quest','퀘스트']);if(menuTab==='sys'||menuTab==='set')tabs.splice(0,9,['set','⚙ 설정'],['sys','💾 저장']);
  if(menuTab==='shop'||menuTab==='sell')tabs.splice(0,9,['shop','구매'],['sell','판매']);
  if(menuTab==='gamble')tabs.splice(0,9,['gamble','도박장']);if(menuTab==='admin')tabs.splice(0,9,['admin','👑 관리자']);
  if(menuTab==='book')tabs.splice(0,9,['book','📚 스킬북']);
- if(menuTab==='equip')tabs.splice(0,9,['equip','🎒 인벤토리']);
- if(menuTab==='set')tabs.splice(0,9,['set','⚙ 설정']);
+ if(menuTab==='equip'||menuTab==='home')tabs.splice(0,9,['equip','🎒 인벤토리'],['home','🏠 집·농사']);
  if(menuTab==='nick')tabs.splice(0,9,['nick','✏ 이름 바꾸기']);
  if(menuTab==='title')tabs.splice(0,9,['title','🏅 칭호']);
  if(menuTab==='map')tabs.splice(0,9,['map','🗺 지도']);
  if(menuTab==='craft')tabs.splice(0,9,['craft','⚒ 제작']);
- if(menuTab==='trade')tabs.splice(0,9,['trade','🤝 거래']);
- if(menuTab==='party')tabs.splice(0,9,['party','👥 파티']);
+ if(menuTab==='trade'||menuTab==='party')tabs.splice(0,9,['party','👥 파티'],['trade','🤝 거래']);
  if(menuTab==='daily')tabs.splice(0,9,['daily','📋 일일 의뢰']);
  if(menuTab==='fish')tabs.splice(0,9,['fish','🎣 낚시']);
  if(menuTab==='sign')tabs.splice(0,9,['sign','📋 마을 표지판']);
  if(menuTab==='cook')tabs.splice(0,9,['cook','🍳 요리']);
- if(menuTab==='home')tabs.splice(0,9,['home','🏠 집·농사']);
  if(menuTab==='chest')tabs.splice(0,9,['chest','📦 상자']);
  if(menuTab==='auc')tabs.splice(0,9,['auc','🔨 경매장']);
  if(menuTab==='smith')tabs.splice(0,9,['smith','🔨 강화']);
@@ -4100,13 +4126,14 @@ function tradeHtml(){
  ${cnt?`<div style="text-align:center;margin-top:10px;padding:8px;border:2px solid #ffe066;border-radius:8px;color:#ffe066">⏳ <b id="trCount">${Math.max(0,Math.ceil((TR.at-Date.now())/1000))}</b>초 뒤에 거래돼요 · 지금 취소할 수 있어요</div>`:''}
  <div style="display:flex;gap:6px;margin:10px 0"><button class="btn gold" id="trLock" style="flex:1">${lkMe?'확정 취소':'✅ 확정'}</button><button class="btn red" id="trCancel">거래 취소</button></div>
  <div style="color:#b7a6d9;font-size:11px">물건을 바꾸면 둘 다 확정이 풀려요. 둘 다 확정하면 거래가 끝나요.</div>
- <div style="color:#ffe9a8;margin-top:10px">💰 골드 올리기</div><div style="display:flex;gap:6px"><input type="text" id="trGold" inputmode="numeric" value="${me.g||''}" placeholder="0" style="flex:1"><button class="btn gold" id="trGoldSet">적용</button></div>
+ ${hasLoan()?'<div style="color:#ff8a8a;margin-top:10px;font-size:12px">💳 돈을 빌린 상태라 골드는 주고받을 수 없어요 (물건만 거래)</div>':''}<div style="color:#ffe9a8;margin-top:10px">💰 골드 올리기</div><div style="display:flex;gap:6px"><input type="text" id="trGold" inputmode="numeric" value="${me.g||''}" placeholder="0" style="flex:1"><button class="btn gold" id="trGoldSet">적용</button></div>
  <div style="color:#ffe9a8;margin-top:10px">🎒 내 물건 (눌러서 올리기)</div>`;
  const left=(kind,id,pl,have)=>{let used=0;if(kind==='it'){const r=me.it.find(x=>x[0]===id&&x[1]===pl);used=r?r[2]:0;}else used=(me[kind][id]||0);return have-used;};
  for(const st of bagStacks()){if(st.id==='catsword'||st.id==='dalkong'||st.id==='baton')continue;const l=left('it',st.id,st.plus,st.n);h+=`<div class="row"><div class="t">${itemName(st)} <span style="color:#b7a6d9">×${l}</span></div><button class="btn" data-tadd="it:${st.id}:${st.plus}" ${l>0?'':'disabled'}>+1</button><button class="btn" data-tsub="it:${st.id}:${st.plus}">-1</button></div>`;}
  for(const k in MATS){if(!(P.mats[k]>0)||k==='conch'||k==='dhorn')continue;const l=left('m',k,0,P.mats[k]);h+=`<div class="row"><div class="t">${matIcon(k,20)} ${MATS[k][0]} <span style="color:#b7a6d9">×${l}</span></div><button class="btn" data-tadd="m:${k}" ${l>0?'':'disabled'}>+1</button><button class="btn" data-tadd="m:${k}:10" ${l>=10?'':'disabled'}>+10</button><button class="btn" data-tsub="m:${k}">-1</button></div>`;}
  for(const k in CONS){if(!(P.pots[k]>0))continue;const l=left('c',k,0,P.pots[k]);h+=`<div class="row"><div class="t">${consIcon(k,20)} ${CONS[k][0]} <span style="color:#b7a6d9">×${l}</span></div><button class="btn" data-tadd="c:${k}" ${l>0?'':'disabled'}>+1</button><button class="btn" data-tsub="c:${k}">-1</button></div>`;}
  return h;}
+function hasLoan(){return !!(P&&P.bank&&P.bank.loan>0);}
 function inDebt(){return !!(P&&(P.labor||(P.bank&&P.bank.loan>0&&P.lv<100)));} // 100레벨부터는 빚이 있어도 거래 가능
 const BADW=['씨발','시발','씨바','쓰발','씨팔','시팔','ㅅㅂ','ㅆㅂ','샹년','썅','병신','븅신','빙신','ㅂㅅ','등신','지랄','ㅈㄹ','좆','존나','졸라','ㅈㄴ','좃','개새끼','개새','이새끼','저새끼','니새끼','쌔끼','개색','ㄱㅅㄲ','느금','느그어매','느그엄마','느그애미','니애미','니엄마','니어미','애미','애비','엠창','앰창','느개비','미친놈','미친년','미친새','또라이','닥쳐','꺼져','염병','육시랄','호로','후레자식','창녀','창년','걸레년','보지','자지','섹스','쎅스','야동','딸딸이','한남충','김치녀','틀딱','급식충','맘충','짱깨','쪽바리','흑형','장애새끼','정신병자','fuck','fuk','shit','bitch','asshole','dick','pussy','cunt','nigger','nigga','faggot','porn','sex','whore','slut','retard'];
 function hasBad(t){const f=[...String(t||'')].filter(c=>/\p{L}/u.test(c)).join('').toLowerCase();return BADW.some(w=>f.includes(w));}
@@ -4188,10 +4215,10 @@ function reportUser(uid,name){$('menu').classList.add('hidden');const go=why=>{i
 function blockUser(uid,name){P.blocked=P.blocked||[];if(!isBlocked(uid))P.blocked.push([uid,String(name).slice(0,12)]);save(true);toast('🚫 '+name+' 님을 차단했어요. 채팅과 신청이 보이지 않아요');renderMenu();}
 function tradeSend(){if(TR.id&&NET.sock)NET.sock.emit('tr:offer',{id:TR.id,offer:TR.mine});}
 function tradeBind(B){const k=NET.sock;
- B.querySelectorAll('[data-rep]').forEach(b=>b.onclick=()=>reportUser(b.dataset.rep,b.dataset.nm));B.querySelectorAll('[data-blk]').forEach(b=>b.onclick=()=>{const u=b.dataset.blk;if(isBlocked(u)){P.blocked=P.blocked.filter(x=>x[0]!==u);save(true);toast('차단을 풀었어요');renderMenu();}else blockUser(u,b.dataset.nm);});B.querySelectorAll('[data-treq]').forEach(b=>b.onclick=()=>{if(inDebt()){toast('💳 Lv100 전에는 빚이 있으면 거래할 수 없어요. 은행 대출부터 갚아 주세요');return;}if(k)k.emit('tr:req',{to:b.dataset.treq});$('mClose').click();toast('🤝 거래 신청을 보냈어요');});
- const lk=$('trLock');if(lk)lk.onclick=()=>{if(inDebt()){k.emit('tr:cancel',{id:TR.id});tradeReset('💳 Lv100 전에는 빚이 있으면 거래할 수 없어요');return;}if(k)k.emit('tr:lock',{id:TR.id,on:!TR.lk.includes(NET.uid)});};
+ B.querySelectorAll('[data-rep]').forEach(b=>b.onclick=()=>reportUser(b.dataset.rep,b.dataset.nm));B.querySelectorAll('[data-blk]').forEach(b=>b.onclick=()=>{const u=b.dataset.blk;if(isBlocked(u)){P.blocked=P.blocked.filter(x=>x[0]!==u);save(true);toast('차단을 풀었어요');renderMenu();}else blockUser(u,b.dataset.nm);});B.querySelectorAll('[data-treq]').forEach(b=>b.onclick=()=>{{const o=NET.others.get(b.dataset.treq);if(o&&Math.abs((o.lv|0)-P.lv)>=60){toast('🤝 레벨 차이가 60 이상이면 거래할 수 없어요');return;}}if(inDebt()){toast('💳 Lv100 전에는 빚이 있으면 거래할 수 없어요. 은행 대출부터 갚아 주세요');return;}if(k)k.emit('tr:req',{to:b.dataset.treq});$('mClose').click();toast('🤝 거래 신청을 보냈어요');});
+ const lk=$('trLock');if(lk)lk.onclick=()=>{if(hasLoan()&&((TR.mine&&TR.mine.g>0)||(TR.theirs&&TR.theirs.g>0))&&!TR.lk.includes(NET.uid)){toast('💳 돈을 빌린 상태에서는 골드가 든 거래를 할 수 없어요');return;}if(inDebt()){k.emit('tr:cancel',{id:TR.id});tradeReset('💳 Lv100 전에는 빚이 있으면 거래할 수 없어요');return;}if(k)k.emit('tr:lock',{id:TR.id,on:!TR.lk.includes(NET.uid)});};
  const cc=$('trCancel');if(cc)cc.onclick=()=>{if(k)k.emit('tr:cancel',{id:TR.id});tradeReset('거래를 취소했어요');};
- const gs=$('trGoldSet');if(gs)gs.onclick=()=>{const v=Math.max(0,Math.min(P.gold,Math.floor(+($('trGold').value||0)||0)));TR.mine.g=v;tradeSend();renderMenu();};
+ const gs=$('trGoldSet');if(gs)gs.onclick=()=>{if(hasLoan()){toast('💳 돈을 빌린 상태에서는 골드를 주고받을 수 없어요');return;}const v=Math.max(0,Math.min(P.gold,Math.floor(+($('trGold').value||0)||0)));TR.mine.g=v;tradeSend();renderMenu();};
  B.querySelectorAll('[data-tadd],[data-tsub]').forEach(b=>b.onclick=()=>{const add=!!b.dataset.tadd,[kind,id,x]=(b.dataset.tadd||b.dataset.tsub).split(':'),me=TR.mine;
   if(kind==='it'){const pl=+x||0,have=P.bag.filter(e=>e.id===id&&(e.plus||0)===pl).length;let r=me.it.find(q=>q[0]===id&&q[1]===pl);if(add){if(!r){r=[id,pl,0];me.it.push(r);}if(r[2]<have)r[2]++;}else if(r){r[2]--;if(r[2]<=0)me.it.splice(me.it.indexOf(r),1);}}
   else{const box=kind==='m'?P.mats:P.pots,n=add?(+x||1):-1;me[kind][id]=clamp((me[kind][id]||0)+n,0,box[id]||0);if(!me[kind][id])delete me[kind][id];}
@@ -4211,7 +4238,7 @@ function tradeApply(give,get){const N=(v,hi)=>Math.max(0,Math.min(hi,Math.floor(
  P.trades=(P.trades||0)+1;calc();save(true);netFlush();}
 function tradeNet(k){
  k.on('tr:msg',m=>toast(String(m).slice(0,60)));
- k.on('tr:ask',d=>{if(!d||!P||P.dead)return;if(isBlocked(d.from)){k.emit('tr:ans',{id:d.id,yes:0});return;}if(inDebt()){k.emit('tr:ans',{id:d.id,yes:0});toast('💳 빚이 있어서 '+String(d.op||'?').slice(0,12)+' 님의 거래 신청을 받을 수 없어요');return;}$('menu').classList.add('hidden');dialog('🤝 거래 신청',[`${String(d.op||'?').slice(0,12)} 님이 거래를 신청했어요.`],[{t:'수락',c:'gold',f:()=>k.emit('tr:ans',{id:d.id,yes:1})},{t:'거절',f:()=>k.emit('tr:ans',{id:d.id,yes:0})}]);});
+ k.on('tr:ask',d=>{if(!d||!P||P.dead)return;if(isBlocked(d.from)){k.emit('tr:ans',{id:d.id,yes:0});return;}{const o=NET.others.get(d.from);if(o&&Math.abs((o.lv|0)-P.lv)>=60){k.emit('tr:ans',{id:d.id,yes:0});toast('🤝 레벨 차이가 60 이상이라 '+String(d.op||'?').slice(0,12)+' 님과 거래할 수 없어요');return;}}if(inDebt()){k.emit('tr:ans',{id:d.id,yes:0});toast('💳 빚이 있어서 '+String(d.op||'?').slice(0,12)+' 님의 거래 신청을 받을 수 없어요');return;}$('menu').classList.add('hidden');dialog('🤝 거래 신청',[`${String(d.op||'?').slice(0,12)} 님이 거래를 신청했어요.`],[{t:'수락',c:'gold',f:()=>k.emit('tr:ans',{id:d.id,yes:1})},{t:'거절',f:()=>k.emit('tr:ans',{id:d.id,yes:0})}]);});
  k.on('tr:open',d=>{if(!d)return;if(inDebt()){k.emit('tr:cancel',{id:d.id});toast('💳 Lv100 전에는 빚이 있으면 거래할 수 없어요');return;}TR.id=d.id;TR.op=String(d.op||'?').slice(0,12);TR.mine=offerEmpty();TR.theirs=null;TR.lk=[];if(dlgState)closeDlg();openMenu('trade');sfx('coin');});
  k.on('tr:offer',d=>{if(!d||d.id!==TR.id)return;TR.theirs=d.offer;if(menuTab==='trade')renderMenu();});
  k.on('tr:st',d=>{if(!d||d.id!==TR.id)return;TR.lk=Array.isArray(d.lk)?d.lk:[];TR.at=d.at?Date.now()+Math.max(0,Math.min(6000,d.at-Date.now())):0;if(TR.at)sfx('coin');if(menuTab==='trade')renderMenu();});
@@ -4432,16 +4459,14 @@ const TUT=[
  ['#stat','📋 내 정보','이름 · 종족 · 직업과 레벨이에요.\n❤ 빨간 줄 = 체력(HP), 0이 되면 쓰러져요.\n💧 파란 줄 = 마나(MP), 스킬을 쓰면 줄어요.\n✨ 주황 줄 = 경험치(EXP), 꽉 차면 레벨 업!\n💰 아래는 가진 골드, ⭐SP는 남은 스킬 포인트예요.'],
  ['#mapname','📍 지금 있는 곳','지금 있는 맵 이름, 서버 번호, 같은 맵 사람 수/서버 전체 접속자 수예요.'],
  ['#bFold','☰ 메뉴','모든 버튼이 여기 하나로 모여 있어요. 누르면 열리고, 버튼을 고르면 자동으로 닫혀요.'],
- ['[data-tab=set]','⚙ 설정','음악과 효과음 크기를 따로 조절하고, 소리를 켜고 꺼요.'],
+ ['[data-tab=set]','⚙ 설정·저장','음악과 효과음 크기를 조절해요. 위쪽 「저장」 탭에서는 직접 저장하거나 타이틀로 돌아가요. (자동 저장도 돼요)'],
  ['#bChat','💬 채팅','같은 맵 사람들에게 말을 걸어요. 말이 머리 위에 말풍선으로 떠요. (PC: Enter)'],
  ['[data-tab=stat]','상태 · 스킬','능력치를 보고 포인트를 찍어요. 위쪽 「스킬」 탭에서는 배운 스킬을 올리고 아래 빈칸 슬롯 3개에 장착해요.'],
  ['[data-tab=quest]','퀘스트','지금 하고 있는 퀘스트와 일일 의뢰를 보여 줘요.'],
- ['[data-tab=sys]','저장','직접 저장하거나 타이틀로 돌아가요. 5분마다, 그리고 맵을 옮길 때마다 자동으로도 저장돼요. 이 설명은 여기서 다시 볼 수 있어요.'],
  ['#bGuide','🧭 길안내','다음에 갈 곳을 화면에 노란 점선으로 알려 줘요. 누르면 켜고 꺼요.'],
  ['[data-tab=map]','지도','지금 맵 전체 모습과 다른 맵으로 가는 길, 몬스터 정보를 봐요.'],
  ['[data-tab=equip]','인벤토리','무기 · 갑옷 · 장신구를 끼고 빼고, 물약 · 재료 · 탈것 · 칭호를 관리해요. 안 쓰는 물건은 상점에서 팔 수 있어요.'],
- ['[data-tab=party]','👥 파티','다른 사람과 파티를 맺어요. 파티원은 체력과 위치가 보여요.'],
- ['[data-tab=trade]','🤝 거래','가까이 있는 사람과 골드 · 아이템을 주고받아요.'],
+ ['[data-tab=party]','👥 파티·거래','다른 사람과 파티를 맺어요. 위쪽 「거래」 탭에서는 가까이 있는 사람과 골드 · 아이템을 주고받아요.'],
  ['#qtrack','📜 할 일 알림','지금 퀘스트 진행 상황, 일일 의뢰, 길안내, 음식 효과 같은 걸 여기서 알려 줘요.'],
  [()=>({left:0,top:innerHeight*.45,width:innerWidth*.5,height:innerHeight*.55}),'🕹 이동','폰: 화면 왼쪽 아무 데나 누른 채로 끌면 그쪽으로 걸어가요.\nPC: WASD 또는 방향키.'],
  ['#bAtk','⚔ 공격','누르고 있으면 계속 기본 공격을 해요. 가까운 적을 자동으로 노려요. (PC: Space 또는 마우스 클릭)\n광산에서는 곡괭이질이 돼요.'],
@@ -4467,7 +4492,7 @@ $('tutPrev').onclick=()=>{if(TS2.i>0){TS2.i--;tutShow();}};
 $('tutSkip').onclick=()=>tutEnd();
 addEventListener('resize',()=>{if(!$('tut').classList.contains('hidden'))tutShow();});
 // 📜 패치노트: 새 패치가 나오면 처음 한 번만 띄운다 (이 기기 기준)
-const PATCH={v:'2026-11-28f',title:'📜 패치노트 · 11월 28일',lines:['🔨 마을 분수 옆에 「경매인 하몬」의 경매장이 생겼어요 · 장비·재료·아이템을 올리고 1분/20분/1시간/12시간 중 기간을 골라요 · 가장 높게 부른 사람에게 팔려요 (수수료 5%)','🏠 끝없는 평야 입구의 「집·농사 상인 한씨」에게서 집을 살 수 있어요 · 텐트 70만 ~ 대저택 10억 · 평야 아무 데나 세우고 들어가 쉴 수 있어요 (비쌀수록 안이 넓어요)','🟫 집 옆 땅을 사서 농사! (첫 땅 1만, 살 때마다 1.5배, 최대 60평) · 거두면 1~3개 · 💧 반쯤 자라면 물을 줘야 끝까지 자라요 (안 주면 멈출 뿐 죽지 않아요)','📦 집 안 상자에 물건 보관 (텐트 10칸 ~ 대저택 200칸) · 🪜 저택·대저택은 2층 · 🚚 집은 언제든 옮길 수 있어요 · 남의 집 근처(대저택+밭 크기)에는 못 지어서 집이 겹치지 않아요','💰 규칙이 바뀌어서 지금까지 산 집·땅 값은 전부 돌려드렸어요','🍳 작물 요리 8가지 추가 (요리사 쿡 · 집 안 부엌) · 집 침대에서 자면 체력·마나가 가득 차요','🥚 보스를 잡으면 0.5% 확률로 「보스알」이 나와요 · 그 지역 재료를 먹이로 주면 깨어나 Lv20까지 자라고, 근처 적을 자동으로 공격해요',
+const PATCH={v:'2026-11-28g',title:'📜 패치노트 · 11월 28일',lines:['🕷 거미 무기에 전용 그림이 생겼어요 · ⛏ 빚 때문에 갇힌 광산에서 버는 돈 3배','🤝 레벨이 60 이상 차이 나면 거래할 수 없어요 · 💳 돈을 빌린 상태에서는 골드 거래·경매장 이용 불가','📂 인벤토리 안에 「🏠 집·농사」 탭 · 「파티·거래」, 「설정·저장」을 하나로 합쳤어요 · 🌑 주간 보스 체력바는 화면 맨 아래, 광폭화까지 남은 시간 표시','🔨 마을 분수 옆에 「경매인 하몬」의 경매장이 생겼어요 · 장비·재료·아이템을 올리고 1분/20분/1시간/12시간 중 기간을 골라요 · 가장 높게 부른 사람에게 팔려요 (수수료 5%)','🏠 끝없는 평야 입구의 「집·농사 상인 한씨」에게서 집을 살 수 있어요 · 텐트 70만 ~ 대저택 10억 · 평야 아무 데나 세우고 들어가 쉴 수 있어요 (비쌀수록 안이 넓어요)','🟫 집 옆 땅을 사서 농사! (첫 땅 1만, 살 때마다 1.5배, 최대 60평) · 거두면 1~3개 · 💧 반쯤 자라면 물을 줘야 끝까지 자라요 (안 주면 멈출 뿐 죽지 않아요)','📦 집 안 상자에 물건 보관 (텐트 10칸 ~ 대저택 200칸) · 🪜 저택·대저택은 2층 · 🚚 집은 언제든 옮길 수 있어요 · 남의 집 근처(대저택+밭 크기)에는 못 지어서 집이 겹치지 않아요','💰 규칙이 바뀌어서 지금까지 산 집·땅 값은 전부 돌려드렸어요','🍳 작물 요리 8가지 추가 (요리사 쿡 · 집 안 부엌) · 집 침대에서 자면 체력·마나가 가득 차요','🥚 보스를 잡으면 0.5% 확률로 「보스알」이 나와요 · 그 지역 재료를 먹이로 주면 깨어나 Lv20까지 자라고, 근처 적을 자동으로 공격해요',
  '🐾 보스가 Lv15가 되면 올라탈 수 있어요 (이동 속도 150%)',
  '🕸 거미 지역 장비가 생겼어요 · 대장장이 제작에서 거미 무기(모든 직업)와 거미줄 갑옷을 만들 수 있어요','💣 개틀링건(3차) 새 스킬 「폭탄 포탑」',
  '🔫 레인저 기본 공격 피해 1.5배',
