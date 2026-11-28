@@ -1887,11 +1887,18 @@ function homesSync(){const m=MAPS.plain;if(!m)return;m.npcs=m.npcs.filter(n=>!n.
 function homeDrop(){for(const k in MAPS)if(k.startsWith('hm'))delete MAPS[k];}
 function homeClaim(h){const H=HOUSES.grand;return{x0:h.x-H.w/2-16,x1:h.x+H.w/2+30+6*TS+16,y0:h.y-H.h-16,y1:h.y+9*TS};} // 어떤 집이든 대저택+밭 60평 자리를 차지한다 → 언제든 집을 바꿔도 겹치지 않는다
 function homeClash(h){const a=homeClaim(h);for(const o of HOMES.list){const b=homeClaim(o);if(a.x0<b.x1&&b.x0<a.x1&&a.y0<b.y1&&b.y0<a.y1)return o;}return null;}
-function homeInstall(t){if(!map||map.key!=='plain'){toast('🌾 끝없는 평야에서만 집을 세울 수 있어요');return;}if(!P.homes[t]||P.home)return;const tx=P.x/TS,ty=P.y/TS;if(tx<200||tx>2780||ty<200||ty>2780){toast('너무 멀리 왔어요. 조금 더 안쪽에 세워 주세요');return;}
+async function homeClaimSrv(spot){if(!NET.token||!NET.srv)return homeClash(spot)?{err:'clash',n:homeClash(spot).n}:{ok:1};
+ try{const r=await netApi('/api/rpg/home/claim',{x:spot.x,y:spot.y,n:P.name});if(r.ok&&r.j&&r.j.ok)return{ok:1};if(r.status===409)return{err:'clash',n:r.j&&r.j.n};if(r.status===404)return{err:'old'};return{err:'net'};}catch(e){return{err:'net'};}}
+function homeInstall(t,move){if(!map||map.key!=='plain'){toast('🌾 끝없는 평야에서만 집을 세울 수 있어요');return;}if(!P.homes[t]||(!move&&P.home))return;const tx=P.x/TS,ty=P.y/TS;if(tx<200||tx>2780||ty<200||ty>2780){toast('너무 멀리 왔어요. 조금 더 안쪽에 세워 주세요');return;}
  if(Math.hypot(P.x-map.start.x,P.y-map.start.y)<300){toast('🚧 입구 근처는 길이라 못 지어요. 조금 떨어져서 세워 주세요');return;}
  const spot={t,x:Math.round(P.x),y:Math.round(P.y-40)};
- (async()=>{await homesLoad();const o=homeClash(spot);if(o){toast(`🚧 ${o.n} 님의 집·밭과 겹쳐요. 다른 곳에 세워 주세요`);return;}
-  $('menu').classList.add('hidden');dialog('🏠 집 세우기',[`여기에 ${HOUSES[t].ic} ${HOUSES[t].n}을(를) 세울까요?`,'⚠ 한 번 세우면 다시는 옮길 수 없어요! (밭도 집 옆에 생겨요)'],[{t:'🔨 여기에 세운다',c:'gold',f:()=>{if(P.home)return;if(homeClash(spot)){toast('🚧 다른 집과 겹쳐요');return;}P.home=spot;homeDrop();homeSync();sfx('win');toast(`${HOUSES[t].ic} ${HOUSES[t].n}을(를) 세웠다! 문으로 들어가 보세요`);save(true);}},{t:'다시 생각할게'}]);})();}
+ (async()=>{await homesLoad();const o=homeClash(spot);if(o){toast(`🚧 ${o.n} 님의 집·밭과 너무 가까워요. 다른 곳에 세워 주세요`);return;}
+  $('menu').classList.add('hidden');dialog(move?'🏠 집 옮기기':'🏠 집 세우기',[move?'집과 밭을 지금 서 있는 곳으로 옮길까요? (심은 작물도 그대로 따라와요)':`여기에 ${HOUSES[t].ic} ${HOUSES[t].n}을(를) 세울까요?`],[{t:move?'🚚 여기로 옮긴다':'🔨 여기에 세운다',c:'gold',f:async()=>{
+   const r=await homeClaimSrv(spot);
+   if(r.err==='clash'){toast(`🚧 ${r.n||'다른 사람'} 님의 집·밭과 너무 가까워요. 다른 곳에 세워 주세요`);HOMES.t=-99;homesLoad();return;}
+   if(r.err==='old'){toast('⚠ 서버가 아직 업데이트 전이라 지금은 집을 세울 수 없어요');return;}
+   if(r.err){toast('⚠ 서버와 연결이 안 돼서 집을 세울 수 없어요. 잠시 뒤에 다시 해 주세요');return;}
+   P.home=spot;homeDrop();homeSync();sfx('win');toast(move?'🚚 집과 밭을 옮겼다!':`${HOUSES[t].ic} ${HOUSES[t].n}을(를) 세웠다! 문으로 들어가 보세요`);save(true);try{netFlush();}catch(e){}}},{t:'다시 생각할게'}]);})();}
 function homeSwap(t){if(!P.home||!P.homes[t])return;P.home.t=t;homeDrop();homeSync();sfx('win');toast(`${HOUSES[t].ic} ${HOUSES[t].n}(으)로 바꿨다! (자리는 그대로)`);save(true);renderMenu();}
 function homeBuy(t){const H=HOUSES[t];if(!H||P.homes[t])return;if(P.gold<H.p){toast('💰 골드가 모자라요');return;}P.gold-=H.p;P.homes[t]=1;sfx('win');toast(`${H.ic} ${H.n} 구입! 평야에서 메뉴 「🏠 집」 → 「여기에 설치」`);save(true);renderMenu();}
 function landBuy(){if(!P.home){toast('먼저 집을 세워야 그 옆 땅을 살 수 있어요');return;}if(P.land>=LAND_MAX){toast(`🟫 땅은 ${LAND_MAX}평까지 살 수 있어요`);return;}const c=landPrice();if(P.gold<c){toast('💰 골드가 모자라요');return;}P.gold-=c;P.land++;P.farm.push(null);homeSync();sfx('coin');toast(`🟫 땅 1평을 샀다! (총 ${P.land}평)`);save(true);renderMenu();}
@@ -1920,7 +1927,7 @@ function homeHtml(){homeFix();const nearShop=!!(map&&map.key==='plain'&&map.npcs
   h+=`<div class="row"><div class="t">${H.ic} <b>${H.n}</b>${cur?' <span style="color:#7dff7d">· 세움</span>':has?' <span style="color:#b7a6d9">· 보유</span>':''}<small>방 ${H.iw}×${H.ih}칸 · ${HFEAT[H.i]}</small>${has?'':`<small>${H.p.toLocaleString()} G</small>`}</div>`;
   if(!has)h+=`<button class="btn gold" data-hbuy="${t}" ${P.gold>=H.p?'':'disabled'}>사기</button>`;else if(!cur)h+=P.home?`<button class="btn gold" data-hswap="${t}">이 집으로 바꾸기</button>`:`<button class="btn gold" data-hset="${t}">여기에 설치</button>`;h+='</div>';}
  if(!Object.keys(own).length&&!nearShop)h+=`<div style="font-size:12px;color:#b7a6d9">아직 집이 없어요. 🌾 끝없는 평야 입구의 상인 한씨에게서 살 수 있어요.</div>`;
- if(!P.home&&Object.keys(own).length)h+=`<div style="font-size:11px;color:#ffab91">끝없는 평야에서 「여기에 설치」를 누르면 내 앞에 집이 생겨요 · ⚠ 한 번 세우면 옮길 수 없어요</div>`;else if(P.home)h+=`<div style="font-size:11px;color:#8d7bb3">집 자리는 옮길 수 없어요 · 같은 자리에서 다른 집으로 바꿀 수는 있어요</div>`;
+ if(!P.home&&Object.keys(own).length)h+=`<div style="font-size:11px;color:#ffab91">끝없는 평야에서 「여기에 설치」를 누르면 내 앞에 집이 생겨요</div>`;else if(P.home&&map.key==='plain')h+=`<button class="btn" data-hmove="1" style="margin-top:4px">🚚 지금 서 있는 곳으로 집·밭 옮기기</button>`;
  h+=`<div style="color:#ffe9a8;margin-top:10px">🟫 밭 ${P.land}평</div>`;
  if(P.home){const F=P.farm,ripe=F.filter(f=>cropState(f)>=1).length,grow=F.filter(f=>f&&cropState(f)<1).length;
   const dryN=F.filter(f=>f&&!f.w).length;h+=`<div style="font-size:12px">🧺 다 익음 ${ripe} · 🌱 자라는 중 ${grow} · 빈 밭 ${F.length-ripe-grow}${dryN?` · <span style="color:#4fc3f7">💧 물 필요 ${dryN}</span>`:''}</div><div style="font-size:11px;color:#8d7bb3">💧 반쯤 자라면 물을 줘야 끝까지 자라요 (안 주면 멈출 뿐 죽지 않아요)</div>`;
@@ -1955,7 +1962,7 @@ function chestMove(v,into){const[t,k]=v.split(':');const C=P.chest;const full=()
  sfx('coin');save(true);renderMenu();}
 function chestBind(B){B.querySelectorAll('[data-cin]').forEach(b=>b.onclick=()=>chestMove(b.dataset.cin,true));B.querySelectorAll('[data-cout]').forEach(b=>b.onclick=()=>chestMove(b.dataset.cout,false));}
 function homeBind(B){const on=(a,f)=>B.querySelectorAll('['+a+']').forEach(b=>b.onclick=()=>f(b.getAttribute(a)));
- on('data-hbuy',homeBuy);on('data-hset',homeInstall);on('data-hswap',homeSwap);on('data-water',waterAll);on('data-land',landBuy);on('data-harv',harvestAll);on('data-pall',plantAll);on('data-csell',cropSell);on('data-seed',v=>{const[k,n]=v.split(':');seedBuy(k,+n);});}
+ on('data-hbuy',homeBuy);on('data-hset',homeInstall);on('data-hswap',homeSwap);on('data-water',waterAll);on('data-hmove',()=>homeInstall(P.home.t,true));on('data-land',landBuy);on('data-harv',harvestAll);on('data-pall',plantAll);on('data-csell',cropSell);on('data-seed',v=>{const[k,n]=v.split(':');seedBuy(k,+n);});}
 // 집 안
 const HCOL={tent:[['#d9a55c','#b9853e'],['#cdb486','#c1a877']],container:[['#607d8b','#4b636e'],['#8d9ba3','#84929a']],cabin:[['#8d5a2b','#6d4320'],['#a8743f','#9c6a37']],small:[['#f3e3c3','#d6bf92'],['#b07a46','#a6713f']],mansion:[['#d1c4e9','#9575cd'],['#f2f2f2','#e6e6e6']],grand:[['#7b1f2b','#d4af37'],['#f7f3e8','#e3dccb']]};
 function makeHome(k){const up=String(k||'').length===10;const h=P&&P.home&&HOUSES[P.home.t]?P.home:{t:'tent',x:1520*TS,y:1500*TS};const H=HOUSES[h.t],w=H.iw,hh=H.ih,t=grid(w,hh,'g');rect(t,1,2,w-2,hh-3,'h');const K=homeKey();
@@ -4403,7 +4410,7 @@ $('tutPrev').onclick=()=>{if(TS2.i>0){TS2.i--;tutShow();}};
 $('tutSkip').onclick=()=>tutEnd();
 addEventListener('resize',()=>{if(!$('tut').classList.contains('hidden'))tutShow();});
 // 📜 패치노트: 새 패치가 나오면 처음 한 번만 띄운다 (이 기기 기준)
-const PATCH={v:'2026-11-28d',title:'📜 패치노트 · 11월 28일',lines:['🏠 끝없는 평야 입구의 「집·농사 상인 한씨」에게서 집을 살 수 있어요 · 텐트 70만 ~ 대저택 10억 · 평야 아무 데나 세우고 들어가 쉴 수 있어요 (비쌀수록 안이 넓어요)','🟫 집 옆 땅을 사서 농사! (첫 땅 1만, 살 때마다 1.5배, 최대 60평) · 거두면 1~3개 · 💧 반쯤 자라면 물을 줘야 끝까지 자라요 (안 주면 멈출 뿐 죽지 않아요)','📦 집 안 상자에 물건 보관 (텐트 10칸 ~ 대저택 200칸) · 🪜 저택·대저택은 2층 · ⚠ 집은 한 번 세우면 못 옮겨요 · 남의 집 근처(대저택+밭 크기)에는 못 지어서 언제든 더 큰 집으로 바꿀 수 있어요','💰 규칙이 바뀌어서 지금까지 산 집·땅 값은 전부 돌려드렸어요','🍳 작물 요리 8가지 추가 (요리사 쿡 · 집 안 부엌) · 집 침대에서 자면 체력·마나가 가득 차요','🥚 보스를 잡으면 0.5% 확률로 「보스알」이 나와요 · 그 지역 재료를 먹이로 주면 깨어나 Lv20까지 자라고, 근처 적을 자동으로 공격해요',
+const PATCH={v:'2026-11-28e',title:'📜 패치노트 · 11월 28일',lines:['🏠 끝없는 평야 입구의 「집·농사 상인 한씨」에게서 집을 살 수 있어요 · 텐트 70만 ~ 대저택 10억 · 평야 아무 데나 세우고 들어가 쉴 수 있어요 (비쌀수록 안이 넓어요)','🟫 집 옆 땅을 사서 농사! (첫 땅 1만, 살 때마다 1.5배, 최대 60평) · 거두면 1~3개 · 💧 반쯤 자라면 물을 줘야 끝까지 자라요 (안 주면 멈출 뿐 죽지 않아요)','📦 집 안 상자에 물건 보관 (텐트 10칸 ~ 대저택 200칸) · 🪜 저택·대저택은 2층 · 🚚 집은 언제든 옮길 수 있어요 · 남의 집 근처(대저택+밭 크기)에는 못 지어서 집이 겹치지 않아요','💰 규칙이 바뀌어서 지금까지 산 집·땅 값은 전부 돌려드렸어요','🍳 작물 요리 8가지 추가 (요리사 쿡 · 집 안 부엌) · 집 침대에서 자면 체력·마나가 가득 차요','🥚 보스를 잡으면 0.5% 확률로 「보스알」이 나와요 · 그 지역 재료를 먹이로 주면 깨어나 Lv20까지 자라고, 근처 적을 자동으로 공격해요',
  '🐾 보스가 Lv15가 되면 올라탈 수 있어요 (이동 속도 150%)',
  '🕸 거미 지역 장비가 생겼어요 · 대장장이 제작에서 거미 무기(모든 직업)와 거미줄 갑옷을 만들 수 있어요','💣 개틀링건(3차) 새 스킬 「폭탄 포탑」',
  '🔫 레인저 기본 공격 피해 1.5배',
