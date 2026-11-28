@@ -738,6 +738,7 @@ const QUESTS=[
 ];
 
 // ================= 맵 생성 =================
+const AUCX=33.5,AUCY=21.8; // 경매인 자리 (분수 오른쪽 위)
 const SOLID=new Set(['g','C','I','D','M','Z','O','A','N','J','V','Y','Q','c','T','X','#','~','H','R','B','U','G','K','d','W','r','F','L','b']);
 function grid(w,h,c){return Array.from({length:h},()=>Array(w).fill(c));}
 function rect(t,x0,y0,w,h,c){for(let y=y0;y<y0+h;y++)for(let x=x0;x<x0+w;x++)if(t[y]&&t[y][x]!==undefined)t[y][x]=c;}
@@ -777,6 +778,7 @@ house(20,38,6,'B');house(38,38,6,'R');house(48,38,6,'U');
   {x:33.5*TS,y:18.7*TS,name:'결투 심판 바론',type:'duel',color:'#4e342e',hat:'#b71c1c',hatType:'helm'},
   {x:28.2*TS,y:51.9*TS,type:'prop',w:62,h:26,stand:12,bg:'#8f7118',edge:'#5d4037',lines:[['↑ 은행 입구',10,'#fffde7']]},
   {x:14.8*TS,y:34.3*TS,type:'prop',w:96,h:28,stand:16,bg:'#8b5a2b',edge:'#5d3a1a',wood:1,lines:[['← 들어오는 곳',11,'#fff3e0']]},
+  {x:AUCX*TS,y:AUCY*TS,name:'경매인 하몬',type:'auction',color:'#4a148c',hat:'#ffd740',hatType:'wiz',beard:1},
   {x:40.5*TS,y:33.4*TS,name:'요리사 쿡',type:'cook',color:'#fafafa',hat:'#fff',hatType:'cap'},
   {x:33.5*TS,y:24.6*TS,name:'작명가 렌',type:'nick',color:'#00838f',hat:'#004d56',hatType:'wiz'},
   {x:27.5*TS,y:17.7*TS,name:'소식통 할아범',type:'rank',color:'#455a64',hat:'#263238',hatType:'cap',sit:1},
@@ -1395,7 +1397,6 @@ function calc(){
  s.hp=Math.round(s.hp);s.mp=Math.round(s.mp);s.atk=Math.round(s.atk);s.def=Math.round(s.def);
  s.hpr*=.5;s.mpr*=.5; // 회복 속도 절반 (2배 느리게)
  const pt=P.pts||{def:0,patk:0,matk:0};s.def+=pt.def;s.patk=s.atk+pt.patk;s.matk=s.atk+pt.matk;s.hatk=s.atk+2*Math.min(pt.patk,pt.matk)+Math.round(Math.abs(pt.patk-pt.matk)/3); // 반반 직업: 물리·마법을 고르게 찍어야 강하다
- if(P.name==='왕정훈 본계'||NET.nick==='hanback0820')s.hp=1; // 이 캐릭터는 최대 체력 1
  P.st=s;P.wf=wFacOf(P.eq.weapon&&P.eq.weapon.id,P.lv);P.hp=Math.min(P.hp,s.hp);P.mp=Math.min(P.mp,s.mp);
 }
 const CAP=200; // 레벨 제한 (관리자 제외)
@@ -2029,6 +2030,55 @@ function drawFurn(n){const x=n.x,y=n.ry,k=n.k;
  else if(k==='stair'){for(let i=0;i<5;i++){px(x-22+i*2,y-8-i*9,44-i*4,9,i%2?'#8d6e63':'#a1887f');px(x-22+i*2,y-8-i*9,44-i*4,2,'#d7ccc8');}px(x-24,y-50,3,50,'#5d4037');px(x+21,y-50,3,50,'#5d4037');label(n.down?'⬇ 1층':'⬆ 2층',x,y-56,'#ffe9a8');}
  else if(k==='aqua'){px(x-28,y-40,56,36,'#5d4037');px(x-26,y-38,52,30,'#4fc3f7');px(x-26,y-38,52,4,'#b3e5fc');for(let i=0;i<3;i++){const fx=x-20+((gameT*(12+i*5)+i*17)%40),fy=y-30+i*7;px(fx,fy,6,3,['#ff7043','#ffd740','#f06292'][i]);px(fx-2,fy,2,3,['#ff7043','#ffd740','#f06292'][i]);}px(x-26,y-12,52,4,'#c2b280');}}
 const CROPSPR={potato:'potato',carrot:'carrot',tomato:'tomato',corn:'corn',strawberry:'berry',watermelon:'melon',pumpkin:'pumpkin',goldapple:'apple'};
+// ===== 경매장 (분수 옆 경매인) =====
+const AUC_DUR=[[60,'1분'],[1200,'20분'],[3600,'1시간'],[43200,'12시간']];
+const AUC_BAN=new Set(['dalkong']); // 올릴 수 없는 물건
+const AUCV={v:'list',list:[],off:0,sel:null,dur:3600,busy:0};
+async function aucLoad(){if(!NET.token||!NET.srv)return;try{const r=await netApi('/api/rpg/auc');if(r.ok&&r.j){AUCV.list=Array.isArray(r.j.list)?r.j.list:[];AUCV.off=(+r.j.now||Date.now())-Date.now();}}catch(e){}if(menuTab==='auc'&&!$('menu').classList.contains('hidden'))renderMenu();}
+const aucLeft=r=>Math.max(0,(r.end-AUCV.off-Date.now())/1000);
+setInterval(()=>{if(menuTab!=='auc')return;let gone=0;document.querySelectorAll('.aucT').forEach(e=>{const l=aucLeft({end:+e.dataset.e});e.textContent=l>0?fmtS(l):'끝남';if(l<=0)gone=1;});if(gone&&!AUCV.busy&&gameT-(AUCV.rt||0)>5){AUCV.rt=gameT;aucLoad();}},1000);
+const aucNeed=r=>r.bid?Math.ceil(r.bid*1.05):r.start;
+function aucName(it){if(!it)return'?';if(it.k==='g')return ITEMS[it.id]?itemName({id:it.id,plus:it.plus|0}):esc(it.id);if(it.k==='m')return MATS[it.id]?matIcon(it.id,18)+' '+MATS[it.id][0]+' ×'+it.n:esc(it.id);return CONS[it.id]?consIcon(it.id,18)+' '+CONS[it.id][0]+' ×'+it.n:esc(it.id);}
+function aucHtml(){if(!NET.token||!NET.srv)return'<div>서버 계정으로 접속해야 경매장을 쓸 수 있어요</div>';
+ let h=`<div>💰 ${P.gold.toLocaleString()} G</div><div style="display:flex;gap:4px;flex-wrap:wrap;margin:6px 0">${[['list','📜 경매 목록'],['sell','➕ 물건 올리기'],['mine','🙋 내 경매']].map(([k,t])=>`<button class="btn ${AUCV.v===k?'gold':''}" data-av="${k}">${t}</button>`).join('')}<button class="btn" data-arf="1">🔄 새로고침</button></div>`;
+ const row=(l,r)=>`<div class="row" style="flex-wrap:wrap;gap:4px">${l}${r}</div>`;
+ if(AUCV.v==='list'){const L=AUCV.list.filter(r=>aucLeft(r)>0).sort((a,b)=>a.end-b.end);if(!L.length)h+='<div style="color:#b7a6d9">지금 올라온 물건이 없어요</div>';
+  for(const r of L){const mine=r.s===NET.uid,top=r.b===NET.uid,need=aucNeed(r);
+   h+=row(`<div class="t">${aucName(r.it)}<small>판매 ${esc(r.sn)} · ⏰ <span class="aucT" data-e="${r.end}">${fmtS(aucLeft(r))}</span> 남음</small><small>${r.bid?`현재 <b style="color:#ffe066">${r.bid.toLocaleString()} G</b> · ${esc(r.bn)}${top?' (나)':''}`:`시작가 ${r.start.toLocaleString()} G · 아직 입찰 없음`}</small></div>`,
+    mine?'<span style="font-size:11px;color:#b7a6d9">내 물건</span>':top?'<span style="font-size:11px;color:#7dff7d">✔ 최고 입찰 중</span>':`<input type="number" class="aucIn" id="ab_${r.id}" value="${need}" min="${need}" style="width:100px"><button class="btn gold" data-abid="${r.id}">입찰</button>`);}
+  h+=`<div style="font-size:11px;color:#8d7bb3;margin-top:6px">입찰하면 돈이 바로 맡겨지고, 더 높은 입찰이 오면 돌려받아요 · 다음 입찰은 5% 이상 높게 · 끝나기 30초 안에 입찰하면 30초 연장 · 낙찰 물건과 판매 대금(수수료 5%)은 자동으로 들어와요</div>`;}
+ else if(AUCV.v==='sell'){const S=AUCV.sel;
+  if(S){h+=`<div style="color:#ffe9a8">올릴 물건: ${aucName({k:S.k,id:S.id,plus:S.plus,n:S.max})}</div>`;
+   if(S.k!=='g')h+=`<div style="margin-top:6px">개수 <input type="number" class="aucIn" id="aucN" value="${S.n||S.max}" min="1" max="${S.max}" style="width:90px"> / ${S.max}</div>`;
+   h+=`<div style="margin-top:6px">시작가 <input type="number" class="aucIn" id="aucP" value="${S.price||1000}" min="1" style="width:130px"> G</div><div style="margin-top:6px">기간 ${AUC_DUR.map(([d,t])=>`<button class="btn ${AUCV.dur===d?'gold':''}" data-adur="${d}">${t}</button>`).join(' ')}</div>
+   <div style="margin-top:8px;display:flex;gap:6px"><button class="btn gold" data-ago="1">🔨 경매에 올리기</button><button class="btn" data-acx="1">다른 물건 고르기</button></div><div style="font-size:11px;color:#8d7bb3;margin-top:4px">올리면 가방에서 빠져요 · 아무도 입찰 안 하면 끝날 때 돌려받아요 · 한 사람당 10개까지</div>`;}
+  else{h+='<div style="color:#ffe9a8">무엇을 올릴까요?</div>';let a=0;
+   P.bag.forEach((e,i)=>{if(!ITEMS[e.id]||AUC_BAN.has(e.id))return;a=1;h+=row(`<div class="t">${itemName(e)}</div>`,`<button class="btn" data-asel="g:${i}">고르기</button>`);});
+   for(const k in P.mats)if(P.mats[k]>0&&MATS[k]){a=1;h+=row(`<div class="t">${matIcon(k,20)} ${MATS[k][0]} <span style="color:#b7a6d9;font-size:11px">×${P.mats[k]}</span></div>`,`<button class="btn" data-asel="m:${k}">고르기</button>`);}
+   for(const k in P.pots)if(P.pots[k]>0&&CONS[k]){a=1;h+=row(`<div class="t">${consIcon(k,20)} ${CONS[k][0]} <span style="color:#b7a6d9;font-size:11px">×${P.pots[k]}</span></div>`,`<button class="btn" data-asel="p:${k}">고르기</button>`);}
+   if(!a)h+='<div style="color:#b7a6d9">올릴 물건이 없어요 (장착 중인 장비는 빼고 올려 주세요)</div>';}}
+ else{const L=AUCV.list.filter(r=>r.s===NET.uid||r.b===NET.uid);if(!L.length)h+='<div style="color:#b7a6d9">올리거나 입찰한 경매가 없어요</div>';
+  for(const r of L){const mine=r.s===NET.uid;h+=row(`<div class="t">${aucName(r.it)}<small>${mine?'내가 올림':'내가 최고 입찰'} · ⏰ <span class="aucT" data-e="${r.end}">${fmtS(aucLeft(r))}</span> 남음</small><small>${r.bid?`현재 ${r.bid.toLocaleString()} G · ${esc(r.bn)}`:`시작가 ${r.start.toLocaleString()} G · 입찰 없음`}</small></div>`,mine&&!r.bid?`<button class="btn" data-acan="${r.id}">취소</button>`:'');}}
+ return h;}
+function aucErr(e){return{low:'다른 사람이 먼저 더 높게 입찰했어요. 새로고침해 주세요',gone:'이미 끝난 경매예요',self:'내 물건에는 입찰할 수 없어요',top:'이미 최고 입찰자예요',max:'경매는 한 사람당 10개까지 올릴 수 있어요',has_bid:'입찰이 들어온 경매는 취소할 수 없어요',too_many_requests:'너무 빨라요. 잠시 뒤에 해 주세요'}[e]||'잠시 뒤에 다시 해 주세요';}
+function aucBind(B){const on=(a,f)=>B.querySelectorAll('['+a+']').forEach(b=>b.onclick=()=>f(b.getAttribute(a)));
+ on('data-av',v=>{AUCV.v=v;renderMenu();});on('data-arf',()=>aucLoad());on('data-adur',v=>{const p=$('aucP'),q=$('aucN');if(p&&AUCV.sel)AUCV.sel.price=+p.value;if(q&&AUCV.sel)AUCV.sel.n=+q.value;AUCV.dur=+v;renderMenu();});on('data-acx',()=>{AUCV.sel=null;renderMenu();});
+ on('data-asel',v=>{const[k,id]=v.split(':');if(k==='g'){const e=P.bag[+id];if(!e)return;AUCV.sel={k,i:+id,id:e.id,plus:e.plus|0,max:1};}else{const src=k==='m'?P.mats:P.pots;AUCV.sel={k,id,max:src[id]|0};}renderMenu();});
+ on('data-ago',async()=>{const S=AUCV.sel;if(!S||AUCV.busy)return;if(inDebt()){toast('💳 Lv100 전에는 빚이 있으면 경매장을 쓸 수 없어요');return;}
+  const n=S.k==='g'?1:Math.floor(+($('aucN')||{}).value||0),price=Math.floor(+($('aucP')||{}).value||0);
+  if(!(price>=1)){toast('시작가를 1 G 이상으로 정해 주세요');return;}
+  if(S.k==='g'){const e=P.bag[S.i];if(!e||e.id!==S.id||(e.plus|0)!==S.plus){toast('그 물건이 가방에 없어요');AUCV.sel=null;renderMenu();return;}}
+  else{const src=S.k==='m'?P.mats:P.pots;if(!(n>=1)||n>(src[S.id]|0)){toast('개수를 다시 확인해 주세요');return;}}
+  AUCV.busy=1;const r=await netApi('/api/rpg/auc/list',{it:{k:S.k,id:S.id,plus:S.plus,n},start:price,dur:AUCV.dur,n:P.name}).catch(()=>({}));AUCV.busy=0;
+  if(!r.ok){toast('🔨 '+aucErr(r.j&&r.j.error));return;}
+  if(S.k==='g')P.bag.splice(S.i,1);else{const src=S.k==='m'?P.mats:P.pots;src[S.id]-=n;}
+  AUCV.sel=null;AUCV.v='mine';sfx('coin');toast('🔨 경매에 올렸어요! ('+AUC_DUR.find(d=>d[0]===AUCV.dur)[1]+')');save(true);try{netFlush();}catch(e){}aucLoad();});
+ on('data-abid',async id=>{if(AUCV.busy)return;if(inDebt()){toast('💳 Lv100 전에는 빚이 있으면 경매장을 쓸 수 없어요');return;}const r0=AUCV.list.find(x=>x.id===id);if(!r0)return;const amt=Math.floor(+(($('ab_'+id)||{}).value)||0);
+  if(amt<aucNeed(r0)){toast(`최소 ${aucNeed(r0).toLocaleString()} G 이상 입찰해야 해요`);return;}if(P.gold<amt){toast('💰 골드가 모자라요');return;}
+  AUCV.busy=1;const r=await netApi('/api/rpg/auc/bid',{id,amt,n:P.name}).catch(()=>({}));AUCV.busy=0;
+  if(!r.ok){toast('🔨 '+aucErr(r.j&&r.j.error));aucLoad();return;}
+  P.gold-=amt;sfx('coin');toast(`🔨 ${amt.toLocaleString()} G 입찰! (더 높은 입찰이 오면 돌려받아요)`);save(true);try{netFlush();}catch(e){}aucLoad();});
+ on('data-acan',async id=>{const r=await netApi('/api/rpg/auc/cancel',{id}).catch(()=>({}));if(!r.ok){toast('🔨 '+aucErr(r.j&&r.j.error));return;}toast('경매를 취소했어요 · 물건은 곧 돌아와요');aucLoad();});}
 // ===== 탈것 =====
 const VEH={kick:{name:'킥보드',ic:'🛴',price:150000,spd:.1,seats:0,up:4,ped:1},fixie:{name:'픽시',ic:'🚲',price:1500000,spd:.3,seats:0,up:9,ped:1},moto:{name:'오토바이',ic:'🏍',price:5000000,spd:.5,seats:1,up:10},bonggu:{name:'봉구차',ic:'🚐',price:10000000,spd:.7,seats:2,up:20,car:1},lambo:{name:'람보르기니',ic:'🏎',price:100000000,spd:1,seats:2,up:5,car:1},heli:{name:'헬기',ic:'🚁',price:1000000000,spd:1.5,seats:2,up:16}};
 const seatOff=(v,seat)=>v==='moto'?15:12+12*seat;
@@ -3408,6 +3458,7 @@ function interact(){
  if(paused||P.dead)return;if(P.rideOn){if(NET.sock)NET.sock.emit('ride:off');P.rideOn=null;toast('내렸어요');return;}const n=nearNpc();if(!n){const nd=nearDriver();if(nd&&NET.sock&&gameT-(P.rideAsk||0)>1){P.rideAsk=gameT;NET.sock.emit('ride',{to:nd});}return;}
  if(n.type==='sign'){signTalk(n);return;}
  if(n.type==='homenpc'){homeTalk(n);return;}
+ if(n.type==='auction'){dialog(n.name,['어서 오시게! 여기는 경매장이라네.','물건을 올리고 1분 · 20분 · 1시간 · 12시간 중에 기간을 고르면, 가장 높게 부른 사람에게 팔리지.','낙찰된 물건과 판 돈은 자동으로 들어온다네. 수수료는 5%일세.'],[{t:'🔨 경매장',c:'gold',f:()=>{AUCV.v='list';openMenu('auc');aucLoad();}},{t:'나가기'}]);return;}
  if(n.type==='plot'){plotTalk(n);return;}
  if(n.type==='furn'){furnUse(n);return;}
  if(n.type==='spiritnpc'){spiritTalk(n);return;}
@@ -3757,10 +3808,11 @@ function renderMenu(){
  if(menuTab==='cook')tabs.splice(0,9,['cook','🍳 요리']);
  if(menuTab==='home')tabs.splice(0,9,['home','🏠 집·농사']);
  if(menuTab==='chest')tabs.splice(0,9,['chest','📦 상자']);
+ if(menuTab==='auc')tabs.splice(0,9,['auc','🔨 경매장']);
  if(menuTab==='smith')tabs.splice(0,9,['smith','🔨 강화']);
  if(menuTab==='bank')tabs.splice(0,9,['bank','🏦 은행']);
  if(menuTab==='slot'||menuTab==='roul')tabs.splice(0,9,['slot','🎰 슬롯머신'],['roul','🎡 빙글판']);
- $('mTitle').textContent={bank:'🏦 도박 은행',smith:'대장장이 볼프의 모루',slot:'🎰 카지노',roul:'🎰 카지노',cook:map&&map.home?'🍳 우리 집 부엌':'요리사 쿡의 요리점',home:'🏠 집 · 농사',chest:'📦 우리 집 상자',sign:'📋 '+(signKey==='sea'?'해저마을':'평화의 마을')+' 표지판',shop:'상점',sell:'상점',gamble:'도박장',book:'아르카의 마법 도서관',equip:'인벤토리',nick:'작명가 렌',title:'칭호',map:'지도',craft:'대장장이 볼프의 대장간',daily:'의뢰 게시판',fish:'낚시',trade:'거래',party:'파티'}[menuTab]||'메뉴';
+ $('mTitle').textContent={bank:'🏦 도박 은행',smith:'대장장이 볼프의 모루',slot:'🎰 카지노',roul:'🎰 카지노',cook:map&&map.home?'🍳 우리 집 부엌':'요리사 쿡의 요리점',home:'🏠 집 · 농사',chest:'📦 우리 집 상자',auc:'🔨 분수 옆 경매장',sign:'📋 '+(signKey==='sea'?'해저마을':'평화의 마을')+' 표지판',shop:'상점',sell:'상점',gamble:'도박장',book:'아르카의 마법 도서관',equip:'인벤토리',nick:'작명가 렌',title:'칭호',map:'지도',craft:'대장장이 볼프의 대장간',daily:'의뢰 게시판',fish:'낚시',trade:'거래',party:'파티'}[menuTab]||'메뉴';
  $('mTabs').innerHTML=tabs.map(t=>`<button class="${t[0]===menuTab?'on':''}" data-t="${t[0]}">${t[1]}</button>`).join('');
  $('mTabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{menuTab=b.dataset.t;renderMenu();});
  const B=$('mBody');calc();const s=P.st;let h='';
@@ -3788,6 +3840,7 @@ function renderMenu(){
  }else if(menuTab==='roul'){h=roulHtml();
  }else if(menuTab==='home'){h=homeHtml();
  }else if(menuTab==='chest'){h=chestHtml();
+ }else if(menuTab==='auc'){h=aucHtml();
  }else if(menuTab==='cook'){h=cookHtml();
  }else if(menuTab==='sign'){h=signHtml();
  }else if(menuTab==='party'){h=partyHtml();
@@ -3879,6 +3932,7 @@ function renderMenu(){
  if(menuTab==='cook')cookBind(B);
  if(menuTab==='home')homeBind(B);
  if(menuTab==='chest')chestBind(B);
+ if(menuTab==='auc')aucBind(B);
  if(menuTab==='smith'){B.querySelectorAll('[data-smith]').forEach(b=>b.onclick=()=>smithDo(b.dataset.smith));B.querySelectorAll('[data-conv]').forEach(b=>b.onclick=()=>convDo(b.dataset.conv));const cv=$('anvilCv');const e=P.eq.weapon||P.eq.armor;if(cv)drawAnvil(cv.getContext('2d'),{t:0,ham:-1.1,sp:[],it:e?ITEMS[e.id]:null});}
  if(menuTab==='slot')slotBind(B);if(menuTab==='roul')roulBind(B);if(menuTab==='bank')bankBind(B);
  const ag=$('annGo');if(ag)ag.onclick=()=>{const v=($('annIn').value||'').trim();if(!v)return;if(NET.sock)NET.sock.emit('ann',v.slice(0,60));$('annIn').value='';toast('📢 공지를 보냈어요');};
@@ -4341,7 +4395,7 @@ function adminGift(){P.flags.admin=1;const up=Math.max(0,999-P.lv);P.lv=Math.max
  if(!(P.eq.weapon&&P.eq.weapon.id==='catsword')){if(P.eq.weapon)P.bag.push(P.eq.weapon);P.eq.weapon={id:'catsword',plus:0};}
  calc();P.hp=P.st.hp;P.mp=P.st.mp;autoLearn(true);setTimeout(()=>{toast('👑 관리자 보상 지급!');log('👑 Lv999 · 999,999G · 🐱 고양이 소드');save(true);},800);}
 // 운영자가 계정에 준 보상(레벨 등)을 한 번만 적용
-const GRANT_KEYS=['id','items','veh','lv','title','keep','setLv','lvAdd','sp','ap','spDown','apDown','goldMul','goldAdd','item','setCls','recalc','cons','mats','clearDebt'];
+const GRANT_KEYS=['id','items','veh','lv','title','keep','setLv','lvAdd','sp','ap','spDown','apDown','goldMul','goldAdd','item','setCls','recalc','cons','mats','clearDebt','auc'];
 function take2x(){if(P&&P.flags&&!P.flags.take2x1){P.flags.take2x1=1;const n=(P.pots.xp2||0)+(P.pots.gold2||0);delete P.pots.xp2;delete P.pots.gold2;P.x2u=0;P.g2u=0;if(P.quick==='xp2'||P.quick==='gold2')P.quick='';if(n)setTimeout(()=>{toast('📢 운영자가 2배권을 모두 회수했어요');log('📢 운영자가 경험치·골드 2배권 '+n+'장을 회수했어요');},2500);}}
 function monReset(){if(P&&P.flags&&!P.flags.monReset1){P.flags.monReset1=1;if(P.monN){P.monN=0;calc();}}}
 function changeCls(c){let back=0;for(const id in P.skl){if(/^u\d+$/.test(id)||/^special\d+$/.test(id))continue;back+=P.skl[id]-1;delete P.skl[id];}P.sp+=back;P.slots=P.slots.map(id=>id&&P.skl[id]?id:null);const w=P.eq.weapon;if(w&&ITEMS[w.id]&&ITEMS[w.id].cls){P.bag.push(w);P.eq.weapon={id:'w_'+c+'1',plus:0};}P.cls=c;P.job='';P.job3='';calc();autoLearn(true);spirits=[];}
@@ -4353,6 +4407,9 @@ function applyGrants(){const list=NET.grants;NET.grants=[];P.gotG=Array.isArray(
   if(g.setCls&&CLASSES[g.setCls]&&P.cls!==g.setCls){changeCls(g.setCls);setTimeout(()=>toast('🧚 직업이 '+CLASSES[g.setCls].name+'(으)로 바뀌었어요'),2400);}
   if(g.mats&&typeof g.mats==='object'){const got=[];for(const k in g.mats)if(MATS[k]){const n=Math.max(0,Math.min(999,Math.round(+g.mats[k]||0)));if(n){P.mats[k]=(P.mats[k]||0)+n;got.push(MATS[k][1]+' '+MATS[k][0]+' ×'+n);}}if(got.length)setTimeout(()=>{toast('🎁 운영자 지급: '+got.join(', '));log('🎁 운영자 지급: '+got.join(', '));},3000);}
   if(g.cons&&typeof g.cons==='object'){const got=[];for(const k in g.cons)if(CONS[k]){const n=Math.max(0,Math.min(99,Math.round(+g.cons[k]||0)));if(n){P.pots[k]=(P.pots[k]||0)+n;got.push(CONS[k][3]+' '+CONS[k][0]+' ×'+n);}}if(got.length)setTimeout(()=>{toast('🎁 운영자 지급: '+got.join(', '));log('🎁 운영자 지급: '+got.join(', ')+' (인벤토리 → 소모품에서 사용)');},2600);}
+  if(g.auc&&typeof g.auc==='object'){const a=g.auc,got=[];if(a.gold>0){P.gold+=Math.round(a.gold);got.push('💰 '+Math.round(a.gold).toLocaleString()+' G');}const it=a.it;
+   if(it&&typeof it==='object'){const n=Math.max(1,Math.round(+it.n||1));if(it.k==='g'&&ITEMS[it.id]){P.bag.push({id:it.id,plus:Math.max(0,Math.min(20,it.plus|0))});got.push(ITEMS[it.id].name+(it.plus?' +'+it.plus:''));}else if(it.k==='m'&&MATS[it.id]){P.mats[it.id]=(P.mats[it.id]||0)+n;got.push(MATS[it.id][0]+' ×'+n);}else if(it.k==='p'&&CONS[it.id]){P.pots[it.id]=(P.pots[it.id]||0)+n;got.push(CONS[it.id][0]+' ×'+n);}}
+   const msg=String(a.msg||'경매').slice(0,80);setTimeout(()=>{toast('🔨 '+msg);log('🔨 '+msg+(got.length?' — '+got.join(', '):''));sfx('win');},1200);if(menuTab==='auc')aucLoad();}
   if(g.clearDebt){const B=P.bank;if(B){B.loan=0;B.prin=0;delete B.lt;}P.labor=0;$('laborBox')&&$('laborBox').classList.add('hidden');setTimeout(()=>{toast('🎁 운영자가 빚을 모두 없애 줬어요');log('🎁 운영자가 빚을 모두 없애 줬어요 (이제 거래·광산 나가기 가능)');},2200);}
   if(g.goldAdd>0){P.gold+=Math.round(g.goldAdd);setTimeout(()=>{toast('💰 운영자 지급: '+Math.round(g.goldAdd).toLocaleString()+' G');log('💰 운영자 지급 '+Math.round(g.goldAdd).toLocaleString()+' G');},1800);}
   if(g.setLv||g.lvAdd||g.goldMul!=null||g.sp!=null||g.ap!=null||g.spDown||g.apDown){
@@ -4410,7 +4467,7 @@ $('tutPrev').onclick=()=>{if(TS2.i>0){TS2.i--;tutShow();}};
 $('tutSkip').onclick=()=>tutEnd();
 addEventListener('resize',()=>{if(!$('tut').classList.contains('hidden'))tutShow();});
 // 📜 패치노트: 새 패치가 나오면 처음 한 번만 띄운다 (이 기기 기준)
-const PATCH={v:'2026-11-28e',title:'📜 패치노트 · 11월 28일',lines:['🏠 끝없는 평야 입구의 「집·농사 상인 한씨」에게서 집을 살 수 있어요 · 텐트 70만 ~ 대저택 10억 · 평야 아무 데나 세우고 들어가 쉴 수 있어요 (비쌀수록 안이 넓어요)','🟫 집 옆 땅을 사서 농사! (첫 땅 1만, 살 때마다 1.5배, 최대 60평) · 거두면 1~3개 · 💧 반쯤 자라면 물을 줘야 끝까지 자라요 (안 주면 멈출 뿐 죽지 않아요)','📦 집 안 상자에 물건 보관 (텐트 10칸 ~ 대저택 200칸) · 🪜 저택·대저택은 2층 · 🚚 집은 언제든 옮길 수 있어요 · 남의 집 근처(대저택+밭 크기)에는 못 지어서 집이 겹치지 않아요','💰 규칙이 바뀌어서 지금까지 산 집·땅 값은 전부 돌려드렸어요','🍳 작물 요리 8가지 추가 (요리사 쿡 · 집 안 부엌) · 집 침대에서 자면 체력·마나가 가득 차요','🥚 보스를 잡으면 0.5% 확률로 「보스알」이 나와요 · 그 지역 재료를 먹이로 주면 깨어나 Lv20까지 자라고, 근처 적을 자동으로 공격해요',
+const PATCH={v:'2026-11-28f',title:'📜 패치노트 · 11월 28일',lines:['🔨 마을 분수 옆에 「경매인 하몬」의 경매장이 생겼어요 · 장비·재료·아이템을 올리고 1분/20분/1시간/12시간 중 기간을 골라요 · 가장 높게 부른 사람에게 팔려요 (수수료 5%)','🏠 끝없는 평야 입구의 「집·농사 상인 한씨」에게서 집을 살 수 있어요 · 텐트 70만 ~ 대저택 10억 · 평야 아무 데나 세우고 들어가 쉴 수 있어요 (비쌀수록 안이 넓어요)','🟫 집 옆 땅을 사서 농사! (첫 땅 1만, 살 때마다 1.5배, 최대 60평) · 거두면 1~3개 · 💧 반쯤 자라면 물을 줘야 끝까지 자라요 (안 주면 멈출 뿐 죽지 않아요)','📦 집 안 상자에 물건 보관 (텐트 10칸 ~ 대저택 200칸) · 🪜 저택·대저택은 2층 · 🚚 집은 언제든 옮길 수 있어요 · 남의 집 근처(대저택+밭 크기)에는 못 지어서 집이 겹치지 않아요','💰 규칙이 바뀌어서 지금까지 산 집·땅 값은 전부 돌려드렸어요','🍳 작물 요리 8가지 추가 (요리사 쿡 · 집 안 부엌) · 집 침대에서 자면 체력·마나가 가득 차요','🥚 보스를 잡으면 0.5% 확률로 「보스알」이 나와요 · 그 지역 재료를 먹이로 주면 깨어나 Lv20까지 자라고, 근처 적을 자동으로 공격해요',
  '🐾 보스가 Lv15가 되면 올라탈 수 있어요 (이동 속도 150%)',
  '🕸 거미 지역 장비가 생겼어요 · 대장장이 제작에서 거미 무기(모든 직업)와 거미줄 갑옷을 만들 수 있어요','💣 개틀링건(3차) 새 스킬 「폭탄 포탑」',
  '🔫 레인저 기본 공격 피해 1.5배',
